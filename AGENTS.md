@@ -21,6 +21,12 @@ Avoid starting the dev server while making changes (i.e. do not run `pnpm dev`)
 - Place reusable components in a `components/` folder.
 - Prefer existing ShadCN components to writing your own. If you have to, then your custom component should make use of any existing ShadCN components where possible
 
+## Localization
+
+- For any visible text, use localizations in a localization folder
+- All text should be in a types file in the localization folder
+- Whatever languages are present in this folder should have an entry added to it
+
 ## Styling
 
 - Use TailwindCSS for styles
