@@ -1,103 +1,283 @@
-import Image from "next/image";
+"use client";
+
+import { ActiveFilters } from "@/components/ActiveFilters";
+import { CampDetailDialog } from "@/components/CampDetailDialog";
+import { CampFilters } from "@/components/CampFilters";
+import { CampList } from "@/components/CampList";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { SearchBar } from "@/components/SearchBar";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { camps as allCamps } from "@/data/camps";
+import {
+  filterCamps,
+  getUniqueBoroughs,
+  getUniqueLanguages,
+  sortCamps,
+} from "@/lib/filterCamps";
+import { useTranslation } from "@/localization/useTranslation";
+import { Camp, FilterState, SortOption, ViewMode } from "@/types/camp";
+import { List, Map, Menu, X } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useMemo, useState } from "react";
+
+// Dynamically import CampMap to avoid SSR issues with Leaflet
+const CampMap = dynamic(
+  () => import("@/components/CampMap").then((mod) => mod.CampMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[600px] bg-muted rounded-lg flex items-center justify-center">
+        <p className="text-muted-foreground">Loading map...</p>
+      </div>
+    ),
+  }
+);
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { t, language } = useTranslation();
+  const [filters, setFilters] = useState<FilterState>({
+    searchQuery: "",
+    campType: "all",
+    boroughs: [],
+    hasFinancialAid: null,
+    selectedLanguages: [],
+  });
+  const [sortBy, setSortBy] = useState<SortOption>("alphabetical");
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [selectedCamp, setSelectedCamp] = useState<Camp | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  const handleViewDetails = (camp: Camp) => {
+    setSelectedCamp(camp);
+    setIsDialogOpen(true);
+  };
+
+  const filteredCamps = useMemo(() => {
+    const filtered = filterCamps(allCamps, filters);
+    return sortCamps(filtered, sortBy);
+  }, [filters, sortBy]);
+
+  const availableBoroughs = useMemo(() => getUniqueBoroughs(allCamps), []);
+  const availableLanguages = useMemo(() => getUniqueLanguages(allCamps), []);
+
+  const handleSearchSelect = (camp: Camp) => {
+    setFilters({ ...filters, searchQuery: "" });
+    handleViewDetails(camp);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+      {/* Header */}
+      <header className="border-b bg-card/95 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+                {t.appName}
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {language === "fr"
+                  ? "Trouvez le camp parfait pour votre famille"
+                  : "Find the perfect camp for your family"}
+              </p>
+            </div>
+            <LanguageSwitcher />
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      </header>
+
+      <div className="container mx-auto px-4 py-8">
+        {/* Camp Type Tabs */}
+        <div className="mb-8">
+          <Tabs
+            value={filters.campType}
+            onValueChange={(value) =>
+              setFilters({
+                ...filters,
+                campType: value as FilterState["campType"],
+              })
+            }
+          >
+            <TabsList className="grid w-full max-w-md grid-cols-3 h-12">
+              <TabsTrigger value="all" className="text-base">
+                {language === "fr" ? "Tous" : "All Camps"}
+              </TabsTrigger>
+              <TabsTrigger value="day" className="text-base">
+                {t.campTypes.day}
+              </TabsTrigger>
+              <TabsTrigger value="vacation" className="text-base">
+                {t.campTypes.vacation}
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
+
+        {/* Search Bar */}
+        <div className="mb-8">
+          <SearchBar
+            camps={allCamps}
+            onSelectCamp={handleSearchSelect}
+            value={filters.searchQuery}
+            onValueChange={(value) =>
+              setFilters({ ...filters, searchQuery: value })
+            }
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Filters Sidebar - Desktop */}
+          <aside className="hidden lg:block">
+            <CampFilters
+              filters={filters}
+              onFilterChange={setFilters}
+              availableBoroughs={availableBoroughs}
+              availableLanguages={availableLanguages}
+            />
+          </aside>
+
+          {/* Mobile Filter Toggle */}
+          <div className="lg:hidden fixed bottom-6 right-6 z-40">
+            <Button
+              size="lg"
+              onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
+              className="rounded-full shadow-2xl h-14 w-14 p-0 border-2 border-primary/20 hover:scale-110 transition-transform"
+            >
+              {isMobileFilterOpen ? (
+                <X className="h-6 w-6" />
+              ) : (
+                <Menu className="h-6 w-6" />
+              )}
+            </Button>
+          </div>
+
+          {/* Mobile Filters Overlay */}
+          {isMobileFilterOpen && (
+            <div
+              className="lg:hidden fixed inset-0 bg-black/50 z-30"
+              onClick={() => setIsMobileFilterOpen(false)}
+            >
+              <div
+                className="absolute right-0 top-0 h-full w-80 bg-background p-4 overflow-y-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <CampFilters
+                  filters={filters}
+                  onFilterChange={(newFilters) => {
+                    setFilters(newFilters);
+                    setIsMobileFilterOpen(false);
+                  }}
+                  availableBoroughs={availableBoroughs}
+                  availableLanguages={availableLanguages}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Main Content */}
+          <main className="lg:col-span-3">
+            {/* Active Filters & Controls */}
+            <div className="mb-6 space-y-4 bg-card/50 backdrop-blur-sm rounded-lg p-4 border">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                {/* View Mode Toggle */}
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={viewMode === "list" ? "default" : "outline"}
+                    size="default"
+                    onClick={() => setViewMode("list")}
+                    className="gap-2"
+                  >
+                    <List className="h-4 w-4" />
+                    {t.views.list}
+                  </Button>
+                  <Button
+                    variant={viewMode === "map" ? "default" : "outline"}
+                    size="default"
+                    onClick={() => setViewMode("map")}
+                    className="gap-2"
+                  >
+                    <Map className="h-4 w-4" />
+                    {t.views.map}
+                  </Button>
+                </div>
+
+                {/* Sort Dropdown */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground whitespace-nowrap">
+                    {t.sorting.label}:
+                  </span>
+                  <Select
+                    value={sortBy}
+                    onValueChange={(value) => setSortBy(value as SortOption)}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="alphabetical">
+                        {t.sorting.alphabetical}
+                      </SelectItem>
+                      <SelectItem value="costLowToHigh">
+                        {t.sorting.costLowToHigh}
+                      </SelectItem>
+                      <SelectItem value="costHighToLow">
+                        {t.sorting.costHighToLow}
+                      </SelectItem>
+                      <SelectItem value="borough">
+                        {t.sorting.borough}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* Results Count */}
+              <div className="flex items-center justify-between pt-2 border-t">
+                <p className="text-sm font-medium">
+                  {t.results.showing}{" "}
+                  <span className="text-primary font-bold">
+                    {filteredCamps.length}
+                  </span>{" "}
+                  {t.results.camps} {t.results.of}{" "}
+                  <span className="font-bold">{allCamps.length}</span>
+                </p>
+              </div>
+
+              {/* Active Filters */}
+              <ActiveFilters filters={filters} onFilterChange={setFilters} />
+            </div>
+
+            {/* Content Views */}
+            {viewMode === "list" && (
+              <CampList
+                camps={filteredCamps}
+                onViewDetails={handleViewDetails}
+              />
+            )}
+            {viewMode === "map" && (
+              <CampMap
+                camps={filteredCamps}
+                onViewDetails={handleViewDetails}
+              />
+            )}
+          </main>
+        </div>
+      </div>
+
+      {/* Camp Detail Dialog */}
+      <CampDetailDialog
+        camp={selectedCamp}
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
     </div>
   );
 }

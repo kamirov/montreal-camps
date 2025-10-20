@@ -1,36 +1,179 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Montreal Camps Directory / Répertoire des Camps de Montréal
+
+A bilingual (English/French) web application to help families find summer and vacation camps in Greater Montreal, with special emphasis on options for families facing financial hardship.
+
+## Features
+
+### 🌍 Bilingual Support
+
+- Full English and French translations
+- Language switcher with persistent preference
+- Default to French (Montreal's primary language)
+
+### 🔍 Advanced Filtering
+
+- **Camp Type**: Day camps vs. Vacation camps
+- **Borough**: Filter by Montreal boroughs
+- **Languages**: Filter by camp languages (English, French, Spanish, etc.)
+- **Financial Aid**: Show only camps with financial assistance
+- **Search**: Free text search across camp names, boroughs, and activities
+
+### 📊 Multiple Views
+
+- **List View**: Grid of camp cards with key information
+- **Map View**: Interactive map showing camp locations
+- **Responsive**: Mobile-first design with adaptive layouts
+
+### 💡 Camp Information
+
+Each camp listing includes:
+
+- Name (Nom)
+- Age Range (Tranche d'âge)
+- Languages (Langues)
+- Dates
+- Hours (Heures) - for day camps only
+- Cost (Coût)
+- Financial Aid (Aide financière)
+- Website Link (Lien)
+- Phone (Tél)
+- Notes (Remarques)
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (React 19)
+- **Styling**: TailwindCSS v4
+- **UI Components**: ShadCN UI
+- **Icons**: Lucide React
+- **Maps**: React-Leaflet
+- **Testing**: Vitest + React Testing Library
+- **Type Safety**: TypeScript
+- **Package Manager**: pnpm
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 20+
+- pnpm
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+# Install dependencies
+pnpm install
+
+# Run development server
 pnpm dev
-# or
-bun dev
+
+# Open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Available Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# Development
+pnpm dev          # Start dev server with Turbopack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# Production
+pnpm build        # Build for production
+pnpm start        # Start production server
 
-## Learn More
+# Code Quality
+pnpm lint         # Run ESLint
+pnpm test         # Run tests in watch mode
+pnpm test:coverage # Run tests with coverage report
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Project Structure
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+montreal-camps/
+├── src/
+│   ├── app/              # Next.js app directory
+│   │   ├── layout.tsx    # Root layout with LocalizationProvider
+│   │   └── page.tsx      # Main camp directory page
+│   ├── components/       # React components
+│   │   ├── ui/           # ShadCN UI components
+│   │   ├── CampCard.tsx
+│   │   ├── CampDetailDialog.tsx
+│   │   ├── CampFilters.tsx
+│   │   ├── CampList.tsx
+│   │   ├── CampMap.tsx
+│   │   ├── SearchBar.tsx
+│   │   ├── ActiveFilters.tsx
+│   │   └── LanguageSwitcher.tsx
+│   ├── data/             # Sample camp data
+│   │   └── camps.ts
+│   ├── lib/              # Utility functions
+│   │   ├── filterCamps.ts
+│   │   └── utils.ts
+│   ├── localization/     # i18n system
+│   │   ├── types.ts
+│   │   ├── en.ts
+│   │   ├── fr.ts
+│   │   ├── context.tsx
+│   │   └── useTranslation.ts
+│   └── types/            # TypeScript type definitions
+│       └── camp.ts
+└── vitest.config.ts      # Test configuration
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Testing
 
-## Deploy on Vercel
+The project maintains >60% code coverage across:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Statements**: 71.11%
+- **Branches**: 82.88%
+- **Functions**: 62.79%
+- **Lines**: 71.11%
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Run tests with:
+
+```bash
+pnpm test:coverage
+```
+
+## Data Structure
+
+The application uses fake/sample data for demonstration. In production, this would be replaced with:
+
+- API integration for real camp data
+- Admin interface for data management
+- Database backend
+
+## Accessibility
+
+- Semantic HTML
+- ARIA labels
+- Keyboard navigation
+- Screen reader support
+- Bilingual content
+
+## Future Enhancements
+
+- User accounts and saved favorites
+- Advanced filtering (activities, special needs, etc.)
+- Camp capacity and availability
+- Online registration integration
+- Reviews and ratings
+- Photo galleries
+- Admin dashboard for camp organizations
+
+## License
+
+MIT
+
+## Contributing
+
+This is a demonstration project. For production use, please ensure:
+
+1. Real camp data integration
+2. Security audit
+3. Performance optimization
+4. Accessibility testing
+5. User testing with target audience
+
+---
+
+**Built with ❤️ for Montreal families**
