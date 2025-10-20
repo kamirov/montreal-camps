@@ -3,7 +3,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import {
   formatCost,
   formatDateRange,
@@ -113,31 +112,33 @@ export function CampCard({ camp }: CampCardProps) {
           </div>
         </div>
 
-        <Separator className="my-3" />
-
-        <div className="flex items-center gap-2.5 text-sm">
-          <Phone className="h-4 w-4 text-primary/70" />
-          <span className="font-medium">{camp.phone}</span>
-        </div>
-
-        <div className="flex items-center gap-2.5 text-sm">
-          <ExternalLink className="h-4 w-4 text-primary/70" />
-          <a
-            href={camp.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-medium text-primary hover:underline truncate cursor-pointer"
-          >
-            {(camp.link || "").replace(/^https?:\/\//, "")}
-          </a>
-        </div>
-
-        {camp.notes && (
-          <div className="flex items-start gap-2.5 text-sm pt-2">
-            <FileText className="h-4 w-4 text-primary/70 mt-0.5 shrink-0" />
-            <p className="text-xs text-muted-foreground italic">{camp.notes}</p>
+        <div className="mt-4 pt-3 space-y-3">
+          <div className="flex items-center gap-2.5 text-sm">
+            <Phone className="h-4 w-4 text-primary/70" />
+            <span className="font-medium">{camp.phone}</span>
           </div>
-        )}
+
+          <div className="flex items-center gap-2.5 text-sm">
+            <ExternalLink className="h-4 w-4 text-primary/70" />
+            <a
+              href={camp.link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary hover:underline truncate cursor-pointer"
+            >
+              {(camp.link || "").replace(/^https?:\/\//, "")}
+            </a>
+          </div>
+
+          {camp.notes && (
+            <div className="flex items-start gap-2.5 text-sm pt-2">
+              <FileText className="h-4 w-4 text-primary/70 mt-0.5 shrink-0" />
+              <p className="text-xs text-muted-foreground italic">
+                {camp.notes}
+              </p>
+            </div>
+          )}
+        </div>
 
         <div className="flex flex-wrap gap-2 pt-3">
           <Button

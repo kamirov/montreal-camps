@@ -26,14 +26,18 @@ export function CampColumns({ camps }: CampColumnsProps) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
       {/* Day Camps Column */}
       <div className="flex flex-col h-full">
-        <div className="mb-4 pb-3 border-b sticky top-0 bg-background z-10">
-          <h2 className="text-2xl font-bold text-primary">{t.campTypes.day}</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {dayCamps.length}{" "}
-            {dayCamps.length === 1
-              ? t.results.campSingular
-              : t.results.campPlural}
-          </p>
+        <div className="mb-6 pb-2 sticky top-0 bg-background z-10">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-primary">
+              {t.campTypes.day}
+            </h2>
+            <span className="text-sm font-medium text-muted-foreground bg-muted px-3 py-1 rounded-full">
+              {dayCamps.length}{" "}
+              {dayCamps.length === 1
+                ? t.results.campSingular
+                : t.results.campPlural}
+            </span>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto space-y-4 pr-2">
           {dayCamps.length === 0 ? (
@@ -48,16 +52,18 @@ export function CampColumns({ camps }: CampColumnsProps) {
 
       {/* Vacation Camps Column */}
       <div className="flex flex-col h-full">
-        <div className="mb-4 pb-3 border-b sticky top-0 bg-background z-10">
-          <h2 className="text-2xl font-bold text-primary">
-            {t.campTypes.vacation}
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {vacationCamps.length}{" "}
-            {vacationCamps.length === 1
-              ? t.results.campSingular
-              : t.results.campPlural}
-          </p>
+        <div className="mb-6 pb-2 sticky top-0 bg-background z-10">
+          <div className="flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-primary">
+              {t.campTypes.vacation}
+            </h2>
+            <span className="text-sm font-medium text-muted-foreground bg-muted px-3 py-1 rounded-full">
+              {vacationCamps.length}{" "}
+              {vacationCamps.length === 1
+                ? t.results.campSingular
+                : t.results.campPlural}
+            </span>
+          </div>
         </div>
         <div className="flex-1 overflow-y-auto space-y-4 pr-2">
           {vacationCamps.length === 0 ? (

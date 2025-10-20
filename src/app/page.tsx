@@ -52,7 +52,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
-      <header className="border-b bg-header backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+      <header className="bg-header backdrop-blur-sm sticky top-0 z-50 shadow-lg">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -90,7 +90,7 @@ export default function Home() {
           /* Columns View */
           <div className="flex-1 flex flex-col">
             {/* Search Bar at Top */}
-            <div className="container mx-auto px-4 py-6 border-b bg-background/95 backdrop-blur-sm sticky top-[88px] z-40 transition-all duration-300 ease-in-out">
+            <div className="container mx-auto px-4 py-8 bg-background/98 backdrop-blur-sm sticky top-[88px] z-40 transition-all duration-300 ease-in-out">
               <div className="max-w-2xl">
                 <SearchBar
                   camps={allCamps}
