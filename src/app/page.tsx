@@ -1,6 +1,7 @@
 "use client";
 
 import { CampColumns } from "@/components/CampColumns";
+import { Footer } from "@/components/Footer";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { SearchBar } from "@/components/SearchBar";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -141,6 +142,8 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      <Footer />
     </div>
   );
 }

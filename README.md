@@ -2,6 +2,33 @@
 
 A bilingual (English/French) web application to help families find summer and vacation camps in Greater Montreal, with special emphasis on options for families facing financial hardship.
 
+## 🌐 Live Application
+
+**Coming Soon**: This application will be deployed and accessible at a public URL.
+
+For now, you can run it locally by following the [Getting Started](#getting-started) instructions below.
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 20+
+- pnpm (install with `npm install -g pnpm`)
+
+### Run the Project
+
+```bash
+# 1. Install dependencies
+pnpm install
+
+# 2. Start the development server
+pnpm dev
+
+# 3. Open your browser to http://localhost:3000
+```
+
+The application will be running at **http://localhost:3000**
+
 ## Features
 
 ### 🌍 Bilingual Support
@@ -52,22 +79,7 @@ Each camp listing includes:
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js 20+
-- pnpm
-
-### Installation
-
-```bash
-# Install dependencies
-pnpm install
-
-# Run development server
-pnpm dev
-
-# Open http://localhost:3000
-```
+See the [Quick Start](#-quick-start) section above for installation instructions.
 
 ### Available Scripts
 

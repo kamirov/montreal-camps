@@ -142,4 +142,9 @@ export const en: Translations = {
     "November",
     "December",
   ],
+
+  footer: {
+    madeWithLove: "Made with ❤️ by Andrei Khramtsov",
+    sourceCode: "Source code available on GitHub",
+  },
 };

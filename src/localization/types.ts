@@ -156,4 +156,10 @@ export type Translations = {
     string,
     string
   ];
+
+  // Footer
+  footer: {
+    madeWithLove: string;
+    sourceCode: string;
+  };
 };
