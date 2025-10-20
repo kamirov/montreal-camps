@@ -35,9 +35,6 @@ export function ThemeSwitcher() {
           className="gap-2 border-2 hover:border-primary/50 transition-colors"
         >
           {getThemeIcon()}
-          <span className="hidden sm:inline font-medium">
-            {t.themeSwitcher.label}
-          </span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">

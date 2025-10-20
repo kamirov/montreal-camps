@@ -67,8 +67,12 @@ export type Translations = {
   // Search
   search: {
     placeholder: string;
+    regionPrompt: string;
     noResults: string;
     searching: string;
+    regions: string;
+    camps: string;
+    selectLocation: string;
   };
 
   // Sorting

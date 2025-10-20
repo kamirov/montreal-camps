@@ -4,6 +4,15 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ActiveFilters } from "./ActiveFilters";
 
+// Mock next/navigation
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 describe("ActiveFilters", () => {
   it("should not render when no filters are active", () => {
     const onFilterChange = vi.fn();

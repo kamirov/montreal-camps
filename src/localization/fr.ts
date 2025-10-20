@@ -60,8 +60,12 @@ export const fr: Translations = {
 
   search: {
     placeholder: "Rechercher des camps par nom, arrondissement ou activité...",
+    regionPrompt: "Rechercher des camps ou des régions à Montréal",
     noResults: "Aucun camp trouvé correspondant à vos critères",
     searching: "Recherche en cours...",
+    regions: "Régions",
+    camps: "Camps",
+    selectLocation: "Sélectionnez un emplacement ou un camp pour commencer",
   },
 
   sorting: {

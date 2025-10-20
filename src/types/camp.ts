@@ -30,4 +30,4 @@ export type SortOption =
   | "costHighToLow"
   | "borough";
 
-export type ViewMode = "list" | "map" | "search";
+export type ViewMode = "search" | "columns";

@@ -33,14 +33,10 @@ describe("ThemeSwitcher", () => {
     expect(button).toBeInTheDocument();
   });
 
-  it("should display the theme label", () => {
-    render(<ThemeSwitcher />);
-    expect(screen.getByText("Theme")).toBeInTheDocument();
-  });
-
-  it("should render button with content", () => {
+  it("should render button with icon", () => {
     render(<ThemeSwitcher />);
     const button = screen.getByRole("button");
-    expect(button.textContent).toBeTruthy();
+    // Button should have an SVG icon
+    expect(button.querySelector("svg")).toBeInTheDocument();
   });
 });

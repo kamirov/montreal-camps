@@ -1,7 +1,16 @@
 import { LocalizationProvider } from "@/localization/context";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+
+// Mock next/navigation
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+  }),
+  usePathname: () => "/",
+  useSearchParams: () => new URLSearchParams(),
+}));
 
 describe("LanguageSwitcher", () => {
   it("should render language switcher button", () => {
