@@ -48,18 +48,10 @@ export function CampCard({ camp }: CampCardProps) {
   };
 
   return (
-    <Card className="h-full flex flex-col hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 hover:bg-accent/30 overflow-hidden group">
+    <Card className="h-full flex flex-col hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 overflow-hidden group">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start gap-2 mb-2">
-          <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
-            {camp.name}
-          </CardTitle>
-          <Badge
-            variant={camp.type === "day" ? "default" : "secondary"}
-            className="shrink-0 text-xs px-3 py-1"
-          >
-            {camp.type === "day" ? t.campTypes.day : t.campTypes.vacation}
-          </Badge>
+          <CardTitle className="text-xl font-bold">{camp.name}</CardTitle>
         </div>
         <div className="flex items-center text-sm font-medium text-muted-foreground gap-1.5">
           <MapPin className="h-4 w-4 text-primary" />
