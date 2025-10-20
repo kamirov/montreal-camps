@@ -69,8 +69,8 @@ export default function Home() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {viewMode === "search" ? (
-          /* Centered Search View */
-          <div className="flex-1 flex items-center justify-center px-4">
+          /* Search View - 1/3 from top on desktop, under header on mobile */
+          <div className="flex-1 flex items-start justify-center px-4 pt-[15vh]">
             <div className="w-full max-w-2xl space-y-4">
               <div className="text-center mb-8">
                 <h2 className="text-2xl font-semibold mb-2">

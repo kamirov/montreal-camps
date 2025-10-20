@@ -23,9 +23,9 @@ export function CampColumns({ camps }: CampColumnsProps) {
   );
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-full">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 h-full">
       {/* Day Camps Column */}
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full lg:pr-6 lg:border-r lg:border-border">
         <div className="mb-6 pb-2 sticky top-0 bg-background z-10">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-primary">
@@ -51,7 +51,7 @@ export function CampColumns({ camps }: CampColumnsProps) {
       </div>
 
       {/* Vacation Camps Column */}
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col h-full lg:pl-6">
         <div className="mb-6 pb-2 sticky top-0 bg-background z-10">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold text-primary">
