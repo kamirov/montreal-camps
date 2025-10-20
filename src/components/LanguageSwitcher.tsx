@@ -11,7 +11,7 @@ import { useLocalization } from "@/localization/context";
 import { Languages } from "lucide-react";
 
 export function LanguageSwitcher() {
-  const { language, setLanguage, t } = useLocalization();
+  const { language, setLanguage } = useLocalization();
 
   return (
     <DropdownMenu>

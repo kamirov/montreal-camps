@@ -74,7 +74,9 @@ export function CampCard({ camp }: CampCardProps) {
           <span>
             {camp.hours
               ? formatTime(camp.hours, language)
-              : t.campFields.allDay}
+              : camp.type === "day"
+              ? t.campTypes.day
+              : t.campTypes.vacation}
           </span>
         </div>
         <div className="bg-primary/5 -mx-6 px-6 py-2 space-y-1">

@@ -63,7 +63,7 @@ export const en: Translations = {
   search: {
     placeholder: "Search camps by name, borough, or activity...",
     regionPrompt: "Search camps or regions in Montreal",
-    noResults: "No camps found",
+    noResults: "No camps found matching your criteria",
     searching: "Searching...",
     regions: "Regions",
     camps: "Camps",

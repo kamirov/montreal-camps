@@ -87,9 +87,10 @@ describe("CampCard", () => {
   });
 
   it("should display camp type badge", () => {
+    const campWithoutHours = { ...mockCamp, hours: undefined };
     render(
       <LocalizationProvider>
-        <CampCard camp={mockCamp} />
+        <CampCard camp={campWithoutHours} />
       </LocalizationProvider>
     );
 
