@@ -41,23 +41,17 @@ export function CampFilters({
     onFilterChange({ ...filters, selectedLanguages: newLanguages });
   };
 
-  const handleFinancialAidChange = (value: boolean | null) => {
-    onFilterChange({ ...filters, hasFinancialAid: value });
-  };
-
   const handleClearAll = () => {
     onFilterChange({
       searchQuery: "",
       campType: "all",
       boroughs: [],
-      hasFinancialAid: null,
       selectedLanguages: [],
     });
   };
 
   const hasActiveFilters =
     filters.boroughs.length > 0 ||
-    filters.hasFinancialAid !== null ||
     filters.selectedLanguages.length > 0 ||
     filters.searchQuery !== "";
 
@@ -80,10 +74,7 @@ export function CampFilters({
         </div>
       </CardHeader>
       <CardContent>
-        <Accordion
-          type="multiple"
-          defaultValue={["boroughs", "languages", "financial-aid"]}
-        >
+        <Accordion type="multiple" defaultValue={["boroughs", "languages"]}>
           <AccordionItem value="boroughs">
             <AccordionTrigger>{t.filters.borough}</AccordionTrigger>
             <AccordionContent>
@@ -124,48 +115,6 @@ export function CampFilters({
                     <span className="text-sm">{language}</span>
                   </label>
                 ))}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="financial-aid">
-            <AccordionTrigger>{t.filters.financialAid}</AccordionTrigger>
-            <AccordionContent>
-              <div className="space-y-2">
-                <label className="flex items-center space-x-2 cursor-pointer hover:bg-accent/50 p-2 rounded transition-colors">
-                  <input
-                    type="radio"
-                    name="financial-aid"
-                    checked={filters.hasFinancialAid === null}
-                    onChange={() => handleFinancialAidChange(null)}
-                    className="h-4 w-4"
-                  />
-                  <span className="text-sm">All camps</span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer hover:bg-accent/50 p-2 rounded transition-colors">
-                  <input
-                    type="radio"
-                    name="financial-aid"
-                    checked={filters.hasFinancialAid === true}
-                    onChange={() => handleFinancialAidChange(true)}
-                    className="h-4 w-4"
-                  />
-                  <span className="text-sm">
-                    {t.financialAidLabels.available}
-                  </span>
-                </label>
-                <label className="flex items-center space-x-2 cursor-pointer hover:bg-accent/50 p-2 rounded transition-colors">
-                  <input
-                    type="radio"
-                    name="financial-aid"
-                    checked={filters.hasFinancialAid === false}
-                    onChange={() => handleFinancialAidChange(false)}
-                    className="h-4 w-4"
-                  />
-                  <span className="text-sm">
-                    {t.financialAidLabels.notAvailable}
-                  </span>
-                </label>
               </div>
             </AccordionContent>
           </AccordionItem>

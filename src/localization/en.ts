@@ -102,4 +102,33 @@ export const en: Translations = {
     notAvailable: "No financial aid",
     contactForInfo: "Contact for information",
   },
+
+  languageNames: {
+    french: "French",
+    english: "English",
+    spanish: "Spanish",
+    italian: "Italian",
+    arabic: "Arabic",
+  },
+
+  costUnits: {
+    week: "week",
+    day: "day",
+    month: "month",
+  },
+
+  months: [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ],
 };

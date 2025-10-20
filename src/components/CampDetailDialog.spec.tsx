@@ -54,7 +54,7 @@ describe("CampDetailDialog", () => {
     expect(screen.getByText("Test Camp")).toBeInTheDocument();
     expect(screen.getByText("Plateau")).toBeInTheDocument();
     expect(screen.getByText("5-10 years")).toBeInTheDocument();
-    expect(screen.getByText("$200/week")).toBeInTheDocument();
+    expect(screen.getByText(/\$200\/semaine|\$200\/week/)).toBeInTheDocument();
   });
 
   it("should display camp notes", () => {

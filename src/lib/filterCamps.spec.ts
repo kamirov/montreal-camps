@@ -33,7 +33,7 @@ const mockCamps: Camp[] = [
     languages: ["French"],
     dates: "March 1-5",
     cost: "$150/week",
-    financialAid: "Not available",
+    financialAid: "Contact for information",
     link: "http://example.com",
     phone: "514-555-0102",
     notes: "Indoor activities",
@@ -49,7 +49,7 @@ const mockCamps: Camp[] = [
     dates: "July 15-Aug 15",
     hours: "8-4",
     cost: "$180/week",
-    financialAid: "None",
+    financialAid: "Available - Sliding scale",
     link: "http://example.com",
     phone: "514-555-0103",
     notes: "Arts and crafts",
@@ -63,7 +63,6 @@ describe("filterCamps", () => {
       searchQuery: "",
       campType: "all",
       boroughs: [],
-      hasFinancialAid: null,
       selectedLanguages: [],
     };
     const result = filterCamps(mockCamps, filters);
@@ -75,7 +74,6 @@ describe("filterCamps", () => {
       searchQuery: "",
       campType: "day",
       boroughs: [],
-      hasFinancialAid: null,
       selectedLanguages: [],
     };
     const result = filterCamps(mockCamps, filters);
@@ -88,7 +86,6 @@ describe("filterCamps", () => {
       searchQuery: "swimming",
       campType: "all",
       boroughs: [],
-      hasFinancialAid: null,
       selectedLanguages: [],
     };
     const result = filterCamps(mockCamps, filters);
@@ -101,7 +98,6 @@ describe("filterCamps", () => {
       searchQuery: "",
       campType: "all",
       boroughs: ["Plateau"],
-      hasFinancialAid: null,
       selectedLanguages: [],
     };
     const result = filterCamps(mockCamps, filters);
@@ -109,25 +105,11 @@ describe("filterCamps", () => {
     expect(result.every((camp) => camp.borough === "Plateau")).toBe(true);
   });
 
-  it("should filter by financial aid availability", () => {
-    const filters: FilterState = {
-      searchQuery: "",
-      campType: "all",
-      boroughs: [],
-      hasFinancialAid: true,
-      selectedLanguages: [],
-    };
-    const result = filterCamps(mockCamps, filters);
-    expect(result).toHaveLength(1);
-    expect(result[0].financialAid).toContain("Available");
-  });
-
   it("should filter by language", () => {
     const filters: FilterState = {
       searchQuery: "",
       campType: "all",
       boroughs: [],
-      hasFinancialAid: null,
       selectedLanguages: ["English"],
     };
     const result = filterCamps(mockCamps, filters);

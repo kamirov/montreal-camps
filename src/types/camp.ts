@@ -21,7 +21,6 @@ export type FilterState = {
   searchQuery: string;
   campType: CampType | "all";
   boroughs: string[];
-  hasFinancialAid: boolean | null;
   selectedLanguages: string[];
 };
 

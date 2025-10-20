@@ -34,10 +34,10 @@ describe("CampCard", () => {
     expect(screen.getByText("Test Camp")).toBeInTheDocument();
     expect(screen.getByText("Plateau")).toBeInTheDocument();
     expect(screen.getByText("5-10 years")).toBeInTheDocument();
-    expect(screen.getByText("$200/week")).toBeInTheDocument();
+    expect(screen.getByText(/\$200\/semaine|\$200\/week/)).toBeInTheDocument();
   });
 
-  it("should display financial aid badge when available", () => {
+  it("should display financial aid information", () => {
     const onViewDetails = vi.fn();
 
     render(
@@ -46,9 +46,7 @@ describe("CampCard", () => {
       </LocalizationProvider>
     );
 
-    expect(
-      screen.getByText(/Financial aid available|Aide financière disponible/)
-    ).toBeInTheDocument();
+    expect(screen.getByText("Available - Sliding scale")).toBeInTheDocument();
   });
 
   it("should call onViewDetails when button is clicked", () => {
@@ -87,7 +85,7 @@ describe("CampCard", () => {
       </LocalizationProvider>
     );
 
-    expect(screen.getByText("English")).toBeInTheDocument();
-    expect(screen.getByText("French")).toBeInTheDocument();
+    expect(screen.getByText(/English|Anglais/)).toBeInTheDocument();
+    expect(screen.getByText(/French|Français/)).toBeInTheDocument();
   });
 });

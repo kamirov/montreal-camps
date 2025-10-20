@@ -9,6 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  formatCost,
+  formatDateRange,
+  formatLanguage,
+  formatTime,
+} from "@/localization/formatters";
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp } from "@/types/camp";
 import {
@@ -26,11 +32,7 @@ type CampCardProps = {
 };
 
 export function CampCard({ camp, onViewDetails }: CampCardProps) {
-  const { t } = useTranslation();
-
-  const hasFinancialAid =
-    camp.financialAid.toLowerCase().includes("available") ||
-    camp.financialAid.toLowerCase().includes("disponible");
+  const { t, language } = useTranslation();
 
   return (
     <Card className="h-full flex flex-col hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 hover:border-primary/20 overflow-hidden group">
@@ -58,17 +60,21 @@ export function CampCard({ camp, onViewDetails }: CampCardProps) {
         </div>
         <div className="flex items-center gap-2.5 text-sm">
           <Calendar className="h-4 w-4 text-primary/70" />
-          <span className="line-clamp-1">{camp.dates}</span>
+          <span className="line-clamp-1">
+            {formatDateRange(camp.dates, language, t)}
+          </span>
         </div>
         {camp.hours && (
           <div className="flex items-center gap-2.5 text-sm">
             <Clock className="h-4 w-4 text-primary/70" />
-            <span>{camp.hours}</span>
+            <span>{formatTime(camp.hours, language)}</span>
           </div>
         )}
         <div className="flex items-center gap-2.5 text-sm bg-primary/5 -mx-6 px-6 py-2">
           <DollarSign className="h-5 w-5 text-primary" />
-          <span className="font-bold text-base text-primary">{camp.cost}</span>
+          <span className="font-bold text-base text-primary">
+            {formatCost(camp.cost, language, t)}
+          </span>
         </div>
         <div className="flex items-start gap-2.5 text-sm pt-1">
           <Globe className="h-4 w-4 text-primary/70 mt-0.5" />
@@ -79,19 +85,15 @@ export function CampCard({ camp, onViewDetails }: CampCardProps) {
                 variant="outline"
                 className="text-xs border-primary/20"
               >
-                {lang}
+                {formatLanguage(lang, t)}
               </Badge>
             ))}
           </div>
         </div>
-        {hasFinancialAid && (
-          <Badge
-            variant="default"
-            className="bg-success hover:bg-success/90 text-xs px-3 py-1"
-          >
-            ✓ {t.financialAidLabels.available}
-          </Badge>
-        )}
+        <div className="text-xs text-muted-foreground pt-1">
+          <span className="font-medium">{t.campFields.financialAid}:</span>{" "}
+          {camp.financialAid}
+        </div>
       </CardContent>
       <CardFooter className="pt-0">
         <Button

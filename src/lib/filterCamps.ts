@@ -33,25 +33,6 @@ export function filterCamps(camps: Camp[], filters: FilterState): Camp[] {
       return false;
     }
 
-    // Filter by financial aid
-    if (filters.hasFinancialAid === true) {
-      const aidText = camp.financialAid.toLowerCase();
-      const hasAid =
-        (aidText.includes("available") && !aidText.includes("not available")) ||
-        (aidText.includes("disponible") && !aidText.includes("pas d"));
-      if (!hasAid) {
-        return false;
-      }
-    } else if (filters.hasFinancialAid === false) {
-      const aidText = camp.financialAid.toLowerCase();
-      const hasAid =
-        (aidText.includes("available") && !aidText.includes("not available")) ||
-        (aidText.includes("disponible") && !aidText.includes("pas d"));
-      if (hasAid) {
-        return false;
-      }
-    }
-
     // Filter by languages
     if (filters.selectedLanguages.length > 0) {
       const hasLanguage = filters.selectedLanguages.some((lang) =>

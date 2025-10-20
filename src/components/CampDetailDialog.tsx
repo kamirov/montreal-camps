@@ -10,6 +10,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import {
+  formatCost,
+  formatDateRange,
+  formatLanguage,
+  formatTime,
+} from "@/localization/formatters";
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp } from "@/types/camp";
 import {
@@ -35,7 +41,7 @@ export function CampDetailDialog({
   open,
   onOpenChange,
 }: CampDetailDialogProps) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
 
   if (!camp) return null;
 
@@ -94,7 +100,7 @@ export function CampDetailDialog({
                 <div className="flex flex-wrap gap-1 mt-1">
                   {camp.languages.map((lang) => (
                     <Badge key={lang} variant="outline">
-                      {lang}
+                      {formatLanguage(lang, t)}
                     </Badge>
                   ))}
                 </div>
@@ -106,7 +112,7 @@ export function CampDetailDialog({
               <div>
                 <div className="font-medium">{t.campFields.dates}</div>
                 <div className="text-sm text-muted-foreground">
-                  {camp.dates}
+                  {formatDateRange(camp.dates, language, t)}
                 </div>
               </div>
             </div>
@@ -117,7 +123,7 @@ export function CampDetailDialog({
                 <div>
                   <div className="font-medium">{t.campFields.hours}</div>
                   <div className="text-sm text-muted-foreground">
-                    {camp.hours}
+                    {formatTime(camp.hours, language)}
                   </div>
                 </div>
               </div>
@@ -127,7 +133,9 @@ export function CampDetailDialog({
               <DollarSign className="h-5 w-5 text-muted-foreground mt-0.5" />
               <div>
                 <div className="font-medium">{t.campFields.cost}</div>
-                <div className="text-sm text-muted-foreground">{camp.cost}</div>
+                <div className="text-sm text-muted-foreground">
+                  {formatCost(camp.cost, language, t)}
+                </div>
               </div>
             </div>
 

@@ -8,7 +8,6 @@ const mockFilters: FilterState = {
   searchQuery: "",
   campType: "all",
   boroughs: [],
-  hasFinancialAid: null,
   selectedLanguages: [],
 };
 
@@ -82,7 +81,6 @@ describe("CampFilters", () => {
     const filtersWithActive: FilterState = {
       ...mockFilters,
       boroughs: ["Plateau"],
-      hasFinancialAid: true,
     };
 
     render(
@@ -103,7 +101,6 @@ describe("CampFilters", () => {
       searchQuery: "",
       campType: "all",
       boroughs: [],
-      hasFinancialAid: null,
       selectedLanguages: [],
     });
   });

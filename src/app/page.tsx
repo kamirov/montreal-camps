@@ -48,7 +48,6 @@ export default function Home() {
     searchQuery: "",
     campType: "all",
     boroughs: [],
-    hasFinancialAid: null,
     selectedLanguages: [],
   });
   const [sortBy, setSortBy] = useState<SortOption>("alphabetical");

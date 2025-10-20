@@ -11,7 +11,6 @@ describe("ActiveFilters", () => {
       searchQuery: "",
       campType: "all",
       boroughs: [],
-      hasFinancialAid: null,
       selectedLanguages: [],
     };
 
@@ -30,7 +29,6 @@ describe("ActiveFilters", () => {
       searchQuery: "",
       campType: "all",
       boroughs: ["Plateau", "NDG"],
-      hasFinancialAid: null,
       selectedLanguages: [],
     };
 
@@ -50,7 +48,6 @@ describe("ActiveFilters", () => {
       searchQuery: "",
       campType: "all",
       boroughs: ["Plateau"],
-      hasFinancialAid: null,
       selectedLanguages: [],
     };
 
@@ -76,7 +73,6 @@ describe("ActiveFilters", () => {
       searchQuery: "",
       campType: "day",
       boroughs: ["Plateau"],
-      hasFinancialAid: true,
       selectedLanguages: ["English"],
     };
 
@@ -93,7 +89,6 @@ describe("ActiveFilters", () => {
       searchQuery: "",
       campType: "day",
       boroughs: [],
-      hasFinancialAid: null,
       selectedLanguages: [],
     });
   });
@@ -104,7 +99,6 @@ describe("ActiveFilters", () => {
       searchQuery: "",
       campType: "all",
       boroughs: [],
-      hasFinancialAid: null,
       selectedLanguages: ["English"],
     };
 
