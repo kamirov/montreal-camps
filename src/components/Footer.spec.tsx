@@ -32,14 +32,7 @@ describe("Footer", () => {
     ).toBeInTheDocument();
   });
 
-  it("displays the source code link text", () => {
-    render(<Footer />);
-    expect(
-      screen.getByText("Source code available on GitHub")
-    ).toBeInTheDocument();
-  });
-
-  it("renders a link to the GitHub repository", () => {
+  it("renders a link to the GitHub repository with aria-label", () => {
     render(<Footer />);
     const link = screen.getByRole("link", {
       name: /source code available on github/i,
@@ -48,6 +41,10 @@ describe("Footer", () => {
     expect(link).toHaveAttribute(
       "href",
       "https://github.com/kamirov/montreal-camps"
+    );
+    expect(link).toHaveAttribute(
+      "aria-label",
+      "Source code available on GitHub"
     );
   });
 
@@ -68,5 +65,10 @@ describe("Footer", () => {
     // Check for the GitHub icon by looking for the svg element within the link
     const svg = link.querySelector("svg");
     expect(svg).toBeInTheDocument();
+  });
+
+  it("displays a separator between text and icon", () => {
+    render(<Footer />);
+    expect(screen.getByText("•")).toBeInTheDocument();
   });
 });
