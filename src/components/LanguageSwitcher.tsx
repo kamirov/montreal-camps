@@ -22,9 +22,6 @@ export function LanguageSwitcher() {
           className="gap-2 border-2 hover:border-primary/50 transition-colors"
         >
           <Languages className="h-5 w-5" />
-          <span className="hidden sm:inline font-medium">
-            {t.languageSwitcher}
-          </span>
           <span className="uppercase font-bold text-primary">{language}</span>
         </Button>
       </DropdownMenuTrigger>
