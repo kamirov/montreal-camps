@@ -49,7 +49,7 @@ export function CampCard({ camp }: CampCardProps) {
   };
 
   return (
-    <Card className="h-full flex flex-col hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 hover:border-primary/20 overflow-hidden group">
+    <Card className="h-full flex flex-col hover:shadow-xl transition-all duration-300 border-2 hover:border-primary/50 hover:bg-accent/30 overflow-hidden group">
       <CardHeader className="pb-3">
         <div className="flex justify-between items-start gap-2 mb-2">
           <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors">
@@ -126,7 +126,7 @@ export function CampCard({ camp }: CampCardProps) {
             href={camp.link}
             target="_blank"
             rel="noopener noreferrer"
-            className="font-medium text-primary hover:underline truncate"
+            className="font-medium text-primary hover:underline truncate cursor-pointer"
           >
             {(camp.link || "").replace(/^https?:\/\//, "")}
           </a>
@@ -144,7 +144,7 @@ export function CampCard({ camp }: CampCardProps) {
             onClick={handleCall}
             variant="outline"
             size="sm"
-            className="gap-2 flex-1"
+            className="gap-2 flex-1 cursor-pointer"
           >
             <Phone className="h-3 w-3" />
             {t.actions.call}
@@ -153,7 +153,7 @@ export function CampCard({ camp }: CampCardProps) {
             onClick={handleWebsite}
             variant="outline"
             size="sm"
-            className="gap-2 flex-1"
+            className="gap-2 flex-1 cursor-pointer"
           >
             <ExternalLink className="h-3 w-3" />
             {t.actions.visitWebsite}
@@ -162,7 +162,7 @@ export function CampCard({ camp }: CampCardProps) {
             onClick={handleDirections}
             variant="outline"
             size="sm"
-            className="gap-2 flex-1"
+            className="gap-2 flex-1 cursor-pointer"
           >
             <Navigation className="h-3 w-3" />
             {t.actions.getDirections}

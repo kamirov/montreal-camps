@@ -135,7 +135,7 @@ export default function Home() {
                         setSelectedCampId(null);
                         setViewMode("search");
                       }}
-                      className="text-sm text-primary hover:underline"
+                      className="text-sm text-primary hover:underline cursor-pointer"
                     >
                       {language === "fr" ? "Nouvelle recherche" : "New search"}
                     </button>
