@@ -29,7 +29,10 @@ export function CampColumns({ camps }: CampColumnsProps) {
         <div className="mb-4 pb-3 border-b sticky top-0 bg-background z-10">
           <h2 className="text-2xl font-bold text-primary">{t.campTypes.day}</h2>
           <p className="text-sm text-muted-foreground mt-1">
-            {dayCamps.length} {dayCamps.length === 1 ? "camp" : "camps"}
+            {dayCamps.length}{" "}
+            {dayCamps.length === 1
+              ? t.results.campSingular
+              : t.results.campPlural}
           </p>
         </div>
         <div className="flex-1 overflow-y-auto space-y-4 pr-2">
@@ -51,7 +54,9 @@ export function CampColumns({ camps }: CampColumnsProps) {
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
             {vacationCamps.length}{" "}
-            {vacationCamps.length === 1 ? "camp" : "camps"}
+            {vacationCamps.length === 1
+              ? t.results.campSingular
+              : t.results.campPlural}
           </p>
         </div>
         <div className="flex-1 overflow-y-auto space-y-4 pr-2">

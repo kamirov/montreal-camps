@@ -10,7 +10,7 @@ import { Camp, ViewMode } from "@/types/camp";
 import { useMemo, useState } from "react";
 
 export default function Home() {
-  const { t, language } = useTranslation();
+  const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<ViewMode>("search");
   const [selectedBorough, setSelectedBorough] = useState<string | null>(null);
   const [selectedCampId, setSelectedCampId] = useState<string | null>(null);
@@ -57,11 +57,6 @@ export default function Home() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-primary">{t.appName}</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {language === "fr"
-                  ? "Trouvez le camp parfait pour votre famille"
-                  : "Find the perfect camp for your family"}
-              </p>
             </div>
             <div className="flex items-center gap-2">
               <ThemeSwitcher />
@@ -81,11 +76,6 @@ export default function Home() {
                 <h2 className="text-2xl font-semibold mb-2">
                   {t.search.selectLocation}
                 </h2>
-                <p className="text-muted-foreground">
-                  {language === "fr"
-                    ? "Commencez par rechercher un camp ou une région"
-                    : "Start by searching for a camp or region"}
-                </p>
               </div>
               <SearchBar
                 camps={allCamps}
@@ -122,7 +112,7 @@ export default function Home() {
                         </>
                       ) : (
                         <>
-                          {language === "fr" ? "Région: " : "Region: "}
+                          {t.search.regionLabel}
                           <span className="font-semibold text-foreground">
                             {selectedBorough}
                           </span>
@@ -137,7 +127,7 @@ export default function Home() {
                       }}
                       className="text-sm text-primary hover:underline cursor-pointer"
                     >
-                      {language === "fr" ? "Nouvelle recherche" : "New search"}
+                      {t.search.newSearch}
                     </button>
                   </div>
                 )}

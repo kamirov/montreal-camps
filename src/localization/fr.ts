@@ -6,6 +6,7 @@ export const fr: Translations = {
     "Trouvez des camps d'été et de vacances dans le Grand Montréal avec des options d'aide financière",
 
   appName: "Camps de Montréal",
+  tagline: "Trouvez le camp parfait pour votre famille",
   languageSwitcher: "Langue",
   themeSwitcher: {
     label: "Thème",
@@ -67,6 +68,9 @@ export const fr: Translations = {
     regions: "Régions",
     camps: "Camps",
     selectLocation: "Sélectionnez un emplacement ou un camp pour commencer",
+    searchInstruction: "Commencez par rechercher un camp ou une région",
+    regionLabel: "Région: ",
+    newSearch: "Nouvelle recherche",
   },
 
   sorting: {
@@ -81,6 +85,8 @@ export const fr: Translations = {
     showing: "Affichage de",
     camps: "camps",
     of: "sur",
+    campSingular: "camp",
+    campPlural: "camps",
   },
 
   boroughs: {

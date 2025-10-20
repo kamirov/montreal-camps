@@ -7,6 +7,7 @@ export type Translations = {
 
   // Header
   appName: string;
+  tagline: string;
   languageSwitcher: string;
   themeSwitcher: {
     label: string;
@@ -74,6 +75,9 @@ export type Translations = {
     regions: string;
     camps: string;
     selectLocation: string;
+    searchInstruction: string;
+    regionLabel: string;
+    newSearch: string;
   };
 
   // Sorting
@@ -90,6 +94,8 @@ export type Translations = {
     showing: string;
     camps: string;
     of: string;
+    campSingular: string;
+    campPlural: string;
   };
 
   // Boroughs (Montreal)

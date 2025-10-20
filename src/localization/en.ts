@@ -6,6 +6,7 @@ export const en: Translations = {
     "Find summer and vacation camps in Greater Montreal with financial assistance options",
 
   appName: "Montreal Camps",
+  tagline: "Find the perfect camp for your family",
   languageSwitcher: "Language",
   themeSwitcher: {
     label: "Theme",
@@ -67,6 +68,9 @@ export const en: Translations = {
     regions: "Regions",
     camps: "Camps",
     selectLocation: "Select a location or camp to begin",
+    searchInstruction: "Start by searching for a camp or region",
+    regionLabel: "Region: ",
+    newSearch: "New search",
   },
 
   sorting: {
@@ -81,6 +85,8 @@ export const en: Translations = {
     showing: "Showing",
     camps: "camps",
     of: "of",
+    campSingular: "camp",
+    campPlural: "camps",
   },
 
   boroughs: {
