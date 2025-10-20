@@ -7,6 +7,12 @@ export const fr: Translations = {
 
   appName: "Camps de Montréal",
   languageSwitcher: "Langue",
+  themeSwitcher: {
+    label: "Thème",
+    light: "Clair",
+    dark: "Sombre",
+    system: "Système",
+  },
 
   campTypes: {
     day: "Camps de jour",

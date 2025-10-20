@@ -6,6 +6,7 @@ import { CampFilters } from "@/components/CampFilters";
 import { CampList } from "@/components/CampList";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { SearchBar } from "@/components/SearchBar";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -90,7 +91,10 @@ export default function Home() {
                   : "Find the perfect camp for your family"}
               </p>
             </div>
-            <LanguageSwitcher />
+            <div className="flex items-center gap-2">
+              <ThemeSwitcher />
+              <LanguageSwitcher />
+            </div>
           </div>
         </div>
       </header>

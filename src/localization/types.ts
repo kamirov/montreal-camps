@@ -8,6 +8,12 @@ export type Translations = {
   // Header
   appName: string;
   languageSwitcher: string;
+  themeSwitcher: {
+    label: string;
+    light: string;
+    dark: string;
+    system: string;
+  };
 
   // Camp types
   campTypes: {
