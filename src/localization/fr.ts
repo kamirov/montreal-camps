@@ -147,4 +147,6 @@ export const fr: Translations = {
     madeWithLove: "Fait avec ❤️ par Andrei Khramtsov",
     sourceCode: "Code source disponible sur GitHub",
   },
+
+  sampleDataNotice: "Données d'exemple à titre de démonstration seulement",
 };

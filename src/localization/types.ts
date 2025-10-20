@@ -162,4 +162,7 @@ export type Translations = {
     madeWithLove: string;
     sourceCode: string;
   };
+
+  // Sample data notice
+  sampleDataNotice: string;
 };

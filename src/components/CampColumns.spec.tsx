@@ -128,4 +128,34 @@ describe("CampColumns", () => {
 
     expect(noResultsMessage).toBeInTheDocument();
   });
+
+  it("should display sample data notice when showSampleNotice is true", () => {
+    render(
+      <LocalizationProvider>
+        <CampColumns camps={mockCamps} showSampleNotice={true} />
+      </LocalizationProvider>
+    );
+
+    // Check for French sample notice (default language)
+    const sampleNotice =
+      screen.queryByText(/données d'exemple/i) ||
+      screen.queryByText(/sample data/i);
+
+    expect(sampleNotice).toBeInTheDocument();
+  });
+
+  it("should not display sample data notice when showSampleNotice is false", () => {
+    render(
+      <LocalizationProvider>
+        <CampColumns camps={mockCamps} showSampleNotice={false} />
+      </LocalizationProvider>
+    );
+
+    // Check that sample notice is not present
+    const sampleNotice =
+      screen.queryByText(/données d'exemple/i) ||
+      screen.queryByText(/sample data/i);
+
+    expect(sampleNotice).not.toBeInTheDocument();
+  });
 });

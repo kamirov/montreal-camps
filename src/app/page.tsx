@@ -31,6 +31,13 @@ export default function Home() {
     setViewMode("columns");
   };
 
+  const handleTitleClick = () => {
+    setSelectedBorough(null);
+    setSelectedCampId(null);
+    setSearchQuery("");
+    setViewMode("search");
+  };
+
   const filteredCamps = useMemo(() => {
     // If a specific camp is selected, show only that camp
     if (selectedCampId) {
@@ -57,7 +64,12 @@ export default function Home() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-primary">{t.appName}</h1>
+              <h1
+                onClick={handleTitleClick}
+                className="text-3xl font-bold text-primary cursor-pointer transition-all duration-200 hover:scale-105 hover:text-primary/90 active:scale-95 select-none"
+              >
+                {t.appName}
+              </h1>
             </div>
             <div className="flex items-center gap-2">
               <ThemeSwitcher />
@@ -77,6 +89,11 @@ export default function Home() {
                 <h2 className="text-2xl font-semibold mb-2">
                   {t.search.selectLocation}
                 </h2>
+              </div>
+              <div className="mb-4 px-4 py-3 bg-muted/50 border border-muted-foreground/20 rounded-lg text-center">
+                <p className="text-sm text-muted-foreground">
+                  {t.sampleDataNotice}
+                </p>
               </div>
               <SearchBar
                 camps={allCamps}
@@ -137,7 +154,7 @@ export default function Home() {
 
             {/* Columns Content */}
             <div className="flex-1 container mx-auto px-4 py-6 overflow-hidden">
-              <CampColumns camps={filteredCamps} />
+              <CampColumns camps={filteredCamps} showSampleNotice />
             </div>
           </div>
         )}
