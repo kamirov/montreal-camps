@@ -76,15 +76,13 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card/95 backdrop-blur-sm sticky top-0 z-50 shadow-sm">
+      <header className="border-b bg-header backdrop-blur-sm sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                {t.appName}
-              </h1>
+              <h1 className="text-3xl font-bold text-primary">{t.appName}</h1>
               <p className="text-sm text-muted-foreground mt-1">
                 {language === "fr"
                   ? "Trouvez le camp parfait pour votre famille"
@@ -153,7 +151,7 @@ export default function Home() {
             <Button
               size="lg"
               onClick={() => setIsMobileFilterOpen(!isMobileFilterOpen)}
-              className="rounded-full shadow-2xl h-14 w-14 p-0 border-2 border-primary/20 hover:scale-110 transition-transform"
+              className="rounded-full shadow-2xl h-14 w-14 p-0 border-2 border-quebec-blue/30 hover:border-quebec-blue hover:scale-110 transition-all bg-quebec-blue hover:bg-quebec-blue/90"
             >
               {isMobileFilterOpen ? (
                 <X className="h-6 w-6" />
@@ -197,7 +195,7 @@ export default function Home() {
                     variant={viewMode === "list" ? "default" : "outline"}
                     size="default"
                     onClick={() => setViewMode("list")}
-                    className="gap-2"
+                    className="gap-2 border-quebec-blue hover:border-quebec-blue/80"
                   >
                     <List className="h-4 w-4" />
                     {t.views.list}
@@ -206,7 +204,7 @@ export default function Home() {
                     variant={viewMode === "map" ? "default" : "outline"}
                     size="default"
                     onClick={() => setViewMode("map")}
-                    className="gap-2"
+                    className="gap-2 border-quebec-blue hover:border-quebec-blue/80"
                   >
                     <Map className="h-4 w-4" />
                     {t.views.map}
