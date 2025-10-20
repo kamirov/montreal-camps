@@ -65,11 +65,9 @@ const mockCamps: Camp[] = [
 
 describe("CampColumns", () => {
   it("should render day and vacation camp columns", () => {
-    const onViewDetails = vi.fn();
-
     render(
       <LocalizationProvider>
-        <CampColumns camps={mockCamps} onViewDetails={onViewDetails} />
+        <CampColumns camps={mockCamps} />
       </LocalizationProvider>
     );
 
@@ -88,11 +86,9 @@ describe("CampColumns", () => {
   });
 
   it("should display correct camp counts", () => {
-    const onViewDetails = vi.fn();
-
     render(
       <LocalizationProvider>
-        <CampColumns camps={mockCamps} onViewDetails={onViewDetails} />
+        <CampColumns camps={mockCamps} />
       </LocalizationProvider>
     );
 
@@ -105,11 +101,9 @@ describe("CampColumns", () => {
   });
 
   it("should render camp cards in correct columns", () => {
-    const onViewDetails = vi.fn();
-
     render(
       <LocalizationProvider>
-        <CampColumns camps={mockCamps} onViewDetails={onViewDetails} />
+        <CampColumns camps={mockCamps} />
       </LocalizationProvider>
     );
 
@@ -119,12 +113,11 @@ describe("CampColumns", () => {
   });
 
   it("should show no results message when no camps in a column", () => {
-    const onViewDetails = vi.fn();
     const onlyDayCamps = mockCamps.filter((camp) => camp.type === "day");
 
     render(
       <LocalizationProvider>
-        <CampColumns camps={onlyDayCamps} onViewDetails={onViewDetails} />
+        <CampColumns camps={onlyDayCamps} />
       </LocalizationProvider>
     );
 

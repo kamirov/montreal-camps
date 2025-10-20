@@ -7,10 +7,9 @@ import { useMemo } from "react";
 
 type CampColumnsProps = {
   camps: Camp[];
-  onViewDetails: (camp: Camp) => void;
 };
 
-export function CampColumns({ camps, onViewDetails }: CampColumnsProps) {
+export function CampColumns({ camps }: CampColumnsProps) {
   const { t } = useTranslation();
 
   const dayCamps = useMemo(
@@ -39,13 +38,7 @@ export function CampColumns({ camps, onViewDetails }: CampColumnsProps) {
               {t.search.noResults}
             </div>
           ) : (
-            dayCamps.map((camp) => (
-              <CampCard
-                key={camp.id}
-                camp={camp}
-                onViewDetails={onViewDetails}
-              />
-            ))
+            dayCamps.map((camp) => <CampCard key={camp.id} camp={camp} />)
           )}
         </div>
       </div>
@@ -67,13 +60,7 @@ export function CampColumns({ camps, onViewDetails }: CampColumnsProps) {
               {t.search.noResults}
             </div>
           ) : (
-            vacationCamps.map((camp) => (
-              <CampCard
-                key={camp.id}
-                camp={camp}
-                onViewDetails={onViewDetails}
-              />
-            ))
+            vacationCamps.map((camp) => <CampCard key={camp.id} camp={camp} />)
           )}
         </div>
       </div>

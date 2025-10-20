@@ -1,7 +1,6 @@
 "use client";
 
 import { CampColumns } from "@/components/CampColumns";
-import { CampDetailDialog } from "@/components/CampDetailDialog";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { SearchBar } from "@/components/SearchBar";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
@@ -14,32 +13,41 @@ export default function Home() {
   const { t, language } = useTranslation();
   const [viewMode, setViewMode] = useState<ViewMode>("search");
   const [selectedBorough, setSelectedBorough] = useState<string | null>(null);
+  const [selectedCampId, setSelectedCampId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCamp, setSelectedCamp] = useState<Camp | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const handleViewDetails = (camp: Camp) => {
-    setSelectedCamp(camp);
-    setIsDialogOpen(true);
-  };
 
   const handleBoroughSelect = (borough: string) => {
     setSelectedBorough(borough);
+    setSelectedCampId(null);
     setSearchQuery("");
     setViewMode("columns");
   };
 
   const handleCampSelect = (camp: Camp) => {
     setSelectedBorough(camp.borough);
+    setSelectedCampId(camp.id);
     setSearchQuery("");
     setViewMode("columns");
-    handleViewDetails(camp);
   };
 
   const filteredCamps = useMemo(() => {
-    if (!selectedBorough) return allCamps;
-    return allCamps.filter((camp) => camp.borough === selectedBorough);
-  }, [selectedBorough]);
+    // If a specific camp is selected, show only that camp
+    if (selectedCampId) {
+      const camp = allCamps.find((c) => c.id === selectedCampId);
+      return camp ? [camp] : [];
+    }
+    // Otherwise, filter by borough if one is selected
+    if (selectedBorough) {
+      return allCamps.filter((camp) => camp.borough === selectedBorough);
+    }
+    // Default: show all camps
+    return allCamps;
+  }, [selectedBorough, selectedCampId]);
+
+  const selectedCamp = useMemo(
+    () => allCamps.find((c) => c.id === selectedCampId),
+    [selectedCampId]
+  );
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -101,24 +109,35 @@ export default function Home() {
                   value={searchQuery}
                   onValueChange={setSearchQuery}
                 />
-                {selectedBorough && (
+                {(selectedBorough || selectedCampId) && (
                   <div className="mt-3 flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
-                      {language === "fr" ? "Région: " : "Region: "}
-                      <span className="font-semibold text-foreground">
-                        {selectedBorough}
-                      </span>
+                      {selectedCampId && selectedCamp ? (
+                        <>
+                          <span className="font-semibold text-foreground">
+                            {selectedCamp.name}
+                          </span>
+                          {" • "}
+                          {selectedBorough}
+                        </>
+                      ) : (
+                        <>
+                          {language === "fr" ? "Région: " : "Region: "}
+                          <span className="font-semibold text-foreground">
+                            {selectedBorough}
+                          </span>
+                        </>
+                      )}
                     </p>
                     <button
                       onClick={() => {
                         setSelectedBorough(null);
+                        setSelectedCampId(null);
                         setViewMode("search");
                       }}
                       className="text-sm text-primary hover:underline"
                     >
-                      {language === "fr"
-                        ? "Changer de région"
-                        : "Change region"}
+                      {language === "fr" ? "Nouvelle recherche" : "New search"}
                     </button>
                   </div>
                 )}
@@ -127,21 +146,11 @@ export default function Home() {
 
             {/* Columns Content */}
             <div className="flex-1 container mx-auto px-4 py-6 overflow-hidden">
-              <CampColumns
-                camps={filteredCamps}
-                onViewDetails={handleViewDetails}
-              />
+              <CampColumns camps={filteredCamps} />
             </div>
           </div>
         )}
       </div>
-
-      {/* Camp Detail Dialog */}
-      <CampDetailDialog
-        camp={selectedCamp}
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-      />
     </div>
   );
 }

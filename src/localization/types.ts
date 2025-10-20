@@ -48,6 +48,7 @@ export type Translations = {
     languages: string;
     dates: string;
     hours: string;
+    allDay: string;
     cost: string;
     financialAid: string;
     link: string;

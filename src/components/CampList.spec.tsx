@@ -49,11 +49,9 @@ const mockCamps: Camp[] = [
 
 describe("CampList", () => {
   it("should render list of camps", () => {
-    const onViewDetails = vi.fn();
-
     render(
       <LocalizationProvider>
-        <CampList camps={mockCamps} onViewDetails={onViewDetails} />
+        <CampList camps={mockCamps} />
       </LocalizationProvider>
     );
 
@@ -62,11 +60,9 @@ describe("CampList", () => {
   });
 
   it("should display empty state when no camps", () => {
-    const onViewDetails = vi.fn();
-
     render(
       <LocalizationProvider>
-        <CampList camps={[]} onViewDetails={onViewDetails} />
+        <CampList camps={[]} />
       </LocalizationProvider>
     );
 

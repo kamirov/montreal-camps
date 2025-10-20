@@ -7,10 +7,9 @@ import { CampCard } from "./CampCard";
 
 type CampListProps = {
   camps: Camp[];
-  onViewDetails: (camp: Camp) => void;
 };
 
-export function CampList({ camps, onViewDetails }: CampListProps) {
+export function CampList({ camps }: CampListProps) {
   const { t } = useTranslation();
 
   if (camps.length === 0) {
@@ -30,7 +29,7 @@ export function CampList({ camps, onViewDetails }: CampListProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {camps.map((camp) => (
-        <CampCard key={camp.id} camp={camp} onViewDetails={onViewDetails} />
+        <CampCard key={camp.id} camp={camp} />
       ))}
     </div>
   );

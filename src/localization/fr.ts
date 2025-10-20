@@ -43,6 +43,7 @@ export const fr: Translations = {
     languages: "Langues",
     dates: "Dates",
     hours: "Heures",
+    allDay: "Toute la journée",
     cost: "Coût",
     financialAid: "Aide financière",
     link: "Site web",

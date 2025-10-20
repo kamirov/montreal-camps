@@ -2,13 +2,8 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import {
   formatCost,
   formatDateRange,
@@ -21,18 +16,37 @@ import {
   Calendar,
   Clock,
   DollarSign,
+  ExternalLink,
+  FileText,
   Globe,
   MapPin,
+  Navigation,
+  Phone,
   Users,
 } from "lucide-react";
 
 type CampCardProps = {
   camp: Camp;
-  onViewDetails: (camp: Camp) => void;
 };
 
-export function CampCard({ camp, onViewDetails }: CampCardProps) {
+export function CampCard({ camp }: CampCardProps) {
   const { t, language } = useTranslation();
+
+  const handleCall = () => {
+    window.location.href = `tel:${camp.phone}`;
+  };
+
+  const handleWebsite = () => {
+    window.open(camp.link, "_blank");
+  };
+
+  const handleDirections = () => {
+    const [lat, lng] = camp.coordinates;
+    window.open(
+      `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+      "_blank"
+    );
+  };
 
   return (
     <Card className="h-full flex flex-col hover:shadow-xl transition-all duration-300 hover:-translate-y-1 border-2 hover:border-primary/20 overflow-hidden group">
@@ -64,17 +78,25 @@ export function CampCard({ camp, onViewDetails }: CampCardProps) {
             {formatDateRange(camp.dates, language, t)}
           </span>
         </div>
-        {camp.hours && (
-          <div className="flex items-center gap-2.5 text-sm">
-            <Clock className="h-4 w-4 text-primary/70" />
-            <span>{formatTime(camp.hours, language)}</span>
-          </div>
-        )}
-        <div className="flex items-center gap-2.5 text-sm bg-primary/5 -mx-6 px-6 py-2">
-          <DollarSign className="h-5 w-5 text-primary" />
-          <span className="font-bold text-base text-primary">
-            {formatCost(camp.cost, language, t)}
+        <div className="flex items-center gap-2.5 text-sm">
+          <Clock className="h-4 w-4 text-primary/70" />
+          <span>
+            {camp.hours
+              ? formatTime(camp.hours, language)
+              : t.campFields.allDay}
           </span>
+        </div>
+        <div className="bg-primary/5 -mx-6 px-6 py-2 space-y-1">
+          <div className="flex items-center gap-2.5 text-sm">
+            <DollarSign className="h-5 w-5 text-primary" />
+            <span className="font-bold text-base text-primary">
+              {formatCost(camp.cost, language, t)}
+            </span>
+          </div>
+          <div className="text-xs text-muted-foreground pl-7">
+            <span className="font-medium">{t.campFields.financialAid}:</span>{" "}
+            {camp.financialAid}
+          </div>
         </div>
         <div className="flex items-start gap-2.5 text-sm pt-1">
           <Globe className="h-4 w-4 text-primary/70 mt-0.5" />
@@ -90,20 +112,63 @@ export function CampCard({ camp, onViewDetails }: CampCardProps) {
             ))}
           </div>
         </div>
-        <div className="text-xs text-muted-foreground pt-1">
-          <span className="font-medium">{t.campFields.financialAid}:</span>{" "}
-          {camp.financialAid}
+
+        <Separator className="my-3" />
+
+        <div className="flex items-center gap-2.5 text-sm">
+          <Phone className="h-4 w-4 text-primary/70" />
+          <span className="font-medium">{camp.phone}</span>
+        </div>
+
+        <div className="flex items-center gap-2.5 text-sm">
+          <ExternalLink className="h-4 w-4 text-primary/70" />
+          <a
+            href={camp.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-primary hover:underline truncate"
+          >
+            {(camp.link || "").replace(/^https?:\/\//, "")}
+          </a>
+        </div>
+
+        {camp.notes && (
+          <div className="flex items-start gap-2.5 text-sm pt-2">
+            <FileText className="h-4 w-4 text-primary/70 mt-0.5 shrink-0" />
+            <p className="text-xs text-muted-foreground italic">{camp.notes}</p>
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-2 pt-3">
+          <Button
+            onClick={handleCall}
+            variant="outline"
+            size="sm"
+            className="gap-2 flex-1"
+          >
+            <Phone className="h-3 w-3" />
+            {t.actions.call}
+          </Button>
+          <Button
+            onClick={handleWebsite}
+            variant="outline"
+            size="sm"
+            className="gap-2 flex-1"
+          >
+            <ExternalLink className="h-3 w-3" />
+            {t.actions.visitWebsite}
+          </Button>
+          <Button
+            onClick={handleDirections}
+            variant="outline"
+            size="sm"
+            className="gap-2 flex-1"
+          >
+            <Navigation className="h-3 w-3" />
+            {t.actions.getDirections}
+          </Button>
         </div>
       </CardContent>
-      <CardFooter className="pt-0">
-        <Button
-          onClick={() => onViewDetails(camp)}
-          className="w-full group-hover:bg-primary group-hover:shadow-md transition-all"
-          size="lg"
-        >
-          {t.actions.viewDetails}
-        </Button>
-      </CardFooter>
     </Card>
   );
 }

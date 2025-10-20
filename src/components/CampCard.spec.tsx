@@ -1,6 +1,6 @@
 import { LocalizationProvider } from "@/localization/context";
 import { Camp } from "@/types/camp";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { CampCard } from "./CampCard";
 
@@ -32,11 +32,9 @@ const mockCamp: Camp = {
 
 describe("CampCard", () => {
   it("should render camp information", () => {
-    const onViewDetails = vi.fn();
-
     render(
       <LocalizationProvider>
-        <CampCard camp={mockCamp} onViewDetails={onViewDetails} />
+        <CampCard camp={mockCamp} />
       </LocalizationProvider>
     );
 
@@ -47,38 +45,51 @@ describe("CampCard", () => {
   });
 
   it("should display financial aid information", () => {
-    const onViewDetails = vi.fn();
-
     render(
       <LocalizationProvider>
-        <CampCard camp={mockCamp} onViewDetails={onViewDetails} />
+        <CampCard camp={mockCamp} />
       </LocalizationProvider>
     );
 
     expect(screen.getByText("Available - Sliding scale")).toBeInTheDocument();
   });
 
-  it("should call onViewDetails when button is clicked", () => {
-    const onViewDetails = vi.fn();
-
+  it("should display phone number", () => {
     render(
       <LocalizationProvider>
-        <CampCard camp={mockCamp} onViewDetails={onViewDetails} />
+        <CampCard camp={mockCamp} />
       </LocalizationProvider>
     );
 
-    const button = screen.getByRole("button");
-    fireEvent.click(button);
+    expect(screen.getByText("514-555-0101")).toBeInTheDocument();
+  });
 
-    expect(onViewDetails).toHaveBeenCalledWith(mockCamp);
+  it("should display notes", () => {
+    render(
+      <LocalizationProvider>
+        <CampCard camp={mockCamp} />
+      </LocalizationProvider>
+    );
+
+    expect(screen.getByText("Great camp")).toBeInTheDocument();
+  });
+
+  it("should display action buttons", () => {
+    render(
+      <LocalizationProvider>
+        <CampCard camp={mockCamp} />
+      </LocalizationProvider>
+    );
+
+    const buttons = screen.getAllByRole("button");
+    // Should have 3 action buttons: Call, Visit Website, Get Directions
+    expect(buttons.length).toBeGreaterThanOrEqual(3);
   });
 
   it("should display camp type badge", () => {
-    const onViewDetails = vi.fn();
-
     render(
       <LocalizationProvider>
-        <CampCard camp={mockCamp} onViewDetails={onViewDetails} />
+        <CampCard camp={mockCamp} />
       </LocalizationProvider>
     );
 
@@ -86,11 +97,9 @@ describe("CampCard", () => {
   });
 
   it("should display languages", () => {
-    const onViewDetails = vi.fn();
-
     render(
       <LocalizationProvider>
-        <CampCard camp={mockCamp} onViewDetails={onViewDetails} />
+        <CampCard camp={mockCamp} />
       </LocalizationProvider>
     );
 
