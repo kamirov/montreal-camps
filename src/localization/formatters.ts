@@ -1,3 +1,4 @@
+import type { Camp } from "@/lib/validations/camp";
 import { Language, Translations } from "./types";
 
 /**
@@ -32,115 +33,146 @@ export function formatTime(timeRange: string, language: Language): string {
 
 /**
  * Formats a date range with localized month names
- * English: "June 24 - August 23, 2024"
- * French: "24 juin - 23 août 2024"
+ * Handles both old string format (for backward compatibility) and new structured format
  */
 export function formatDateRange(
-  dateRange: string,
+  dates: Camp["dates"] | string,
   language: Language,
   t: Translations
 ): string {
-  if (!dateRange) return dateRange;
+  if (!dates) return "";
 
-  // Handle parenthetical descriptions like "(Spring Break)" first
-  const withParens = /^(.*?)(\s*\(.*\))$/;
-  const parensMatch = dateRange.match(withParens);
-  let parenPart = "";
-  let mainDatePart = dateRange;
+  // Handle old string format for backward compatibility
+  if (typeof dates === "string") {
+    // Legacy string parsing logic...
+    const monthMap: Record<string, number> = {
+      january: 0,
+      february: 1,
+      march: 2,
+      april: 3,
+      may: 4,
+      june: 5,
+      july: 6,
+      august: 7,
+      september: 8,
+      october: 9,
+      november: 10,
+      december: 11,
+    };
 
-  if (parensMatch) {
-    [, mainDatePart, parenPart] = parensMatch;
+    const pattern1 =
+      /([A-Za-z]+)\s+(\d{1,2})\s*-\s*([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})/i;
+    let match = dates.match(pattern1);
+    if (match) {
+      const [, month1, day1, month2, day2, year] = match;
+      const monthIndex1 = monthMap[month1.toLowerCase()];
+      const monthIndex2 = monthMap[month2.toLowerCase()];
+
+      if (monthIndex1 !== undefined && monthIndex2 !== undefined) {
+        if (language === "fr") {
+          return `${day1} ${t.months[monthIndex1]} - ${day2} ${t.months[monthIndex2]} ${year}`;
+        } else {
+          return `${t.months[monthIndex1]} ${day1} - ${t.months[monthIndex2]} ${day2}, ${year}`;
+        }
+      }
+    }
+    return dates;
   }
 
-  const monthMap: Record<string, number> = {
-    january: 0,
-    february: 1,
-    march: 2,
-    april: 3,
-    may: 4,
-    june: 5,
-    july: 6,
-    august: 7,
-    september: 8,
-    october: 9,
-    november: 10,
-    december: 11,
-  };
+  // Handle new structured format
+  if (dates.type === "yearRound") {
+    return language === "fr" ? "Toute l'année" : "Year round";
+  }
 
-  // Pattern: "Month Day - Month Day, Year" or "Month Day-Day, Year"
-  const pattern1 =
-    /([A-Za-z]+)\s+(\d{1,2})\s*-\s*([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})/i;
-  const pattern2 = /([A-Za-z]+)\s+(\d{1,2})-(\d{1,2}),?\s*(\d{4})/i;
-  const pattern3 =
-    /([A-Za-z]+)\s+(\d{1,2})-([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})/i;
+  if (dates.type === "range") {
+    const fromDate = new Date(dates.fromDate);
+    const toDate = new Date(dates.toDate);
+    
+    const monthIndex1 = fromDate.getMonth();
+    const monthIndex2 = toDate.getMonth();
+    const day1 = fromDate.getDate();
+    const day2 = toDate.getDate();
+    const year = fromDate.getFullYear();
 
-  let match = mainDatePart.match(pattern1);
-  if (match) {
-    const [, month1, day1, month2, day2, year] = match;
-    const monthIndex1 = monthMap[month1.toLowerCase()];
-    const monthIndex2 = monthMap[month2.toLowerCase()];
-
-    if (monthIndex1 !== undefined && monthIndex2 !== undefined) {
-      if (language === "fr") {
-        return `${day1} ${t.months[monthIndex1]} - ${day2} ${t.months[monthIndex2]} ${year}${parenPart}`;
-      } else {
-        return `${t.months[monthIndex1]} ${day1} - ${t.months[monthIndex2]} ${day2}, ${year}${parenPart}`;
-      }
+    if (language === "fr") {
+      return `${day1} ${t.months[monthIndex1]} - ${day2} ${t.months[monthIndex2]} ${year}`;
+    } else {
+      return `${t.months[monthIndex1]} ${day1} - ${t.months[monthIndex2]} ${day2}, ${year}`;
     }
   }
 
-  match = mainDatePart.match(pattern2);
-  if (match) {
-    const [, month, day1, day2, year] = match;
-    const monthIndex = monthMap[month.toLowerCase()];
-
-    if (monthIndex !== undefined) {
-      if (language === "fr") {
-        return `${day1}-${day2} ${t.months[monthIndex]} ${year}${parenPart}`;
-      } else {
-        return `${t.months[monthIndex]} ${day1}-${day2}, ${year}${parenPart}`;
-      }
-    }
-  }
-
-  match = mainDatePart.match(pattern3);
-  if (match) {
-    const [, month1, day1, month2, day2, year] = match;
-    const monthIndex1 = monthMap[month1.toLowerCase()];
-    const monthIndex2 = monthMap[month2.toLowerCase()];
-
-    if (monthIndex1 !== undefined && monthIndex2 !== undefined) {
-      if (language === "fr") {
-        return `${day1} ${t.months[monthIndex1]} - ${day2} ${t.months[monthIndex2]} ${year}${parenPart}`;
-      } else {
-        return `${t.months[monthIndex1]} ${day1} - ${t.months[monthIndex2]} ${day2}, ${year}${parenPart}`;
-      }
-    }
-  }
-
-  // If no pattern matches, return as-is
-  return dateRange;
+  return "";
 }
 
 /**
  * Formats cost with translated units
- * English: "$180/week"
- * French: "$180/semaine"
+ * Handles both old string format and new structured format
  */
 export function formatCost(
-  cost: string,
+  cost: Camp["cost"] | string,
   language: Language,
   t: Translations
 ): string {
-  if (!cost) return cost;
+  if (!cost) return "";
 
-  if (language === "en") return cost;
+  // Handle old string format for backward compatibility
+  if (typeof cost === "string") {
+    if (language === "en") return cost;
+    return cost
+      .replace(/\/week/gi, `/${t.costUnits.week}`)
+      .replace(/\/day/gi, `/${t.costUnits.day}`)
+      .replace(/\/month/gi, `/${t.costUnits.month}`);
+  }
 
-  // Replace cost units with translations
-  return cost
-    .replace(/\/week/gi, `/${t.costUnits.week}`)
-    .replace(/\/day/gi, `/${t.costUnits.day}`)
-    .replace(/\/month/gi, `/${t.costUnits.month}`);
+  // Handle new structured format
+  const amount = cost.amount.toFixed(2);
+  const period = cost.period;
+
+  const periodTranslations: Record<string, string> = {
+    week: language === "fr" ? t.costUnits.week : "week",
+    month: language === "fr" ? t.costUnits.month : "month",
+    year: language === "fr" ? "an" : "year",
+    hour: language === "fr" ? "heure" : "hour",
+  };
+
+  return `$${amount}/${periodTranslations[period] || period}`;
+}
+
+/**
+ * Formats age range
+ * Handles structured format: all ages or from-to range
+ */
+export function formatAgeRange(
+  ageRange: Camp["ageRange"],
+  language: Language
+): string {
+  if (ageRange.type === "all") {
+    return language === "fr" ? "Tous les âges" : "All ages";
+  }
+
+  if (ageRange.type === "range") {
+    const suffix = language === "fr" ? " ans" : " years";
+    return `${ageRange.from}${suffix} - ${ageRange.to}${suffix}`;
+  }
+
+  return "";
+}
+
+/**
+ * Formats phone number
+ * Handles structured format with optional extension
+ */
+export function formatPhone(phone: Camp["phone"]): string {
+  if (typeof phone === "string") {
+    // Legacy format
+    return phone;
+  }
+
+  let formatted = phone.number;
+  if (phone.extension) {
+    formatted += ` ext. ${phone.extension}`;
+  }
+  return formatted;
 }
 
 /**

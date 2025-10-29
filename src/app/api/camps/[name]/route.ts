@@ -23,24 +23,35 @@ export async function GET(
       return NextResponse.json({ error: "Camp not found" }, { status: 404 });
     }
 
-    // Transform database row to Camp format (coordinates tuple)
+    // Parse JSONB fields
+    const ageRange = camp.ageRange as unknown as
+      | { type: "all"; allAges: true }
+      | { type: "range"; allAges: false; from: number; to: number };
+    
+    const dates = camp.dates as unknown as
+      | { type: "yearRound"; yearRound: true }
+      | { type: "range"; yearRound: false; fromDate: string; toDate: string };
+
+    // Transform database row to Camp format
     const campData: Camp = {
       name: camp.name,
       type: camp.type as "day" | "vacation",
       borough: camp.borough,
-      ageRange: camp.ageRange,
+      ageRange,
       languages: camp.languages,
-      dates: camp.dates,
+      dates,
       hours: camp.hours ?? undefined,
-      cost: camp.cost,
+      cost: {
+        amount: parseFloat(camp.costAmount),
+        period: camp.costPeriod as "year" | "month" | "week" | "hour",
+      },
       financialAid: camp.financialAid,
       link: camp.link,
-      phone: camp.phone,
-      notes: camp.notes,
-      coordinates: [
-        parseFloat(camp.latitude),
-        parseFloat(camp.longitude),
-      ] as [number, number],
+      phone: {
+        number: camp.phone,
+        extension: camp.phoneExtension ?? undefined,
+      },
+      notes: camp.notes ?? undefined,
     };
 
     return NextResponse.json(campData);
@@ -74,9 +85,6 @@ export async function PUT(
 
     const campData = validationResult.data;
 
-    // Transform coordinates tuple to separate lat/lng for database
-    const [latitude, longitude] = campData.coordinates;
-
     // Upsert using Drizzle's insert with onConflictDoUpdate
     await db
       .insert(camps)
@@ -84,34 +92,34 @@ export async function PUT(
         name,
         type: campData.type,
         borough: campData.borough,
-        ageRange: campData.ageRange,
+        ageRange: campData.ageRange as unknown,
         languages: campData.languages,
-        dates: campData.dates,
+        dates: campData.dates as unknown,
         hours: campData.hours ?? null,
-        cost: campData.cost,
+        costAmount: campData.cost.amount.toString(),
+        costPeriod: campData.cost.period,
         financialAid: campData.financialAid,
         link: campData.link,
-        phone: campData.phone,
-        notes: campData.notes,
-        latitude: latitude.toString(),
-        longitude: longitude.toString(),
+        phone: campData.phone.number,
+        phoneExtension: campData.phone.extension ?? null,
+        notes: campData.notes ?? null,
       })
       .onConflictDoUpdate({
         target: camps.name,
         set: {
           type: campData.type,
           borough: campData.borough,
-          ageRange: campData.ageRange,
+          ageRange: campData.ageRange as unknown,
           languages: campData.languages,
-          dates: campData.dates,
+          dates: campData.dates as unknown,
           hours: campData.hours ?? null,
-          cost: campData.cost,
+          costAmount: campData.cost.amount.toString(),
+          costPeriod: campData.cost.period,
           financialAid: campData.financialAid,
           link: campData.link,
-          phone: campData.phone,
-          notes: campData.notes,
-          latitude: latitude.toString(),
-          longitude: longitude.toString(),
+          phone: campData.phone.number,
+          phoneExtension: campData.phone.extension ?? null,
+          notes: campData.notes ?? null,
         },
       });
 
@@ -121,23 +129,33 @@ export async function PUT(
       .from(camps)
       .where(eq(camps.name, name));
 
+    const ageRange = updatedCamp.ageRange as unknown as
+      | { type: "all"; allAges: true }
+      | { type: "range"; allAges: false; from: number; to: number };
+    
+    const dates = updatedCamp.dates as unknown as
+      | { type: "yearRound"; yearRound: true }
+      | { type: "range"; yearRound: false; fromDate: string; toDate: string };
+
     const response: Camp = {
       name: updatedCamp.name,
       type: updatedCamp.type as "day" | "vacation",
       borough: updatedCamp.borough,
-      ageRange: updatedCamp.ageRange,
+      ageRange,
       languages: updatedCamp.languages,
-      dates: updatedCamp.dates,
+      dates,
       hours: updatedCamp.hours ?? undefined,
-      cost: updatedCamp.cost,
+      cost: {
+        amount: parseFloat(updatedCamp.costAmount),
+        period: updatedCamp.costPeriod as "year" | "month" | "week" | "hour",
+      },
       financialAid: updatedCamp.financialAid,
       link: updatedCamp.link,
-      phone: updatedCamp.phone,
-      notes: updatedCamp.notes,
-      coordinates: [
-        parseFloat(updatedCamp.latitude),
-        parseFloat(updatedCamp.longitude),
-      ] as [number, number],
+      phone: {
+        number: updatedCamp.phone,
+        extension: updatedCamp.phoneExtension ?? undefined,
+      },
+      notes: updatedCamp.notes ?? undefined,
     };
 
     return NextResponse.json(response);

@@ -11,9 +11,11 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import {
+  formatAgeRange,
   formatCost,
   formatDateRange,
   formatLanguage,
+  formatPhone,
   formatTime,
 } from "@/localization/formatters";
 import { useTranslation } from "@/localization/useTranslation";
@@ -50,7 +52,8 @@ export function CampDetailDialog({
     camp.financialAid.toLowerCase().includes("disponible");
 
   const handleCall = () => {
-    window.location.href = `tel:${camp.phone}`;
+    const phoneNumber = typeof camp.phone === "string" ? camp.phone : camp.phone.number;
+    window.location.href = `tel:${phoneNumber}`;
   };
 
   const handleWebsite = () => {
@@ -58,9 +61,10 @@ export function CampDetailDialog({
   };
 
   const handleDirections = () => {
-    const [lat, lng] = camp.coordinates;
+    // Search by camp name and borough since coordinates are no longer available
+    const query = encodeURIComponent(`${camp.name}, ${camp.borough}, Montreal`);
     window.open(
-      `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+      `https://www.google.com/maps/search/?api=1&query=${query}`,
       "_blank"
     );
   };
@@ -88,7 +92,7 @@ export function CampDetailDialog({
               <div>
                 <div className="font-medium">{t.campFields.ageRange}</div>
                 <div className="text-sm text-muted-foreground">
-                  {camp.ageRange}
+                  {formatAgeRange(camp.ageRange, language)}
                 </div>
               </div>
             </div>
@@ -164,7 +168,7 @@ export function CampDetailDialog({
               <div>
                 <div className="font-medium">{t.campFields.phone}</div>
                 <div className="text-sm text-muted-foreground">
-                  {camp.phone}
+                  {formatPhone(camp.phone)}
                 </div>
               </div>
             </div>

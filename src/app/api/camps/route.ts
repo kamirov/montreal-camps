@@ -8,25 +8,38 @@ export async function GET() {
   try {
     const allCamps = await db.select().from(camps);
 
-    // Transform database rows to Camp format (coordinates tuple)
-    const campsData: Camp[] = allCamps.map((camp) => ({
-      name: camp.name,
-      type: camp.type as "day" | "vacation",
-      borough: camp.borough,
-      ageRange: camp.ageRange,
-      languages: camp.languages,
-      dates: camp.dates,
-      hours: camp.hours ?? undefined,
-      cost: camp.cost,
-      financialAid: camp.financialAid,
-      link: camp.link,
-      phone: camp.phone,
-      notes: camp.notes,
-      coordinates: [
-        parseFloat(camp.latitude),
-        parseFloat(camp.longitude),
-      ] as [number, number],
-    }));
+    // Transform database rows to Camp format
+    const campsData: Camp[] = allCamps.map((camp) => {
+      // Parse JSONB fields
+      const ageRange = camp.ageRange as unknown as
+        | { type: "all"; allAges: true }
+        | { type: "range"; allAges: false; from: number; to: number };
+      
+      const dates = camp.dates as unknown as
+        | { type: "yearRound"; yearRound: true }
+        | { type: "range"; yearRound: false; fromDate: string; toDate: string };
+
+      return {
+        name: camp.name,
+        type: camp.type as "day" | "vacation",
+        borough: camp.borough,
+        ageRange,
+        languages: camp.languages,
+        dates,
+        hours: camp.hours ?? undefined,
+        cost: {
+          amount: parseFloat(camp.costAmount),
+          period: camp.costPeriod as "year" | "month" | "week" | "hour",
+        },
+        financialAid: camp.financialAid,
+        link: camp.link,
+        phone: {
+          number: camp.phone,
+          extension: camp.phoneExtension ?? undefined,
+        },
+        notes: camp.notes ?? undefined,
+      };
+    });
 
     return NextResponse.json(campsData);
   } catch (error) {

@@ -1,4 +1,8 @@
+import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
+
+// Load .env file (Next.js loads this automatically, but drizzle-kit runs separately)
+config();
 
 if (!process.env.PGHOST_UNPOOLED) {
   throw new Error("PGHOST_UNPOOLED environment variable is not set");

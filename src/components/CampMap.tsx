@@ -57,39 +57,15 @@ export function CampMap({ camps, onViewDetails }: CampMapProps) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {camps.map((camp) => (
-          <Marker key={camp.name} position={camp.coordinates} icon={icon}>
-            <Popup>
-              <div className="min-w-[200px]">
-                <h3 className="font-semibold mb-1">{camp.name}</h3>
-                <p className="text-sm text-muted-foreground mb-2">
-                  {camp.borough}
-                </p>
-                <div className="space-y-1 text-sm mb-2">
-                  <div>
-                    <strong>{t.campFields.ageRange}:</strong> {camp.ageRange}
-                  </div>
-                  <div>
-                    <strong>{t.campFields.cost}:</strong> {camp.cost}
-                  </div>
-                </div>
-                <Badge
-                  variant={camp.type === "day" ? "default" : "secondary"}
-                  className="mb-2"
-                >
-                  {camp.type === "day" ? t.campTypes.day : t.campTypes.vacation}
-                </Badge>
-                <Button
-                  size="sm"
-                  className="w-full"
-                  onClick={() => onViewDetails(camp)}
-                >
-                  {t.actions.viewDetails}
-                </Button>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+        {/* Map markers removed - coordinates no longer available */}
+        {/* Map view will show camps by name/borough search instead */}
+        <div className="absolute inset-0 flex items-center justify-center bg-background/50 backdrop-blur-sm z-[1000] pointer-events-none">
+          <div className="bg-background border rounded-lg p-4 shadow-lg pointer-events-auto">
+            <p className="text-sm text-muted-foreground">
+              Map markers require coordinates. Please use the camp details to get directions.
+            </p>
+          </div>
+        </div>
       </MapContainer>
     </div>
   );

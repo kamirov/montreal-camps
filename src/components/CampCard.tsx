@@ -4,9 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  formatAgeRange,
   formatCost,
   formatDateRange,
   formatLanguage,
+  formatPhone,
   formatTime,
 } from "@/localization/formatters";
 import { useTranslation } from "@/localization/useTranslation";
@@ -32,7 +34,8 @@ export function CampCard({ camp }: CampCardProps) {
   const { t, language } = useTranslation();
 
   const handleCall = () => {
-    window.location.href = `tel:${camp.phone}`;
+    const phoneNumber = typeof camp.phone === "string" ? camp.phone : camp.phone.number;
+    window.location.href = `tel:${phoneNumber}`;
   };
 
   const handleWebsite = () => {
@@ -40,9 +43,10 @@ export function CampCard({ camp }: CampCardProps) {
   };
 
   const handleDirections = () => {
-    const [lat, lng] = camp.coordinates;
+    // Search by camp name and borough since coordinates are no longer available
+    const query = encodeURIComponent(`${camp.name}, ${camp.borough}, Montreal`);
     window.open(
-      `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,
+      `https://www.google.com/maps/search/?api=1&query=${query}`,
       "_blank"
     );
   };
@@ -61,7 +65,9 @@ export function CampCard({ camp }: CampCardProps) {
       <CardContent className="flex-1 space-y-3 pb-4">
         <div className="flex items-center gap-2.5 text-sm">
           <Users className="h-4 w-4 text-primary/70" />
-          <span className="font-medium">{camp.ageRange}</span>
+          <span className="font-medium">
+            {formatAgeRange(camp.ageRange, language)}
+          </span>
         </div>
         <div className="flex items-center gap-2.5 text-sm">
           <Calendar className="h-4 w-4 text-primary/70" />
@@ -109,7 +115,7 @@ export function CampCard({ camp }: CampCardProps) {
         <div className="mt-4 pt-3 space-y-3">
           <div className="flex items-center gap-2.5 text-sm">
             <Phone className="h-4 w-4 text-primary/70" />
-            <span className="font-medium">{camp.phone}</span>
+            <span className="font-medium">{formatPhone(camp.phone)}</span>
           </div>
 
           <div className="flex items-center gap-2.5 text-sm">
