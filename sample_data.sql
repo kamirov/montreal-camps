@@ -1,44 +1,328 @@
--- Sample camp data for Montreal Camps Directory
--- Note: name is the primary key
+-- Sample camp data for Montreal Camps
+-- Schema: name, type, borough, age_range (jsonb), languages (array), dates (jsonb), hours, cost_amount, cost_period, financial_aid, link, phone, phone_extension, notes
 
-INSERT INTO camps (name, type, borough, age_range, languages, dates, hours, cost, financial_aid, link, phone, notes, latitude, longitude) VALUES
-('Camp Plateau Aventure', 'day', 'Le Plateau-Mont-Royal', '5-12 ans', ARRAY['French', 'English'], 'June 24 - August 23, 2024', '8:00 AM - 5:00 PM', '$180/week', 'Available - Sliding scale based on income', 'https://example.com/plateau-aventure', '514-555-0101', 'Outdoor activities, swimming, arts and crafts. Snacks provided.', 45.52, -73.58),
-
-('NDG Sports Camp', 'day', 'Côte-des-Neiges–Notre-Dame-de-Grâce', '6-14 years', ARRAY['English', 'French'], 'July 2 - August 16, 2024', '9:00 AM - 4:00 PM', '$150/week', 'Contact for information', 'https://example.com/ndg-sports', '514-555-0102', 'Soccer, basketball, track and field. Lunch not included.', 45.47, -73.61),
-
-('Camp de Vacances Rosemont', 'vacation', 'Rosemont–La Petite-Patrie', '5-10 ans', ARRAY['French'], 'March 4-8, 2024 (Spring Break)', NULL, '$200/week', 'Available - Up to 50% reduction', 'https://example.com/rosemont-vacances', '514-555-0103', 'Thematic activities, games, creative workshops.', 45.54, -73.59),
-
-('Camp Ahuntsic Nature', 'day', 'Ahuntsic-Cartierville', '4-12 ans', ARRAY['French'], 'July 1 - August 20, 2024', '7:30 AM - 5:30 PM', '$175/week', 'Available - Income-based subsidies', 'https://example.com/ahuntsic-nature', '514-555-0105', 'Nature exploration, hiking, environmental education.', 45.56, -73.67),
-
-('Winter Camp Verdun', 'vacation', 'Verdun', '6-13 years', ARRAY['English', 'French'], 'December 23-30, 2024', NULL, '$300/week', 'Contact for information', 'https://example.com/verdun-winter', '514-555-0106', 'Indoor and outdoor winter activities, skating, crafts.', 45.45, -73.57),
-
-('LaSalle Multi-Sports', 'day', 'LaSalle', '5-16 ans', ARRAY['French', 'English'], 'June 24 - August 23, 2024', '8:00 AM - 5:00 PM', '$160/week', 'Available - 30% reduction available', 'https://example.com/lasalle-sports', '514-555-0107', 'Various sports, swimming pool access, nutritious snacks.', 45.42, -73.63),
-
-('Camp de Relâche Sud-Ouest', 'vacation', 'Le Sud-Ouest', '5-12 ans', ARRAY['French'], 'March 4-8, 2024', NULL, '$150/week', 'Available - Full subsidies for eligible families', 'https://example.com/so-relache', '514-555-0109', 'Games, sports, creative activities. Lunch included.', 45.47, -73.58),
-
-('Camp Anjou Découverte', 'day', 'Anjou', '4-11 ans', ARRAY['French'], 'June 24 - August 23, 2024', '7:00 AM - 6:00 PM', '$170/week', 'Available - Contact for details', 'https://example.com/anjou-decouverte', '514-555-0110', 'Science, arts, sports, field trips.', 45.61, -73.55),
-
-('Pierrefonds Holiday Camp', 'vacation', 'Pierrefonds-Roxboro', '5-13 years', ARRAY['English', 'French'], 'December 23-January 3, 2025', NULL, '$250/week', 'Available - Scholarships available', 'https://example.com/pierrefonds-holiday', '514-555-0112', 'Holiday crafts, winter sports, special events.', 45.49, -73.85),
-
-('Camp Villeray Créatif', 'day', 'Villeray–Saint-Michel–Parc-Extension', '5-12 ans', ARRAY['French', 'English', 'Arabic'], 'June 24 - August 23, 2024', '8:00 AM - 5:00 PM', '$140/week', 'Available - Sliding scale payment', 'https://example.com/villeray-creatif', '514-555-0113', 'Arts, multicultural activities, sports, cooking.', 45.55, -73.62),
-
-('Outremont Music & Arts', 'day', 'Outremont', '7-16 years', ARRAY['French', 'English'], 'July 8 - August 16, 2024', '9:00 AM - 4:00 PM', '$280/week', 'Contact for information', 'https://example.com/outremont-music', '514-555-0114', 'Music lessons, art classes, performances.', 45.52, -73.61),
-
-('Rivière-des-Prairies Spring Camp', 'vacation', 'Rivière-des-Prairies–Pointe-aux-Trembles', '6-13 ans', ARRAY['French'], 'March 4-8, 2024', NULL, '$180/week', 'Available - Up to 40% reduction', 'https://example.com/rdp-spring', '514-555-0115', 'Outdoor activities, nature walks, games.', 45.65, -73.5),
-
-('Saint-Léonard Cultural Camp', 'day', 'Saint-Léonard', '5-14 ans', ARRAY['French', 'English', 'Italian'], 'July 1 - August 20, 2024', '8:00 AM - 5:00 PM', '$165/week', 'Available - Income-based', 'https://example.com/sl-cultural', '514-555-0116', 'Cultural activities, language learning, sports.', 45.59, -73.59),
-
-('CDN Winter Wonderland', 'vacation', 'Côte-des-Neiges–Notre-Dame-de-Grâce', '4-10 years', ARRAY['English', 'French'], 'December 23-30, 2024', NULL, '$220/week', 'Available - Limited spots', 'https://example.com/cdn-winter', '514-555-0118', 'Winter activities, crafts, indoor games, hot chocolate.', 45.475, -73.615),
-
-('Camp Verdun Actif', 'day', 'Verdun', '5-13 ans', ARRAY['French', 'English'], 'June 24 - August 23, 2024', '7:30 AM - 5:30 PM', '$155/week', 'Available - Partial subsidies', 'https://example.com/verdun-actif', '514-555-0119', 'Active games, swimming, team sports.', 45.455, -73.565),
-
-('Ville-Marie Leadership Camp', 'day', 'Ville-Marie', '12-17 years', ARRAY['English', 'French'], 'July 8 - August 9, 2024', '9:00 AM - 5:00 PM', '$275/week', 'Scholarships available', 'https://example.com/vm-leadership', '514-555-0120', 'Leadership development, community service, workshops.', 45.505, -73.565),
-
-('Camp de Relâche LaSalle', 'vacation', 'LaSalle', '6-12 ans', ARRAY['French'], 'March 4-8, 2024', NULL, '$160/week', 'Available - Contact for details', 'https://example.com/lasalle-relache', '514-555-0121', 'Indoor activities, crafts, movies, snacks included.', 45.425, -73.625),
-
-('Rosemont Adventure Camp', 'day', 'Rosemont–La Petite-Patrie', '6-14 years', ARRAY['French', 'English'], 'June 24 - August 23, 2024', '8:00 AM - 5:00 PM', '$190/week', 'Available - Income-based assistance', 'https://example.com/rosemont-adventure', '514-555-0122', 'Rock climbing, zip-lining, outdoor challenges.', 45.545, -73.585),
-
-('Sud-Ouest Multi-Arts', 'day', 'Le Sud-Ouest', '5-15 ans', ARRAY['French', 'English'], 'July 1 - August 20, 2024', '8:30 AM - 4:30 PM', '$170/week', 'Available - Full and partial subsidies', 'https://example.com/so-arts', '514-555-0123', 'Visual arts, music, dance, theater.', 45.465, -73.585),
-
-('Saint-Laurent Bilingual Camp', 'day', 'Saint-Laurent', '4-12 years', ARRAY['English', 'French'], 'June 24 - August 23, 2024', '7:00 AM - 6:00 PM', '$185/week', 'Available - Sliding scale', 'https://example.com/sl-bilingual', '514-555-0125', 'Language immersion, cultural activities, games.', 45.515, -73.665);
-
+INSERT INTO camps (name, type, borough, age_range, languages, dates, hours, cost_amount, cost_period, financial_aid, link, phone, phone_extension, notes) VALUES
+-- Day Camps
+(
+  'Camp Plateau Aventure',
+  'day',
+  'Le Plateau-Mont-Royal',
+  '{"type": "range", "allAges": false, "from": 5, "to": 12}'::jsonb,
+  ARRAY['French', 'English'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-06-24", "toDate": "2024-08-23"}'::jsonb,
+  '8:00 AM - 5:00 PM',
+  180.00,
+  'week',
+  'Available - Sliding scale based on income',
+  'https://example.com/plateau-aventure',
+  '5145550101',
+  NULL,
+  'Outdoor activities, swimming, arts and crafts. Snacks provided.'
+),
+(
+  'NDG Sports Camp',
+  'day',
+  'Côte-des-Neiges–Notre-Dame-de-Grâce',
+  '{"type": "range", "allAges": false, "from": 6, "to": 14}'::jsonb,
+  ARRAY['English', 'French'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-07-02", "toDate": "2024-08-16"}'::jsonb,
+  '9:00 AM - 4:00 PM',
+  150.00,
+  'week',
+  'Contact for information',
+  'https://example.com/ndg-sports',
+  '5145550102',
+  NULL,
+  'Soccer, basketball, track and field. Lunch not included.'
+),
+(
+  'Rosemont Creative Arts',
+  'day',
+  'Rosemont–La Petite-Patrie',
+  '{"type": "all", "allAges": true}'::jsonb,
+  ARRAY['French'],
+  '{"type": "yearRound", "yearRound": true}'::jsonb,
+  '10:00 AM - 3:00 PM',
+  120.00,
+  'week',
+  'Subsidized rates available',
+  'https://example.com/rosemont-arts',
+  '5145550103',
+  '123',
+  'Painting, sculpture, music. All skill levels welcome.'
+),
+(
+  'Verdun Nature Camp',
+  'day',
+  'Le Sud-Ouest',
+  '{"type": "range", "allAges": false, "from": 7, "to": 15}'::jsonb,
+  ARRAY['French', 'English'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-07-08", "toDate": "2024-08-09"}'::jsonb,
+  '8:30 AM - 4:30 PM',
+  200.00,
+  'week',
+  'Financial assistance available',
+  'https://example.com/verdun-nature',
+  '5145550104',
+  NULL,
+  'Ecology, hiking, camping skills. Equipment provided.'
+),
+(
+  'Outremont Science Lab',
+  'day',
+  'Outremont',
+  '{"type": "range", "allAges": false, "from": 8, "to": 13}'::jsonb,
+  ARRAY['French', 'English'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-07-15", "toDate": "2024-08-23"}'::jsonb,
+  '9:00 AM - 5:00 PM',
+  250.00,
+  'week',
+  'Scholarships available for qualifying families',
+  'https://example.com/outremont-science',
+  '5145550105',
+  NULL,
+  'STEM activities, experiments, robotics. Advanced program.'
+),
+-- Vacation Camps
+(
+  'Lachine Winter Break Camp',
+  'vacation',
+  'Lachine',
+  '{"type": "range", "allAges": false, "from": 5, "to": 12}'::jsonb,
+  ARRAY['French', 'English'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-12-23", "toDate": "2025-01-03"}'::jsonb,
+  NULL,
+  300.00,
+  'week',
+  'Discounted rates for early registration',
+  'https://example.com/lachine-winter',
+  '5145550201',
+  NULL,
+  'Winter activities, indoor games, crafts. Full day program during school break.'
+),
+(
+  'Ahuntsic Spring Camp',
+  'vacation',
+  'Ahuntsic-Cartierville',
+  '{"type": "range", "allAges": false, "from": 6, "to": 14}'::jsonb,
+  ARRAY['French'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-03-04", "toDate": "2024-03-15"}'::jsonb,
+  NULL,
+  225.00,
+  'week',
+  'Subsidy programs accepted',
+  'https://example.com/ahuntsic-spring',
+  '5145550202',
+  NULL,
+  'Spring break activities. Swimming, sports, arts. Extended hours available.'
+),
+(
+  'LaSalle Music Camp',
+  'vacation',
+  'LaSalle',
+  '{"type": "all", "allAges": true}'::jsonb,
+  ARRAY['English', 'French', 'Spanish'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-07-01", "toDate": "2024-07-12"}'::jsonb,
+  NULL,
+  350.00,
+  'week',
+  'Need-based financial aid available',
+  'https://example.com/lasalle-music',
+  '5145550203',
+  '456',
+  'Music lessons, ensemble playing, recording studio. Instruments provided.'
+),
+(
+  'Ville-Marie Tech Camp',
+  'vacation',
+  'Ville-Marie',
+  '{"type": "range", "allAges": false, "from": 10, "to": 16}'::jsonb,
+  ARRAY['French', 'English'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-08-12", "toDate": "2024-08-23"}'::jsonb,
+  NULL,
+  400.00,
+  'week',
+  'Contact for scholarship information',
+  'https://example.com/ville-marie-tech',
+  '5145550204',
+  NULL,
+  'Coding, web development, game design. Laptops provided.'
+),
+(
+  'Pierrefonds Adventure Camp',
+  'vacation',
+  'Pierrefonds-Roxboro',
+  '{"type": "range", "allAges": false, "from": 8, "to": 15}'::jsonb,
+  ARRAY['English', 'French'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-12-27", "toDate": "2025-01-05"}'::jsonb,
+  NULL,
+  275.00,
+  'week',
+  'Early bird discount: 10% off before December 1st',
+  'https://example.com/pierrefonds-adventure',
+  '5145550205',
+  NULL,
+  'Multi-sport activities, team building, outdoor excursions. Overnight option available.'
+),
+-- More Day Camps
+(
+  'Montreal North Dance Studio',
+  'day',
+  'Montréal-Nord',
+  '{"type": "range", "allAges": false, "from": 4, "to": 18}'::jsonb,
+  ARRAY['French', 'English', 'Arabic'],
+  '{"type": "yearRound", "yearRound": true}'::jsonb,
+  'Afternoon classes: 3:00 PM - 6:00 PM',
+  50.00,
+  'week',
+  'Community subsidy program',
+  'https://example.com/montreal-north-dance',
+  '5145550106',
+  NULL,
+  'Hip-hop, ballet, contemporary. Performance opportunities.'
+),
+(
+  'Saint-Laurent Language Immersion',
+  'day',
+  'Saint-Laurent',
+  '{"type": "range", "allAges": false, "from": 5, "to": 10}'::jsonb,
+  ARRAY['English', 'French'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-06-17", "toDate": "2024-08-30"}'::jsonb,
+  '8:30 AM - 4:00 PM',
+  175.00,
+  'week',
+  'Multi-child discounts available',
+  'https://example.com/saint-laurent-immersion',
+  '5145550107',
+  NULL,
+  'Bilingual activities, language learning through play. Native speakers.'
+),
+(
+  'Westmount Chess Academy',
+  'day',
+  'Westmount',
+  '{"type": "range", "allAges": false, "from": 7, "to": 16}'::jsonb,
+  ARRAY['English', 'French'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-07-08", "toDate": "2024-08-16"}'::jsonb,
+  '10:00 AM - 2:00 PM',
+  95.00,
+  'week',
+  'Free for qualifying low-income families',
+  'https://example.com/westmount-chess',
+  '5145550108',
+  NULL,
+  'Chess instruction, tournaments, strategy games. All levels welcome.'
+),
+(
+  'Côte-Saint-Luc Tennis Camp',
+  'day',
+  'Côte-Saint-Luc',
+  '{"type": "range", "allAges": false, "from": 6, "to": 17}'::jsonb,
+  ARRAY['English', 'French'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-06-24", "toDate": "2024-08-30"}'::jsonb,
+  '9:00 AM - 12:00 PM or 1:00 PM - 4:00 PM',
+  85.00,
+  'week',
+  'Equipment rental available',
+  'https://example.com/cote-saint-luc-tennis',
+  '5145550109',
+  NULL,
+  'Professional coaching, courts included. Half-day or full-day options.'
+),
+(
+  'Mercier-Hochelaga Cooking Camp',
+  'day',
+  'Mercier–Hochelaga-Maisonneuve',
+  '{"type": "range", "allAges": false, "from": 8, "to": 14}'::jsonb,
+  ARRAY['French'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-07-15", "toDate": "2024-08-16"}'::jsonb,
+  '10:00 AM - 3:00 PM',
+  160.00,
+  'week',
+  'Sliding scale: $100-$160 based on income',
+  'https://example.com/mercier-cooking',
+  '5145550110',
+  NULL,
+  'Learn to cook, bake, meal prep. Ingredients included. Take home meals.'
+),
+-- More Vacation Camps
+(
+  'Beaconsfield Winter Sports',
+  'vacation',
+  'Beaconsfield',
+  '{"type": "range", "allAges": false, "from": 9, "to": 16}'::jsonb,
+  ARRAY['English', 'French'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-12-23", "toDate": "2025-01-05"}'::jsonb,
+  NULL,
+  425.00,
+  'week',
+  'Multi-week discounts available',
+  'https://example.com/beaconsfield-winter',
+  '5145550206',
+  NULL,
+  'Skiing, snowboarding, ice skating. Equipment rental included. Daily field trips.'
+),
+(
+  'Dollard-des-Ormeaux Theatre Camp',
+  'vacation',
+  'Dollard-des-Ormeaux',
+  '{"type": "range", "allAges": false, "from": 7, "to": 15}'::jsonb,
+  ARRAY['English', 'French'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-07-22", "toDate": "2024-08-02"}'::jsonb,
+  NULL,
+  320.00,
+  'week',
+  'Scholarship program for talented students',
+  'https://example.com/ddo-theatre',
+  '5145550207',
+  NULL,
+  'Acting, singing, stagecraft. End-of-camp performance for families.'
+),
+(
+  'Rivière-des-Prairies Nature',
+  'vacation',
+  'Rivière-des-Prairies–Pointe-aux-Trembles',
+  '{"type": "range", "allAges": false, "from": 6, "to": 12}'::jsonb,
+  ARRAY['French', 'English'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-08-05", "toDate": "2024-08-16"}'::jsonb,
+  NULL,
+  190.00,
+  'week',
+  'Early registration: $50 off before June 1st',
+  'https://example.com/riviere-nature',
+  '5145550208',
+  NULL,
+  'Bird watching, plant identification, nature crafts. Mostly outdoor activities.'
+),
+(
+  'Saint-Léonard Soccer Intensive',
+  'vacation',
+  'Saint-Léonard',
+  '{"type": "range", "allAges": false, "from": 10, "to": 17}'::jsonb,
+  ARRAY['French', 'English', 'Italian'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-07-08", "toDate": "2024-07-19"}'::jsonb,
+  NULL,
+  280.00,
+  'week',
+  'Team discounts available',
+  'https://example.com/saint-leonard-soccer',
+  '5145550209',
+  NULL,
+  'Intensive training with professional coaches. Scrimmages and tournaments included.'
+),
+(
+  'Anjou Swimming Camp',
+  'vacation',
+  'Anjou',
+  '{"type": "range", "allAges": false, "from": 5, "to": 13}'::jsonb,
+  ARRAY['French', 'English'],
+  '{"type": "range", "yearRound": false, "fromDate": "2024-08-12", "toDate": "2024-08-23"}'::jsonb,
+  NULL,
+  240.00,
+  'week',
+  'Sibling discount: 15% off second child',
+  'https://example.com/anjou-swimming',
+  '5145550210',
+  NULL,
+  'Swimming lessons, water games, pool safety. Certified instructors. Indoor pool facility.'
+);
