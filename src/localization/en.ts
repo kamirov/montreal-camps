@@ -149,4 +149,39 @@ export const en: Translations = {
   },
 
   sampleDataNotice: "Sample data for demonstration purposes only",
+
+  loading: {
+    camps: "Loading camps...",
+  },
+
+  error: {
+    loadCamps: "Error loading camps",
+  },
+
+  manage: {
+    pageTitle: "Manage Camps",
+    selectCamp: "Select a camp to edit",
+    createNew: "Create New Camp",
+    save: "Save",
+    delete: "Delete",
+    cancel: "Cancel",
+    coordinates: {
+      latitude: "Latitude",
+      longitude: "Longitude",
+    },
+    validation: {
+      required: "This field is required",
+      invalidUrl: "Must be a valid URL",
+      invalidCoordinates: "Invalid coordinates",
+    },
+    success: {
+      saved: "Camp saved successfully",
+      deleted: "Camp deleted successfully",
+    },
+    error: {
+      saveFailed: "Failed to save camp",
+      deleteFailed: "Failed to delete camp",
+      loadFailed: "Failed to load camps",
+    },
+  },
 };

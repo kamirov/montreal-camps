@@ -29,7 +29,7 @@ export function CampList({ camps }: CampListProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
       {camps.map((camp) => (
-        <CampCard key={camp.id} camp={camp} />
+        <CampCard key={camp.name} camp={camp} />
       ))}
     </div>
   );

@@ -165,4 +165,42 @@ export type Translations = {
 
   // Sample data notice
   sampleDataNotice: string;
+
+  // Loading states
+  loading: {
+    camps: string;
+  };
+
+  // Error states
+  error: {
+    loadCamps: string;
+  };
+
+  // Admin/Manage page
+  manage: {
+    pageTitle: string;
+    selectCamp: string;
+    createNew: string;
+    save: string;
+    delete: string;
+    cancel: string;
+    coordinates: {
+      latitude: string;
+      longitude: string;
+    };
+    validation: {
+      required: string;
+      invalidUrl: string;
+      invalidCoordinates: string;
+    };
+    success: {
+      saved: string;
+      deleted: string;
+    };
+    error: {
+      saveFailed: string;
+      deleteFailed: string;
+      loadFailed: string;
+    };
+  };
 };

@@ -55,7 +55,7 @@ export function CampColumns({
                 {t.search.noResults}
               </div>
             ) : (
-              dayCamps.map((camp) => <CampCard key={camp.id} camp={camp} />)
+              dayCamps.map((camp) => <CampCard key={camp.name} camp={camp} />)
             )}
           </div>
         </div>
@@ -82,7 +82,7 @@ export function CampColumns({
               </div>
             ) : (
               vacationCamps.map((camp) => (
-                <CampCard key={camp.id} camp={camp} />
+                <CampCard key={camp.name} camp={camp} />
               ))
             )}
           </div>

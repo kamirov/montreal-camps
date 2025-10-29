@@ -5,43 +5,65 @@ import { Footer } from "@/components/Footer";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { SearchBar } from "@/components/SearchBar";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { camps as allCamps } from "@/data/camps";
+import { getCamps } from "@/lib/api/camps";
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp, ViewMode } from "@/types/camp";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export default function Home() {
   const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<ViewMode>("search");
   const [selectedBorough, setSelectedBorough] = useState<string | null>(null);
-  const [selectedCampId, setSelectedCampId] = useState<string | null>(null);
+  const [selectedCampName, setSelectedCampName] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [allCamps, setAllCamps] = useState<Camp[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchCamps() {
+      try {
+        setIsLoading(true);
+        setError(null);
+        const camps = await getCamps();
+        setAllCamps(camps);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load camps"
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchCamps();
+  }, []);
 
   const handleBoroughSelect = (borough: string) => {
     setSelectedBorough(borough);
-    setSelectedCampId(null);
+    setSelectedCampName(null);
     setSearchQuery("");
     setViewMode("columns");
   };
 
   const handleCampSelect = (camp: Camp) => {
     setSelectedBorough(camp.borough);
-    setSelectedCampId(camp.id);
+    setSelectedCampName(camp.name);
     setSearchQuery("");
     setViewMode("columns");
   };
 
   const handleTitleClick = () => {
     setSelectedBorough(null);
-    setSelectedCampId(null);
+    setSelectedCampName(null);
     setSearchQuery("");
     setViewMode("search");
   };
 
   const filteredCamps = useMemo(() => {
     // If a specific camp is selected, show only that camp
-    if (selectedCampId) {
-      const camp = allCamps.find((c) => c.id === selectedCampId);
+    if (selectedCampName) {
+      const camp = allCamps.find((c) => c.name === selectedCampName);
       return camp ? [camp] : [];
     }
     // Otherwise, filter by borough if one is selected
@@ -50,11 +72,11 @@ export default function Home() {
     }
     // Default: show all camps
     return allCamps;
-  }, [selectedBorough, selectedCampId]);
+  }, [selectedBorough, selectedCampName, allCamps]);
 
   const selectedCamp = useMemo(
-    () => allCamps.find((c) => c.id === selectedCampId),
-    [selectedCampId]
+    () => allCamps.find((c) => c.name === selectedCampName),
+    [selectedCampName, allCamps]
   );
 
   return (
@@ -81,7 +103,22 @@ export default function Home() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
-        {viewMode === "search" ? (
+        {error && (
+          <div className="container mx-auto px-4 py-8">
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-3">
+              <p className="text-destructive">
+                {t.error?.loadCamps || "Error loading camps"}: {error}
+              </p>
+            </div>
+          </div>
+        )}
+        {isLoading ? (
+          <div className="flex-1 flex items-center justify-center">
+            <p className="text-muted-foreground">
+              {t.loading?.camps || "Loading camps..."}
+            </p>
+          </div>
+        ) : viewMode === "search" ? (
           /* Search View - 1/3 from top on desktop, under header on mobile */
           <div className="flex-1 flex items-start justify-center px-4 pt-[15vh]">
             <div className="w-full max-w-2xl space-y-4">
@@ -89,11 +126,6 @@ export default function Home() {
                 <h2 className="text-2xl font-semibold mb-2">
                   {t.search.selectLocation}
                 </h2>
-              </div>
-              <div className="mb-4 px-4 py-3 bg-muted/50 border border-muted-foreground/20 rounded-lg text-center">
-                <p className="text-sm text-muted-foreground">
-                  {t.sampleDataNotice}
-                </p>
               </div>
               <SearchBar
                 camps={allCamps}
@@ -117,10 +149,10 @@ export default function Home() {
                   value={searchQuery}
                   onValueChange={setSearchQuery}
                 />
-                {(selectedBorough || selectedCampId) && (
+                {(selectedBorough || selectedCampName) && (
                   <div className="mt-3 flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
-                      {selectedCampId && selectedCamp ? (
+                      {selectedCampName && selectedCamp ? (
                         <>
                           <span className="font-semibold text-foreground">
                             {selectedCamp.name}
@@ -140,7 +172,7 @@ export default function Home() {
                     <button
                       onClick={() => {
                         setSelectedBorough(null);
-                        setSelectedCampId(null);
+                        setSelectedCampName(null);
                         setViewMode("search");
                       }}
                       className="text-sm text-primary hover:underline cursor-pointer"

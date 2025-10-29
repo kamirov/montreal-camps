@@ -99,7 +99,7 @@ export function SearchBar({
               <CommandGroup heading={t.search.camps}>
                 {filteredCamps.slice(0, 8).map((camp) => (
                   <CommandItem
-                    key={camp.id}
+                    key={camp.name}
                     onSelect={() => {
                       onSelectCamp(camp);
                       setOpen(false);

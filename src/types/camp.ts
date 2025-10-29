@@ -1,21 +1,6 @@
-export type CampType = "day" | "vacation";
-
-export type Camp = {
-  id: string;
-  type: CampType;
-  name: string;
-  borough: string;
-  ageRange: string;
-  languages: string[];
-  dates: string;
-  hours?: string; // Only for day camps
-  cost: string;
-  financialAid: string;
-  link: string;
-  phone: string;
-  notes: string;
-  coordinates: [number, number]; // [latitude, longitude] for map
-};
+// Re-export types from validation schema (single source of truth)
+export type { Camp, CampType, CampUpsert } from "@/lib/validations/camp";
+import type { CampType } from "@/lib/validations/camp";
 
 export type FilterState = {
   searchQuery: string;

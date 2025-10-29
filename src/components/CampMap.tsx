@@ -58,7 +58,7 @@ export function CampMap({ camps, onViewDetails }: CampMapProps) {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {camps.map((camp) => (
-          <Marker key={camp.id} position={camp.coordinates} icon={icon}>
+          <Marker key={camp.name} position={camp.coordinates} icon={icon}>
             <Popup>
               <div className="min-w-[200px]">
                 <h3 className="font-semibold mb-1">{camp.name}</h3>
