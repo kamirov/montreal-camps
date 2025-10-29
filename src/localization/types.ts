@@ -190,6 +190,7 @@ export type Translations = {
   // Admin/Manage page
   manage: {
     pageTitle: string;
+    button: string;
     selectCamp: string;
     createNew: string;
     save: string;

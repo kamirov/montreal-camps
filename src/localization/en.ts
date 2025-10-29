@@ -169,6 +169,7 @@ export const en: Translations = {
 
   manage: {
     pageTitle: "Manage Camps",
+    button: "Manage",
     selectCamp: "Select a camp to edit",
     createNew: "Create New Camp",
     save: "Save",

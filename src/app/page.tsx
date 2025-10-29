@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { SearchBar } from "@/components/SearchBar";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { Button } from "@/components/ui/button";
 import { getCamps } from "@/lib/api/camps";
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp, ViewMode } from "@/types/camp";
@@ -30,9 +31,7 @@ export default function Home() {
         const camps = await getCamps();
         setAllCamps(camps);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load camps"
-        );
+        setError(err instanceof Error ? err.message : "Failed to load camps");
       } finally {
         setIsLoading(false);
       }
@@ -90,6 +89,13 @@ export default function Home() {
               </h1>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push("/manage")}
+              >
+                {t.manage.button}
+              </Button>
               <ThemeSwitcher />
               <LanguageSwitcher />
             </div>

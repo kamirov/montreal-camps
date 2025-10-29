@@ -5,6 +5,7 @@ import { Footer } from "@/components/Footer";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { SearchBar } from "@/components/SearchBar";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { Button } from "@/components/ui/button";
 import { getCamps } from "@/lib/api/camps";
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp } from "@/types/camp";
@@ -19,6 +20,7 @@ export default function RegionPage({ params }: RegionPageProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const [regionName, setRegionName] = useState<string>("");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [allCamps, setAllCamps] = useState<Camp[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,6 +30,7 @@ export default function RegionPage({ params }: RegionPageProps) {
       const resolvedParams = await params;
       const decodedName = decodeURIComponent(resolvedParams.regionName);
       setRegionName(decodedName);
+      setSearchQuery(decodedName);
     }
     resolveParams();
   }, [params]);
@@ -40,9 +43,7 @@ export default function RegionPage({ params }: RegionPageProps) {
         const camps = await getCamps();
         setAllCamps(camps);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load camps"
-        );
+        setError(err instanceof Error ? err.message : "Failed to load camps");
       } finally {
         setIsLoading(false);
       }
@@ -68,10 +69,6 @@ export default function RegionPage({ params }: RegionPageProps) {
     return allCamps.filter((camp) => camp.borough === regionName);
   }, [regionName, allCamps]);
 
-  const searchQuery = useMemo(() => {
-    return regionName || "";
-  }, [regionName]);
-
   const hasResults = filteredCamps.length > 0;
 
   return (
@@ -89,6 +86,13 @@ export default function RegionPage({ params }: RegionPageProps) {
               </h1>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push("/manage")}
+              >
+                {t.manage.button}
+              </Button>
               <ThemeSwitcher />
               <LanguageSwitcher />
             </div>
@@ -123,7 +127,7 @@ export default function RegionPage({ params }: RegionPageProps) {
                   onSelectCamp={handleCampSelect}
                   onSelectBorough={handleBoroughSelect}
                   value={searchQuery}
-                  onValueChange={() => {}}
+                  onValueChange={setSearchQuery}
                 />
                 {hasResults ? (
                   <div className="mt-3 flex items-center justify-between">
@@ -170,4 +174,3 @@ export default function RegionPage({ params }: RegionPageProps) {
     </div>
   );
 }
-

@@ -3,6 +3,7 @@
 import { Footer } from "@/components/Footer";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { Button } from "@/components/ui/button";
 import { getCamps } from "@/lib/api/camps";
 import { getUniqueBoroughs } from "@/lib/filterCamps";
 import { useTranslation } from "@/localization/useTranslation";
@@ -25,9 +26,7 @@ export default function RegionsPage() {
         const uniqueBoroughs = getUniqueBoroughs(camps);
         setBoroughs(uniqueBoroughs);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load camps"
-        );
+        setError(err instanceof Error ? err.message : "Failed to load camps");
       } finally {
         setIsLoading(false);
       }
@@ -55,6 +54,13 @@ export default function RegionsPage() {
               </h1>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push("/manage")}
+              >
+                {t.manage.button}
+              </Button>
               <ThemeSwitcher />
               <LanguageSwitcher />
             </div>
@@ -86,10 +92,7 @@ export default function RegionsPage() {
             </h2>
             <div className="space-y-2">
               {boroughs.map((borough) => (
-                <div
-                  key={borough}
-                  className="py-2 text-foreground"
-                >
+                <div key={borough} className="py-2 text-foreground">
                   {borough}
                 </div>
               ))}
@@ -102,4 +105,3 @@ export default function RegionsPage() {
     </div>
   );
 }
-
