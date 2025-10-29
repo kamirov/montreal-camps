@@ -15,8 +15,8 @@ if (!process.env.PGPASSWORD) {
   throw new Error("PGPASSWORD environment variable is not set");
 }
 
-// Use pooled connection for queries
-const connectionString = `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}/${process.env.PGDATABASE}`;
+// Use pooled connection for queries - include SSL in connection string
+const connectionString = `postgresql://${process.env.PGUSER}:${process.env.PGPASSWORD}@${process.env.PGHOST}/${process.env.PGDATABASE}?sslmode=require`;
 
 const client = postgres(connectionString, {
   max: 1, // Connection pool size

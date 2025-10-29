@@ -158,6 +158,15 @@ export const en: Translations = {
     loadCamps: "Error loading camps",
   },
 
+  regions: {
+    pageTitle: "Regions",
+    notFound: "Region not found",
+  },
+
+  camps: {
+    notFound: "Camp not found",
+  },
+
   manage: {
     pageTitle: "Manage Camps",
     selectCamp: "Select a camp to edit",

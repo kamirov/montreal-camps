@@ -176,6 +176,17 @@ export type Translations = {
     loadCamps: string;
   };
 
+  // Regions page
+  regions: {
+    pageTitle: string;
+    notFound: string;
+  };
+
+  // Camps page
+  camps: {
+    notFound: string;
+  };
+
   // Admin/Manage page
   manage: {
     pageTitle: string;

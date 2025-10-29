@@ -158,6 +158,15 @@ export const fr: Translations = {
     loadCamps: "Erreur lors du chargement des camps",
   },
 
+  regions: {
+    pageTitle: "Régions",
+    notFound: "Région introuvable",
+  },
+
+  camps: {
+    notFound: "Camp introuvable",
+  },
+
   manage: {
     pageTitle: "Gérer les camps",
     selectCamp: "Sélectionnez un camp à modifier",

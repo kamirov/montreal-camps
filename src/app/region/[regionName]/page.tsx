@@ -7,20 +7,30 @@ import { SearchBar } from "@/components/SearchBar";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { getCamps } from "@/lib/api/camps";
 import { useTranslation } from "@/localization/useTranslation";
-import { Camp, ViewMode } from "@/types/camp";
+import { Camp } from "@/types/camp";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-export default function Home() {
+type RegionPageProps = {
+  params: Promise<{ regionName: string }>;
+};
+
+export default function RegionPage({ params }: RegionPageProps) {
   const { t } = useTranslation();
   const router = useRouter();
-  const [viewMode, setViewMode] = useState<ViewMode>("search");
-  const [selectedBorough, setSelectedBorough] = useState<string | null>(null);
-  const [selectedCampName, setSelectedCampName] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [regionName, setRegionName] = useState<string>("");
   const [allCamps, setAllCamps] = useState<Camp[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function resolveParams() {
+      const resolvedParams = await params;
+      const decodedName = decodeURIComponent(resolvedParams.regionName);
+      setRegionName(decodedName);
+    }
+    resolveParams();
+  }, [params]);
 
   useEffect(() => {
     async function fetchCamps() {
@@ -41,39 +51,28 @@ export default function Home() {
     fetchCamps();
   }, []);
 
-  const handleBoroughSelect = (borough: string) => {
-    router.push(`/region/${encodeURIComponent(borough)}`);
+  const handleTitleClick = () => {
+    router.push("/");
   };
 
   const handleCampSelect = (camp: Camp) => {
     router.push(`/camps/${encodeURIComponent(camp.name)}`);
   };
 
-  const handleTitleClick = () => {
-    setSelectedBorough(null);
-    setSelectedCampName(null);
-    setSearchQuery("");
-    setViewMode("search");
+  const handleBoroughSelect = (borough: string) => {
+    router.push(`/region/${encodeURIComponent(borough)}`);
   };
 
   const filteredCamps = useMemo(() => {
-    // If a specific camp is selected, show only that camp
-    if (selectedCampName) {
-      const camp = allCamps.find((c) => c.name === selectedCampName);
-      return camp ? [camp] : [];
-    }
-    // Otherwise, filter by borough if one is selected
-    if (selectedBorough) {
-      return allCamps.filter((camp) => camp.borough === selectedBorough);
-    }
-    // Default: show all camps
-    return allCamps;
-  }, [selectedBorough, selectedCampName, allCamps]);
+    if (!regionName) return [];
+    return allCamps.filter((camp) => camp.borough === regionName);
+  }, [regionName, allCamps]);
 
-  const selectedCamp = useMemo(
-    () => allCamps.find((c) => c.name === selectedCampName),
-    [selectedCampName, allCamps]
-  );
+  const searchQuery = useMemo(() => {
+    return regionName || "";
+  }, [regionName]);
+
+  const hasResults = filteredCamps.length > 0;
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -114,26 +113,7 @@ export default function Home() {
               {t.loading?.camps || "Loading camps..."}
             </p>
           </div>
-        ) : viewMode === "search" ? (
-          /* Search View - 1/3 from top on desktop, under header on mobile */
-          <div className="flex-1 flex items-start justify-center px-4 pt-[15vh]">
-            <div className="w-full max-w-2xl space-y-4">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-semibold mb-2">
-                  {t.search.selectLocation}
-                </h2>
-              </div>
-              <SearchBar
-                camps={allCamps}
-                onSelectCamp={handleCampSelect}
-                onSelectBorough={handleBoroughSelect}
-                value={searchQuery}
-                onValueChange={setSearchQuery}
-              />
-            </div>
-          </div>
         ) : (
-          /* Columns View */
           <div className="flex-1 flex flex-col">
             {/* Search Bar at Top */}
             <div className="container mx-auto px-4 py-8 bg-background/98 backdrop-blur-sm sticky top-[88px] z-40 transition-all duration-300 ease-in-out">
@@ -143,38 +123,30 @@ export default function Home() {
                   onSelectCamp={handleCampSelect}
                   onSelectBorough={handleBoroughSelect}
                   value={searchQuery}
-                  onValueChange={setSearchQuery}
+                  onValueChange={() => {}}
                 />
-                {(selectedBorough || selectedCampName) && (
+                {hasResults ? (
                   <div className="mt-3 flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
-                      {selectedCampName && selectedCamp ? (
-                        <>
-                          <span className="font-semibold text-foreground">
-                            {selectedCamp.name}
-                          </span>
-                          {" • "}
-                          {selectedBorough}
-                        </>
-                      ) : (
-                        <>
-                          {t.search.regionLabel}
-                          <span className="font-semibold text-foreground">
-                            {selectedBorough}
-                          </span>
-                        </>
-                      )}
+                      {t.search.regionLabel}
+                      <span className="font-semibold text-foreground">
+                        {regionName}
+                      </span>
                     </p>
                     <button
                       onClick={() => {
-                        setSelectedBorough(null);
-                        setSelectedCampName(null);
-                        setViewMode("search");
+                        router.push("/");
                       }}
                       className="text-sm text-primary hover:underline cursor-pointer"
                     >
                       {t.search.newSearch}
                     </button>
+                  </div>
+                ) : (
+                  <div className="mt-3">
+                    <p className="text-sm text-destructive">
+                      {t.regions.notFound}
+                    </p>
                   </div>
                 )}
               </div>
@@ -182,7 +154,13 @@ export default function Home() {
 
             {/* Columns Content */}
             <div className="flex-1 container mx-auto px-4 py-6 overflow-hidden">
-              <CampColumns camps={filteredCamps} showSampleNotice />
+              {hasResults ? (
+                <CampColumns camps={filteredCamps} showSampleNotice />
+              ) : (
+                <div className="flex items-center justify-center h-40">
+                  <p className="text-muted-foreground">{t.regions.notFound}</p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -192,3 +170,4 @@ export default function Home() {
     </div>
   );
 }
+
