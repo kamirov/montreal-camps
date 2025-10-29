@@ -8,6 +8,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { formatAgeRange } from "@/localization/formatters";
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp } from "@/types/camp";
 import { MapPin, Users } from "lucide-react";
@@ -28,7 +29,7 @@ export function SearchBar({
   value,
   onValueChange,
 }: SearchBarProps) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const [open, setOpen] = useState(false);
 
   // Get unique boroughs from camps
@@ -52,7 +53,7 @@ export function SearchBar({
       return (
         camp.name.toLowerCase().includes(query) ||
         camp.borough.toLowerCase().includes(query) ||
-        camp.notes.toLowerCase().includes(query)
+        (camp.notes?.toLowerCase() ?? "").includes(query)
       );
     });
   }, [value, camps]);
@@ -115,7 +116,7 @@ export function SearchBar({
                         </div>
                         <div className="flex items-center gap-1">
                           <Users className="h-3 w-3" />
-                          {camp.ageRange}
+                          {formatAgeRange(camp.ageRange, language)}
                         </div>
                       </div>
                     </div>
