@@ -194,4 +194,24 @@ export const en: Translations = {
       loadFailed: "Failed to load camps",
     },
   },
+
+  export: {
+    tooltip: "Export all camps to Excel",
+    fileName: "montreal_camps",
+    sheetName: "Camps",
+    columns: {
+      name: "Name",
+      type: "Type",
+      borough: "Borough",
+      ageRange: "Age Range",
+      languages: "Languages",
+      dates: "Dates",
+      hours: "Hours",
+      cost: "Cost",
+      financialAid: "Financial Aid",
+      link: "Website",
+      phone: "Phone",
+      notes: "Notes",
+    },
+  },
 };

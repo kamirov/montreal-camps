@@ -215,4 +215,25 @@ export type Translations = {
       loadFailed: string;
     };
   };
+
+  // Export functionality
+  export: {
+    tooltip: string;
+    fileName: string;
+    sheetName: string;
+    columns: {
+      name: string;
+      type: string;
+      borough: string;
+      ageRange: string;
+      languages: string;
+      dates: string;
+      hours: string;
+      cost: string;
+      financialAid: string;
+      link: string;
+      phone: string;
+      notes: string;
+    };
+  };
 };

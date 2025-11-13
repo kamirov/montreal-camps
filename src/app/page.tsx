@@ -9,9 +9,17 @@ import { useTranslation } from "@/localization/useTranslation";
 import { Camp, ViewMode } from "@/types/camp";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { Download } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { exportCampsToExcel } from "@/lib/exportCamps";
 
 export default function Home() {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const router = useRouter();
   const [viewMode, setViewMode] = useState<ViewMode>("search");
   const [selectedBorough, setSelectedBorough] = useState<string | null>(null);
@@ -51,6 +59,10 @@ export default function Home() {
     setSelectedCampName(null);
     setSearchQuery("");
     setViewMode("search");
+  };
+
+  const handleExport = () => {
+    exportCampsToExcel(allCamps, { translations: t, language });
   };
 
   const filteredCamps = useMemo(() => {
@@ -105,13 +117,33 @@ export default function Home() {
                   {t.search.selectLocation}
                 </h2>
               </div>
-              <SearchBar
-                camps={allCamps}
-                onSelectCamp={handleCampSelect}
-                onSelectBorough={handleBoroughSelect}
-                value={searchQuery}
-                onValueChange={setSearchQuery}
-              />
+              <div className="flex items-center gap-2">
+                <div className="flex-1">
+                  <SearchBar
+                    camps={allCamps}
+                    onSelectCamp={handleCampSelect}
+                    onSelectBorough={handleBoroughSelect}
+                    value={searchQuery}
+                    onValueChange={setSearchQuery}
+                  />
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={handleExport}
+                        className="flex items-center justify-center h-12 w-12 rounded-lg border-2 bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                        aria-label={t.export.tooltip}
+                      >
+                        <Download className="h-5 w-5" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{t.export.tooltip}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
             </div>
           </div>
         ) : (
@@ -120,13 +152,33 @@ export default function Home() {
             {/* Search Bar at Top */}
             <div className="container mx-auto px-4 py-8 bg-background/98 backdrop-blur-sm sticky top-[88px] z-40 transition-all duration-300 ease-in-out">
               <div className="max-w-2xl">
-                <SearchBar
-                  camps={allCamps}
-                  onSelectCamp={handleCampSelect}
-                  onSelectBorough={handleBoroughSelect}
-                  value={searchQuery}
-                  onValueChange={setSearchQuery}
-                />
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <SearchBar
+                      camps={allCamps}
+                      onSelectCamp={handleCampSelect}
+                      onSelectBorough={handleBoroughSelect}
+                      value={searchQuery}
+                      onValueChange={setSearchQuery}
+                    />
+                  </div>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={handleExport}
+                          className="flex items-center justify-center h-12 w-12 rounded-lg border-2 bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                          aria-label={t.export.tooltip}
+                        >
+                          <Download className="h-5 w-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{t.export.tooltip}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
                 {(selectedBorough || selectedCampName) && (
                   <div className="mt-3 flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
