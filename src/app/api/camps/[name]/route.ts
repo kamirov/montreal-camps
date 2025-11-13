@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { camps } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
-import { campUpsertSchema } from "@/lib/validations/camp";
 import type { Camp } from "@/lib/validations/camp";
+import { campUpsertSchema } from "@/lib/validations/camp";
+import { eq } from "drizzle-orm";
+import { NextResponse } from "next/server";
 
 type RouteParams = {
   params: Promise<{ name: string }>;
@@ -20,10 +20,7 @@ function validateAdminSecret(request: Request): boolean {
   return providedSecret === adminSecret;
 }
 
-export async function GET(
-  _request: Request,
-  { params }: RouteParams
-) {
+export async function GET(_request: Request, { params }: RouteParams) {
   try {
     const { name: encodedName } = await params;
     const name = decodeURIComponent(encodedName);
@@ -38,7 +35,7 @@ export async function GET(
     const ageRange = camp.ageRange as unknown as
       | { type: "all"; allAges: true }
       | { type: "range"; allAges: false; from: number; to: number };
-    
+
     const dates = camp.dates as unknown as
       | { type: "yearRound"; yearRound: true }
       | { type: "range"; yearRound: false; fromDate: string; toDate: string };
@@ -75,10 +72,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: Request,
-  { params }: RouteParams
-) {
+export async function PUT(request: Request, { params }: RouteParams) {
   try {
     // Validate admin secret
     if (!validateAdminSecret(request)) {
@@ -151,7 +145,7 @@ export async function PUT(
     const ageRange = updatedCamp.ageRange as unknown as
       | { type: "all"; allAges: true }
       | { type: "range"; allAges: false; from: number; to: number };
-    
+
     const dates = updatedCamp.dates as unknown as
       | { type: "yearRound"; yearRound: true }
       | { type: "range"; yearRound: false; fromDate: string; toDate: string };
@@ -187,10 +181,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: RouteParams
-) {
+export async function DELETE(request: Request, { params }: RouteParams) {
   try {
     // Validate admin secret
     if (!validateAdminSecret(request)) {
@@ -220,4 +211,3 @@ export async function DELETE(
     );
   }
 }
-

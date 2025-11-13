@@ -30,9 +30,8 @@ export async function upsertCamp(
   campData: CampUpsert
 ): Promise<Camp> {
   // Get admin secret from localStorage
-  const adminSecret = typeof window !== "undefined" 
-    ? localStorage.getItem("adminSecret") 
-    : null;
+  const adminSecret =
+    typeof window !== "undefined" ? localStorage.getItem("adminSecret") : null;
 
   const response = await fetch(`${API_BASE}/${encodeURIComponent(name)}`, {
     method: "PUT",
@@ -49,9 +48,7 @@ export async function upsertCamp(
     }
     if (response.status === 400) {
       const errorData = await response.json();
-      throw new Error(
-        `Validation failed: ${JSON.stringify(errorData.errors)}`
-      );
+      throw new Error(`Validation failed: ${JSON.stringify(errorData.errors)}`);
     }
     throw new Error(`Failed to upsert camp: ${response.statusText}`);
   }
@@ -61,9 +58,8 @@ export async function upsertCamp(
 
 export async function deleteCamp(name: string): Promise<void> {
   // Get admin secret from localStorage
-  const adminSecret = typeof window !== "undefined" 
-    ? localStorage.getItem("adminSecret") 
-    : null;
+  const adminSecret =
+    typeof window !== "undefined" ? localStorage.getItem("adminSecret") : null;
 
   const response = await fetch(`${API_BASE}/${encodeURIComponent(name)}`, {
     method: "DELETE",
@@ -82,4 +78,3 @@ export async function deleteCamp(name: string): Promise<void> {
     throw new Error(`Failed to delete camp: ${response.statusText}`);
   }
 }
-
