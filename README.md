@@ -21,13 +21,23 @@ For now, you can run it locally by following the [Getting Started](#getting-star
 # 1. Install dependencies
 pnpm install
 
-# 2. Start the development server
+# 2. Set up environment variables (optional)
+# Create a .env.local file with:
+# ADMIN_SECRET=your_secret_word_here
+# DATABASE_URL=your_database_url_here
+
+# 3. Start the development server
 pnpm dev
 
-# 3. Open your browser to http://localhost:3000
+# 4. Open your browser to http://localhost:3000
 ```
 
 The application will be running at **http://localhost:3000**
+
+### Environment Variables
+
+- `ADMIN_SECRET` - Secret word required to access the admin management page (`/manage`)
+- `DATABASE_URL` - Database connection string (required for database features)
 
 ## Features
 

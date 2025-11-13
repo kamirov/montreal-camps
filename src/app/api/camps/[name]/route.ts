@@ -9,6 +9,17 @@ type RouteParams = {
   params: Promise<{ name: string }>;
 };
 
+// Helper function to validate admin secret
+function validateAdminSecret(request: Request): boolean {
+  const adminSecret = process.env.ADMIN_SECRET;
+  if (!adminSecret) {
+    return false;
+  }
+
+  const providedSecret = request.headers.get("x-admin-secret");
+  return providedSecret === adminSecret;
+}
+
 export async function GET(
   _request: Request,
   { params }: RouteParams
@@ -69,6 +80,14 @@ export async function PUT(
   { params }: RouteParams
 ) {
   try {
+    // Validate admin secret
+    if (!validateAdminSecret(request)) {
+      return NextResponse.json(
+        { error: "Unauthorized: Invalid or missing admin secret" },
+        { status: 401 }
+      );
+    }
+
     const { name: encodedName } = await params;
     const name = decodeURIComponent(encodedName);
     const body = await request.json();
@@ -169,10 +188,18 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: RouteParams
 ) {
   try {
+    // Validate admin secret
+    if (!validateAdminSecret(request)) {
+      return NextResponse.json(
+        { error: "Unauthorized: Invalid or missing admin secret" },
+        { status: 401 }
+      );
+    }
+
     const { name: encodedName } = await params;
     const name = decodeURIComponent(encodedName);
 

@@ -216,6 +216,19 @@ export type Translations = {
     };
   };
 
+  // Authentication
+  auth: {
+    title: string;
+    prompt: string;
+    placeholder: string;
+    submit: string;
+    error: {
+      invalid: string;
+      required: string;
+      serverError: string;
+    };
+  };
+
   // Export functionality
   export: {
     tooltip: string;

@@ -195,6 +195,18 @@ export const en: Translations = {
     },
   },
 
+  auth: {
+    title: "Admin Access Required",
+    prompt: "Please enter the admin secret word to continue:",
+    placeholder: "Enter secret word",
+    submit: "Submit",
+    error: {
+      invalid: "Invalid secret word. Please try again.",
+      required: "Secret word is required",
+      serverError: "Server error. Please try again later.",
+    },
+  },
+
   export: {
     tooltip: "Export all camps to Excel",
     fileName: "montreal_camps",

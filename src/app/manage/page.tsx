@@ -6,10 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CostInput } from "@/components/ui/cost-input";
 import { DateRangePicker } from "@/components/ui/date-picker";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
-import { TagsInput } from "@/components/ui/tags-input";
-import { TimeRangeInput } from "@/components/ui/time-range-input";
 import {
   Select,
   SelectContent,
@@ -17,10 +23,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getCamp, getCamps, upsertCamp, deleteCamp } from "@/lib/api/camps";
+import { TagsInput } from "@/components/ui/tags-input";
+import { TimeRangeInput } from "@/components/ui/time-range-input";
+import { deleteCamp, getCamp, getCamps, upsertCamp } from "@/lib/api/camps";
+import type { Camp, CampUpsert } from "@/lib/validations/camp";
 import { campUpsertSchema } from "@/lib/validations/camp";
 import { useTranslation } from "@/localization/useTranslation";
-import type { Camp, CampUpsert } from "@/lib/validations/camp";
 import { ExternalLink } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
@@ -34,8 +42,18 @@ export default function ManagePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
+
+  // Authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticating, setIsAuthenticating] = useState(true);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [secretInput, setSecretInput] = useState("");
+  const [authError, setAuthError] = useState("");
 
   const [campName, setCampName] = useState("");
   const [formData, setFormData] = useState<CampUpsert>({
@@ -51,6 +69,74 @@ export default function ManagePage() {
     phone: { number: "", extension: "" },
     notes: "",
   });
+
+  // Validate secret via API
+  const validateSecret = async (secret: string): Promise<boolean> => {
+    try {
+      const response = await fetch("/api/auth/validate", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ secret }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        return data.valid;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error validating secret:", error);
+      return false;
+    }
+  };
+
+  // Check for stored secret on mount
+  useEffect(() => {
+    async function checkAuth() {
+      const storedSecret = localStorage.getItem("adminSecret");
+
+      if (storedSecret) {
+        const isValid = await validateSecret(storedSecret);
+        if (isValid) {
+          setIsAuthenticated(true);
+          setIsAuthenticating(false);
+        } else {
+          // Clear invalid secret
+          localStorage.removeItem("adminSecret");
+          setShowAuthDialog(true);
+          setIsAuthenticating(false);
+        }
+      } else {
+        setShowAuthDialog(true);
+        setIsAuthenticating(false);
+      }
+    }
+
+    checkAuth();
+  }, []);
+
+  // Handle auth dialog submission
+  const handleAuthSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError("");
+
+    if (!secretInput.trim()) {
+      setAuthError(t.auth.error.required);
+      return;
+    }
+
+    const isValid = await validateSecret(secretInput);
+    if (isValid) {
+      localStorage.setItem("adminSecret", secretInput);
+      setIsAuthenticated(true);
+      setShowAuthDialog(false);
+      setSecretInput("");
+    } else {
+      setAuthError(t.auth.error.invalid);
+    }
+  };
 
   // Extract unique boroughs and languages from camps
   const availableBoroughs = useMemo(() => {
@@ -112,7 +198,8 @@ export default function ManagePage() {
         } catch (err) {
           setMessage({
             type: "error",
-            text: err instanceof Error ? err.message : t.manage.error.loadFailed,
+            text:
+              err instanceof Error ? err.message : t.manage.error.loadFailed,
           });
         }
       }
@@ -271,6 +358,49 @@ export default function ManagePage() {
     });
   };
 
+  // Show loading state during authentication
+  if (isAuthenticating) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">{t.loading.camps}</p>
+      </div>
+    );
+  }
+
+  // Show authentication dialog if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <>
+        <Header showBackButton />
+        <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+          <DialogContent onInteractOutside={(e) => e.preventDefault()}>
+            <form onSubmit={handleAuthSubmit}>
+              <DialogHeader>
+                <DialogTitle>{t.auth.title}</DialogTitle>
+                <DialogDescription>{t.auth.prompt}</DialogDescription>
+              </DialogHeader>
+              <div className="py-4">
+                <Input
+                  type="text"
+                  value={secretInput}
+                  onChange={(e) => setSecretInput(e.target.value)}
+                  placeholder={t.auth.placeholder}
+                  autoFocus
+                />
+                {authError && (
+                  <p className="text-sm text-destructive mt-2">{authError}</p>
+                )}
+              </div>
+              <DialogFooter>
+                <Button type="submit">{t.auth.submit}</Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -349,10 +479,7 @@ export default function ManagePage() {
                 <label className="block text-sm font-medium mb-2">
                   {t.campFields.name === "Name" ? "Type" : "Type"}
                 </label>
-                <Select
-                  value={formData.type}
-                  onValueChange={handleTypeChange}
-                >
+                <Select value={formData.type} onValueChange={handleTypeChange}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -513,7 +640,9 @@ export default function ManagePage() {
                             : {
                                 type: "range",
                                 yearRound: false,
-                                fromDate: new Date().toISOString().split("T")[0],
+                                fromDate: new Date()
+                                  .toISOString()
+                                  .split("T")[0],
                                 toDate: new Date().toISOString().split("T")[0],
                               },
                         });
@@ -526,51 +655,52 @@ export default function ManagePage() {
                       Year round
                     </label>
                   </div>
-                  {!isYearRound &&
-                    formData.dates.type === "range" && (
-                      <DateRangePicker
-                        fromDate={formData.dates.fromDate}
-                        toDate={formData.dates.toDate}
-                        onFromDateChange={(fromDate) => {
-                          const currentDates = formData.dates;
-                          if (currentDates.type === "range") {
-                            setFormData({
-                              ...formData,
-                              dates: {
-                                type: "range",
-                                yearRound: false,
-                                fromDate,
-                                toDate:
-                                  fromDate > currentDates.toDate
-                                    ? fromDate
-                                    : currentDates.toDate,
-                              },
-                            });
-                          }
-                        }}
-                        onToDateChange={(toDate) => {
-                          const currentDates = formData.dates;
-                          if (currentDates.type === "range") {
-                            setFormData({
-                              ...formData,
-                              dates: {
-                                type: "range",
-                                yearRound: false,
-                                fromDate: currentDates.fromDate,
-                                toDate:
-                                  toDate < currentDates.fromDate
-                                    ? currentDates.fromDate
-                                    : toDate,
-                              },
-                            });
-                          }
-                        }}
-                        required
-                      />
-                    )}
+                  {!isYearRound && formData.dates.type === "range" && (
+                    <DateRangePicker
+                      fromDate={formData.dates.fromDate}
+                      toDate={formData.dates.toDate}
+                      onFromDateChange={(fromDate) => {
+                        const currentDates = formData.dates;
+                        if (currentDates.type === "range") {
+                          setFormData({
+                            ...formData,
+                            dates: {
+                              type: "range",
+                              yearRound: false,
+                              fromDate,
+                              toDate:
+                                fromDate > currentDates.toDate
+                                  ? fromDate
+                                  : currentDates.toDate,
+                            },
+                          });
+                        }
+                      }}
+                      onToDateChange={(toDate) => {
+                        const currentDates = formData.dates;
+                        if (currentDates.type === "range") {
+                          setFormData({
+                            ...formData,
+                            dates: {
+                              type: "range",
+                              yearRound: false,
+                              fromDate: currentDates.fromDate,
+                              toDate:
+                                toDate < currentDates.fromDate
+                                  ? currentDates.fromDate
+                                  : toDate,
+                            },
+                          });
+                        }
+                      }}
+                      required
+                    />
+                  )}
                 </div>
                 {errors.dates && (
-                  <p className="text-sm text-destructive mt-1">{errors.dates}</p>
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.dates}
+                  </p>
                 )}
               </div>
 
@@ -581,7 +711,7 @@ export default function ManagePage() {
                     {t.campFields.hours}
                   </label>
                   <TimeRangeInput
-                    value={formData.hours}
+                    value={formData.hours ?? ""}
                     onChange={(value) =>
                       setFormData({ ...formData, hours: value })
                     }
@@ -662,9 +792,11 @@ export default function ManagePage() {
                       variant="outline"
                       size="icon"
                       onClick={() => {
-                        const url = formData.link.startsWith("http://") || formData.link.startsWith("https://")
-                          ? formData.link
-                          : `https://${formData.link}`;
+                        const url =
+                          formData.link.startsWith("http://") ||
+                          formData.link.startsWith("https://")
+                            ? formData.link
+                            : `https://${formData.link}`;
                         window.open(url, "_blank");
                       }}
                     >
@@ -700,14 +832,17 @@ export default function ManagePage() {
                   required
                 />
                 {errors.phone && (
-                  <p className="text-sm text-destructive mt-1">{errors.phone}</p>
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.phone}
+                  </p>
                 )}
               </div>
 
               {/* Notes */}
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">
-                  {t.campFields.notes} <span className="text-muted-foreground">(Optional)</span>
+                  {t.campFields.notes}{" "}
+                  <span className="text-muted-foreground">(Optional)</span>
                 </label>
                 <textarea
                   className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
@@ -717,7 +852,9 @@ export default function ManagePage() {
                   }
                 />
                 {errors.notes && (
-                  <p className="text-sm text-destructive mt-1">{errors.notes}</p>
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.notes}
+                  </p>
                 )}
               </div>
             </div>

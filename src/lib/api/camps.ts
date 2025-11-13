@@ -29,15 +29,24 @@ export async function upsertCamp(
   name: string,
   campData: CampUpsert
 ): Promise<Camp> {
+  // Get admin secret from localStorage
+  const adminSecret = typeof window !== "undefined" 
+    ? localStorage.getItem("adminSecret") 
+    : null;
+
   const response = await fetch(`${API_BASE}/${encodeURIComponent(name)}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
+      ...(adminSecret && { "x-admin-secret": adminSecret }),
     },
     body: JSON.stringify(campData),
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized: Invalid or missing admin credentials");
+    }
     if (response.status === 400) {
       const errorData = await response.json();
       throw new Error(
@@ -51,11 +60,22 @@ export async function upsertCamp(
 }
 
 export async function deleteCamp(name: string): Promise<void> {
+  // Get admin secret from localStorage
+  const adminSecret = typeof window !== "undefined" 
+    ? localStorage.getItem("adminSecret") 
+    : null;
+
   const response = await fetch(`${API_BASE}/${encodeURIComponent(name)}`, {
     method: "DELETE",
+    headers: {
+      ...(adminSecret && { "x-admin-secret": adminSecret }),
+    },
   });
 
   if (!response.ok) {
+    if (response.status === 401) {
+      throw new Error("Unauthorized: Invalid or missing admin credentials");
+    }
     if (response.status === 404) {
       throw new Error("Camp not found");
     }

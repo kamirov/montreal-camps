@@ -195,6 +195,18 @@ export const fr: Translations = {
     },
   },
 
+  auth: {
+    title: "Accès administrateur requis",
+    prompt: "Veuillez entrer le mot secret d'administrateur pour continuer :",
+    placeholder: "Entrez le mot secret",
+    submit: "Soumettre",
+    error: {
+      invalid: "Mot secret invalide. Veuillez réessayer.",
+      required: "Le mot secret est obligatoire",
+      serverError: "Erreur du serveur. Veuillez réessayer plus tard.",
+    },
+  },
+
   export: {
     tooltip: "Exporter tous les camps vers Excel",
     fileName: "camps_montreal",
