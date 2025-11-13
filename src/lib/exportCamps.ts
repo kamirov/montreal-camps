@@ -80,6 +80,16 @@ export function exportCampsToExcel(
       { wch: 40 }, // notes
     ];
 
+    // Bold the header row
+    const dayRange = XLSX.utils.decode_range(dayWorksheet["!ref"] || "A1");
+    for (let col = dayRange.s.c; col <= dayRange.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+      if (!dayWorksheet[cellAddress]) continue;
+      dayWorksheet[cellAddress].s = {
+        font: { bold: true },
+      };
+    }
+
     XLSX.utils.book_append_sheet(workbook, dayWorksheet, t.campTypes.day);
   }
 
@@ -126,6 +136,18 @@ export function exportCampsToExcel(
       { wch: 20 }, // phone
       { wch: 40 }, // notes
     ];
+
+    // Bold the header row
+    const vacationRange = XLSX.utils.decode_range(
+      vacationWorksheet["!ref"] || "A1"
+    );
+    for (let col = vacationRange.s.c; col <= vacationRange.e.c; col++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
+      if (!vacationWorksheet[cellAddress]) continue;
+      vacationWorksheet[cellAddress].s = {
+        font: { bold: true },
+      };
+    }
 
     XLSX.utils.book_append_sheet(
       workbook,

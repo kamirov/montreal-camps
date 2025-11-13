@@ -14,20 +14,33 @@ vi.mock("next/navigation", () => ({
 }));
 
 const mockCamp: Camp = {
-  id: "1",
-  type: "day",
   name: "Test Camp",
+  type: "day",
   borough: "Plateau",
-  ageRange: "5-10 years",
+  ageRange: {
+    type: "range",
+    allAges: false,
+    from: 5,
+    to: 10,
+  },
   languages: ["English", "French"],
-  dates: "July 1-30, 2024",
+  dates: {
+    type: "range",
+    yearRound: false,
+    fromDate: "2024-07-01",
+    toDate: "2024-07-30",
+  },
   hours: "9:00 AM - 5:00 PM",
-  cost: "$200/week",
+  cost: {
+    amount: 200,
+    period: "week",
+  },
   financialAid: "Available - Sliding scale",
   link: "https://example.com",
-  phone: "514-555-0101",
+  phone: {
+    number: "514-555-0101",
+  },
   notes: "Great camp with lots of activities",
-  coordinates: [45.5, -73.6],
 };
 
 describe("CampDetailDialog", () => {
@@ -62,8 +75,9 @@ describe("CampDetailDialog", () => {
 
     expect(screen.getByText("Test Camp")).toBeInTheDocument();
     expect(screen.getByText("Plateau")).toBeInTheDocument();
-    expect(screen.getByText("5-10 years")).toBeInTheDocument();
-    expect(screen.getByText(/\$200\/semaine|\$200\/week/)).toBeInTheDocument();
+    // Age range will be formatted as "5 years - 10 years" or "5 ans - 10 ans"
+    expect(screen.getByText(/^5.*10.*(years|ans)$/)).toBeInTheDocument();
+    expect(screen.getByText(/\$200/)).toBeInTheDocument();
   });
 
   it("should display camp notes", () => {

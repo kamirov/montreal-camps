@@ -34,7 +34,7 @@ const mockCamps: Camp[] = [
     id: "2",
     type: "vacation",
     name: "Camp Beta",
-    borough: "Verdun",
+    borough: null, // Vacation camps don't have boroughs
     ageRange: "8-12 years",
     languages: ["English"],
     dates: "August 1-15, 2024",

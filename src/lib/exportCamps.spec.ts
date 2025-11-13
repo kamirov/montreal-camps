@@ -8,9 +8,16 @@ import type { Camp } from "@/types/camp";
 // Mock XLSX
 vi.mock("xlsx", () => ({
   utils: {
-    json_to_sheet: vi.fn(() => ({})),
+    json_to_sheet: vi.fn(() => ({ "!ref": "A1:L2" })),
     book_new: vi.fn(() => ({})),
     book_append_sheet: vi.fn(),
+    decode_range: vi.fn(() => ({
+      s: { c: 0, r: 0 },
+      e: { c: 11, r: 1 },
+    })),
+    encode_cell: vi.fn((cell: { r: number; c: number }) =>
+      String.fromCharCode(65 + cell.c) + (cell.r + 1)
+    ),
   },
   writeFile: vi.fn(),
 }));

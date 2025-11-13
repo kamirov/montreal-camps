@@ -28,7 +28,7 @@ const mockCamps: Camp[] = [
     id: "2",
     type: "vacation",
     name: "Camp Beta",
-    borough: "NDG",
+    borough: null, // Vacation camps don't have boroughs
     ageRange: "8-14",
     languages: ["French"],
     dates: "March 1-5",
@@ -93,7 +93,7 @@ describe("filterCamps", () => {
     expect(result[0].id).toBe("1");
   });
 
-  it("should filter by borough", () => {
+  it("should filter by borough (only day camps)", () => {
     const filters: FilterState = {
       searchQuery: "",
       campType: "all",
@@ -101,8 +101,10 @@ describe("filterCamps", () => {
       selectedLanguages: [],
     };
     const result = filterCamps(mockCamps, filters);
+    // Should only return day camps with "Plateau" borough (vacation camps excluded)
     expect(result).toHaveLength(2);
     expect(result.every((camp) => camp.borough === "Plateau")).toBe(true);
+    expect(result.every((camp) => camp.type === "day")).toBe(true);
   });
 
   it("should filter by language", () => {
@@ -139,15 +141,19 @@ describe("sortCamps", () => {
 
   it("should sort camps by borough", () => {
     const result = sortCamps(mockCamps, "borough");
-    expect(result[0].borough).toBe("NDG");
+    // Day camps with boroughs should come first, sorted alphabetically
+    // Vacation camps (null borough) should come last
+    expect(result[0].borough).toBe("Plateau");
     expect(result[1].borough).toBe("Plateau");
+    expect(result[2].borough).toBe(null); // Vacation camp
   });
 });
 
 describe("getUniqueBoroughs", () => {
-  it("should return unique sorted boroughs", () => {
+  it("should return unique sorted boroughs (only from day camps)", () => {
     const result = getUniqueBoroughs(mockCamps);
-    expect(result).toEqual(["NDG", "Plateau"]);
+    // Should only return boroughs from day camps (vacation camps don't have boroughs)
+    expect(result).toEqual(["Plateau"]);
   });
 });
 

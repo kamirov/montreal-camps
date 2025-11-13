@@ -61,8 +61,9 @@ export function CampDetailDialog({
   };
 
   const handleDirections = () => {
-    // Search by camp name and borough since coordinates are no longer available
-    const query = encodeURIComponent(`${camp.name}, ${camp.borough}, Montreal`);
+    // Search by camp name and borough (if day camp) since coordinates are no longer available
+    const location = camp.borough ? `${camp.name}, ${camp.borough}, Montreal` : `${camp.name}, Montreal`;
+    const query = encodeURIComponent(location);
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${query}`,
       "_blank"
@@ -79,10 +80,12 @@ export function CampDetailDialog({
               {camp.type === "day" ? t.campTypes.day : t.campTypes.vacation}
             </Badge>
           </div>
-          <DialogDescription className="flex items-center gap-2">
-            <MapPin className="h-4 w-4" />
-            <span>{camp.borough}</span>
-          </DialogDescription>
+          {camp.borough && (
+            <DialogDescription className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              <span>{camp.borough}</span>
+            </DialogDescription>
+          )}
         </DialogHeader>
 
         <div className="space-y-4 py-4">

@@ -12,7 +12,7 @@ export function filterCamps(camps: Camp[], filters: FilterState): Camp[] {
       const query = filters.searchQuery.toLowerCase();
       const searchableText = [
         camp.name,
-        camp.borough,
+        camp.borough || "", // Include borough only if it exists (day camps only)
         camp.notes,
         camp.ageRange,
         ...camp.languages,
@@ -25,12 +25,12 @@ export function filterCamps(camps: Camp[], filters: FilterState): Camp[] {
       }
     }
 
-    // Filter by boroughs
-    if (
-      filters.boroughs.length > 0 &&
-      !filters.boroughs.includes(camp.borough)
-    ) {
-      return false;
+    // Filter by boroughs (only applies to day camps with boroughs)
+    // When borough filter is active, exclude vacation camps entirely
+    if (filters.boroughs.length > 0) {
+      if (!camp.borough || !filters.boroughs.includes(camp.borough)) {
+        return false;
+      }
     }
 
     // Filter by languages
@@ -71,7 +71,13 @@ export function sortCamps(camps: Camp[], sortBy: SortOption): Camp[] {
       });
 
     case "borough":
-      return sorted.sort((a, b) => a.borough.localeCompare(b.borough));
+      return sorted.sort((a, b) => {
+        // Handle null boroughs (vacation camps) - put them at the end
+        if (!a.borough && !b.borough) return 0;
+        if (!a.borough) return 1;
+        if (!b.borough) return -1;
+        return a.borough.localeCompare(b.borough);
+      });
 
     default:
       return sorted;
@@ -85,7 +91,10 @@ function parseCost(costString: string): number {
 }
 
 export function getUniqueBoroughs(camps: Camp[]): string[] {
-  const boroughs = camps.map((camp) => camp.borough);
+  // Only get boroughs from day camps (vacation camps don't have boroughs)
+  const boroughs = camps
+    .filter((camp) => camp.borough !== null)
+    .map((camp) => camp.borough as string);
   return Array.from(new Set(boroughs)).sort();
 }
 

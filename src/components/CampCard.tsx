@@ -43,8 +43,9 @@ export function CampCard({ camp }: CampCardProps) {
   };
 
   const handleDirections = () => {
-    // Search by camp name and borough since coordinates are no longer available
-    const query = encodeURIComponent(`${camp.name}, ${camp.borough}, Montreal`);
+    // Search by camp name and borough (if day camp) since coordinates are no longer available
+    const location = camp.borough ? `${camp.name}, ${camp.borough}, Montreal` : `${camp.name}, Montreal`;
+    const query = encodeURIComponent(location);
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${query}`,
       "_blank"
@@ -57,10 +58,12 @@ export function CampCard({ camp }: CampCardProps) {
         <div className="flex justify-between items-start gap-2 mb-2">
           <CardTitle className="text-xl font-bold">{camp.name}</CardTitle>
         </div>
-        <div className="flex items-center text-sm font-medium text-muted-foreground gap-1.5">
-          <MapPin className="h-4 w-4 text-primary" />
-          <span>{camp.borough}</span>
-        </div>
+        {camp.borough && (
+          <div className="flex items-center text-sm font-medium text-muted-foreground gap-1.5">
+            <MapPin className="h-4 w-4 text-primary" />
+            <span>{camp.borough}</span>
+          </div>
+        )}
       </CardHeader>
       <CardContent className="flex-1 space-y-3 pb-4">
         <div className="flex items-center gap-2.5 text-sm">

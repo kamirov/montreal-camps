@@ -71,20 +71,38 @@ export const phoneSchema = z.object({
   extension: z.string().optional(),
 });
 
-export const campSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  type: campTypeSchema,
-  borough: z.string().nullable(), // Nullable for vacation camps
-  ageRange: ageRangeSchema,
-  languages: z.array(z.string()).min(1, "At least one language is required"),
-  dates: datesSchema,
-  hours: z.string().optional(),
-  cost: costSchema,
-  financialAid: z.string().min(1, "Financial aid information is required"),
-  link: z.string().url("Must be a valid URL").min(1, "Link is required"),
-  phone: phoneSchema,
-  notes: z.string().optional(), // No longer required
-});
+export const campSchema = z
+  .object({
+    name: z.string().min(1, "Name is required"),
+    type: campTypeSchema,
+    borough: z.string().nullable(),
+    ageRange: ageRangeSchema,
+    languages: z.array(z.string()).min(1, "At least one language is required"),
+    dates: datesSchema,
+    hours: z.string().optional(),
+    cost: costSchema,
+    financialAid: z.string().min(1, "Financial aid information is required"),
+    link: z.string().url("Must be a valid URL").min(1, "Link is required"),
+    phone: phoneSchema,
+    notes: z.string().optional(),
+  })
+  .refine(
+    (data) => {
+      // Day camps must have a borough
+      if (data.type === "day") {
+        return data.borough !== null && data.borough.trim().length > 0;
+      }
+      // Vacation camps must NOT have a borough
+      if (data.type === "vacation") {
+        return data.borough === null;
+      }
+      return true;
+    },
+    {
+      message: "Day camps require a borough; vacation camps must not have one",
+      path: ["borough"],
+    }
+  );
 
 // Schema for PUT request body (camp data without name, name comes from route)
 export const campUpsertSchema = campSchema.omit({ name: true });

@@ -38,7 +38,7 @@ export const camps: Camp[] = [
     id: "3",
     type: "vacation",
     name: "Camp de Vacances Rosemont",
-    borough: "Rosemont–La Petite-Patrie",
+    borough: null, // Vacation camps don't have boroughs
     ageRange: "5-10 ans",
     languages: ["French"],
     dates: "March 4-8, 2024 (Spring Break)",
@@ -69,7 +69,7 @@ export const camps: Camp[] = [
     id: "6",
     type: "vacation",
     name: "Winter Camp Verdun",
-    borough: "Verdun",
+    borough: null, // Vacation camps don't have boroughs
     ageRange: "6-13 years",
     languages: ["English", "French"],
     dates: "December 23-30, 2024",
@@ -100,7 +100,7 @@ export const camps: Camp[] = [
     id: "9",
     type: "vacation",
     name: "Camp de Relâche Sud-Ouest",
-    borough: "Le Sud-Ouest",
+    borough: null, // Vacation camps don't have boroughs
     ageRange: "5-12 ans",
     languages: ["French"],
     dates: "March 4-8, 2024",
@@ -131,7 +131,7 @@ export const camps: Camp[] = [
     id: "12",
     type: "vacation",
     name: "Pierrefonds Holiday Camp",
-    borough: "Pierrefonds-Roxboro",
+    borough: null, // Vacation camps don't have boroughs
     ageRange: "5-13 years",
     languages: ["English", "French"],
     dates: "December 23-January 3, 2025",
@@ -178,7 +178,7 @@ export const camps: Camp[] = [
     id: "15",
     type: "vacation",
     name: "Rivière-des-Prairies Spring Camp",
-    borough: "Rivière-des-Prairies–Pointe-aux-Trembles",
+    borough: null, // Vacation camps don't have boroughs
     ageRange: "6-13 ans",
     languages: ["French"],
     dates: "March 4-8, 2024",
@@ -209,7 +209,7 @@ export const camps: Camp[] = [
     id: "18",
     type: "vacation",
     name: "CDN Winter Wonderland",
-    borough: "Côte-des-Neiges–Notre-Dame-de-Grâce",
+    borough: null, // Vacation camps don't have boroughs
     ageRange: "4-10 years",
     languages: ["English", "French"],
     dates: "December 23-30, 2024",
@@ -256,7 +256,7 @@ export const camps: Camp[] = [
     id: "21",
     type: "vacation",
     name: "Camp de Relâche LaSalle",
-    borough: "LaSalle",
+    borough: null, // Vacation camps don't have boroughs
     ageRange: "6-12 ans",
     languages: ["French"],
     dates: "March 4-8, 2024",
