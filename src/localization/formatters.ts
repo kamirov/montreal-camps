@@ -62,7 +62,7 @@ export function formatDateRange(
 
     const pattern1 =
       /([A-Za-z]+)\s+(\d{1,2})\s*-\s*([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})/i;
-    let match = dates.match(pattern1);
+    const match = dates.match(pattern1);
     if (match) {
       const [, month1, day1, month2, day2, year] = match;
       const monthIndex1 = monthMap[month1.toLowerCase()];
