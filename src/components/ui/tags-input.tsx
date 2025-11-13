@@ -3,13 +3,10 @@
 import { Badge } from "@/components/ui/badge";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -81,7 +78,7 @@ export function TagsInput({
             </button>
           </Badge>
         ))}
-        <Input
+        <input
           ref={inputRef}
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
@@ -89,7 +86,7 @@ export function TagsInput({
           onBlur={() => setTimeout(() => setOpen(false), 200)}
           onKeyDown={handleKeyDown}
           placeholder={value.length === 0 ? placeholder : ""}
-          className="flex-1 min-w-[120px] border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 p-0 h-auto"
+          className="flex-1 min-w-[120px] border-0 bg-transparent focus-visible:outline-none p-1 h-auto text-sm"
         />
       </div>
       {open && inputValue && filteredSuggestions.length > 0 && (
@@ -115,7 +112,7 @@ export function TagsInput({
                       onSelect={() => handleAddTag(inputValue)}
                       className="cursor-pointer"
                     >
-                      Add "{inputValue.trim()}"
+                      Add &quot;{inputValue.trim()}&quot;
                     </CommandItem>
                   )}
               </CommandGroup>

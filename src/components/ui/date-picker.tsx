@@ -1,7 +1,6 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 
 type DatePickerProps = {
   value: string; // ISO date string (YYYY-MM-DD)
@@ -44,10 +43,6 @@ type DateRangePickerProps = {
   onToDateChange: (value: string) => void;
   disabled?: boolean;
   required?: boolean;
-  labels?: {
-    from: string;
-    to: string;
-  };
 };
 
 export function DateRangePicker({
@@ -57,23 +52,25 @@ export function DateRangePicker({
   onToDateChange,
   disabled = false,
   required = false,
-  labels = { from: "From", to: "To" },
 }: DateRangePickerProps) {
   return (
-    <div className="grid grid-cols-2 gap-4">
-      <DatePicker
+    <div className="flex items-center gap-2">
+      <Input
+        type="date"
         value={fromDate}
-        onChange={onFromDateChange}
-        label={labels.from}
+        onChange={(e) => onFromDateChange(e.target.value)}
         required={required}
         disabled={disabled}
+        className="flex-1"
       />
-      <DatePicker
+      <span className="text-muted-foreground">-</span>
+      <Input
+        type="date"
         value={toDate}
-        onChange={onToDateChange}
-        label={labels.to}
+        onChange={(e) => onToDateChange(e.target.value)}
         required={required}
         disabled={disabled}
+        className="flex-1"
       />
     </div>
   );

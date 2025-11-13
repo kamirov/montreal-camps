@@ -59,7 +59,7 @@ export function CostInput({
   };
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 items-center">
       <div className="relative flex-1">
         <Input
           type="text"
@@ -75,6 +75,7 @@ export function CostInput({
           $
         </span>
       </div>
+      <span className="text-muted-foreground">/</span>
       <Select
         value={period}
         onValueChange={(value) =>

@@ -9,6 +9,7 @@ import { DateRangePicker } from "@/components/ui/date-picker";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { TagsInput } from "@/components/ui/tags-input";
+import { TimeRangeInput } from "@/components/ui/time-range-input";
 import {
   Select,
   SelectContent,
@@ -419,59 +420,52 @@ export default function ManagePage() {
                     </label>
                   </div>
                   {!isAllAges && formData.ageRange.type === "range" && (
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          From (ans)
-                        </label>
-                        <Input
-                          type="number"
-                          min="1"
-                          value={formData.ageRange.from}
-                          onChange={(e) => {
-                            const from = parseInt(e.target.value) || 1;
-                            const currentRange = formData.ageRange;
-                            if (currentRange.type === "range") {
-                              setFormData({
-                                ...formData,
-                                ageRange: {
-                                  type: "range",
-                                  allAges: false,
-                                  from,
-                                  to: Math.max(from, currentRange.to),
-                                },
-                              });
-                            }
-                          }}
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">
-                          To (ans)
-                        </label>
-                        <Input
-                          type="number"
-                          min="1"
-                          value={formData.ageRange.to}
-                          onChange={(e) => {
-                            const to = parseInt(e.target.value) || 1;
-                            const currentRange = formData.ageRange;
-                            if (currentRange.type === "range") {
-                              setFormData({
-                                ...formData,
-                                ageRange: {
-                                  type: "range",
-                                  allAges: false,
-                                  from: currentRange.from,
-                                  to: Math.max(to, currentRange.from),
-                                },
-                              });
-                            }
-                          }}
-                          required
-                        />
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        min="1"
+                        value={formData.ageRange.from}
+                        onChange={(e) => {
+                          const from = parseInt(e.target.value) || 1;
+                          const currentRange = formData.ageRange;
+                          if (currentRange.type === "range") {
+                            setFormData({
+                              ...formData,
+                              ageRange: {
+                                type: "range",
+                                allAges: false,
+                                from,
+                                to: Math.max(from, currentRange.to),
+                              },
+                            });
+                          }
+                        }}
+                        required
+                        className="flex-1"
+                      />
+                      <span className="text-muted-foreground">-</span>
+                      <Input
+                        type="number"
+                        min="1"
+                        value={formData.ageRange.to}
+                        onChange={(e) => {
+                          const to = parseInt(e.target.value) || 1;
+                          const currentRange = formData.ageRange;
+                          if (currentRange.type === "range") {
+                            setFormData({
+                              ...formData,
+                              ageRange: {
+                                type: "range",
+                                allAges: false,
+                                from: currentRange.from,
+                                to: Math.max(to, currentRange.from),
+                              },
+                            });
+                          }
+                        }}
+                        required
+                        className="flex-1"
+                      />
                     </div>
                   )}
                 </div>
@@ -572,7 +566,6 @@ export default function ManagePage() {
                           }
                         }}
                         required
-                        labels={{ from: "From", to: "To" }}
                       />
                     )}
                 </div>
@@ -587,10 +580,10 @@ export default function ManagePage() {
                   <label className="block text-sm font-medium mb-2">
                     {t.campFields.hours}
                   </label>
-                  <Input
+                  <TimeRangeInput
                     value={formData.hours}
-                    onChange={(e) =>
-                      setFormData({ ...formData, hours: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, hours: value })
                     }
                   />
                   {errors.hours && (
@@ -629,11 +622,12 @@ export default function ManagePage() {
               </div>
 
               {/* Financial Aid */}
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium mb-2">
                   {t.campFields.financialAid}
                 </label>
-                <Input
+                <textarea
+                  className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                   value={formData.financialAid}
                   onChange={(e) =>
                     setFormData({ ...formData, financialAid: e.target.value })
@@ -667,7 +661,12 @@ export default function ManagePage() {
                       type="button"
                       variant="outline"
                       size="icon"
-                      onClick={() => window.open(formData.link, "_blank")}
+                      onClick={() => {
+                        const url = formData.link.startsWith("http://") || formData.link.startsWith("https://")
+                          ? formData.link
+                          : `https://${formData.link}`;
+                        window.open(url, "_blank");
+                      }}
                     >
                       <ExternalLink className="h-4 w-4" />
                     </Button>
