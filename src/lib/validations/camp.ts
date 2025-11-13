@@ -10,18 +10,17 @@ export const ageRangeSchema = z.discriminatedUnion("type", [
     type: z.literal("all"),
     allAges: z.literal(true),
   }),
-  z.object({
-    type: z.literal("range"),
-    allAges: z.literal(false),
-    from: z.number().int().positive("From age must be positive"),
-    to: z.number().int().positive("To age must be positive"),
-  }).refine(
-    (data) => data.to >= data.from,
-    {
+  z
+    .object({
+      type: z.literal("range"),
+      allAges: z.literal(false),
+      from: z.number().int().positive("From age must be positive"),
+      to: z.number().int().positive("To age must be positive"),
+    })
+    .refine((data) => data.to >= data.from, {
       message: "To age must be greater than or equal to from age",
       path: ["to"],
-    }
-  ),
+    }),
 ]);
 
 // Dates schema: either year round or a date range
@@ -30,22 +29,34 @@ export const datesSchema = z.discriminatedUnion("type", [
     type: z.literal("yearRound"),
     yearRound: z.literal(true),
   }),
-  z.object({
-    type: z.literal("range"),
-    yearRound: z.literal(false),
-    fromDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "From date must be in ISO format (YYYY-MM-DD)"),
-    toDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "To date must be in ISO format (YYYY-MM-DD)"),
-  }).refine(
-    (data) => {
-      const from = new Date(data.fromDate);
-      const to = new Date(data.toDate);
-      return !isNaN(from.getTime()) && !isNaN(to.getTime()) && to >= from;
-    },
-    {
-      message: "To date must be greater than or equal to from date",
-      path: ["toDate"],
-    }
-  ),
+  z
+    .object({
+      type: z.literal("range"),
+      yearRound: z.literal(false),
+      fromDate: z
+        .string()
+        .regex(
+          /^\d{4}-\d{2}-\d{2}$/,
+          "From date must be in ISO format (YYYY-MM-DD)"
+        ),
+      toDate: z
+        .string()
+        .regex(
+          /^\d{4}-\d{2}-\d{2}$/,
+          "To date must be in ISO format (YYYY-MM-DD)"
+        ),
+    })
+    .refine(
+      (data) => {
+        const from = new Date(data.fromDate);
+        const to = new Date(data.toDate);
+        return !isNaN(from.getTime()) && !isNaN(to.getTime()) && to >= from;
+      },
+      {
+        message: "To date must be greater than or equal to from date",
+        path: ["toDate"],
+      }
+    ),
 ]);
 
 // Cost schema: amount and period
@@ -63,7 +74,7 @@ export const phoneSchema = z.object({
 export const campSchema = z.object({
   name: z.string().min(1, "Name is required"),
   type: campTypeSchema,
-  borough: z.string().min(1, "Borough is required"),
+  borough: z.string().nullable(), // Nullable for vacation camps
   ageRange: ageRangeSchema,
   languages: z.array(z.string()).min(1, "At least one language is required"),
   dates: datesSchema,
@@ -81,4 +92,3 @@ export const campUpsertSchema = campSchema.omit({ name: true });
 export type Camp = z.infer<typeof campSchema>;
 export type CampUpsert = z.infer<typeof campUpsertSchema>;
 export type CampType = z.infer<typeof campTypeSchema>;
-

@@ -58,7 +58,7 @@ export default function ManagePage() {
   const [campName, setCampName] = useState("");
   const [formData, setFormData] = useState<CampUpsert>({
     type: "day",
-    borough: "",
+    borough: null,
     ageRange: { type: "all", allAges: true },
     languages: [],
     dates: { type: "yearRound", yearRound: true },
@@ -215,7 +215,7 @@ export default function ManagePage() {
       setCampName("");
       setFormData({
         type: "day",
-        borough: "",
+        borough: null,
         ageRange: { type: "all", allAges: true },
         languages: [],
         dates: { type: "yearRound", yearRound: true },
@@ -308,7 +308,7 @@ export default function ManagePage() {
       setCampName("");
       setFormData({
         type: "day",
-        borough: "",
+        borough: null,
         ageRange: { type: "all", allAges: true },
         languages: [],
         dates: { type: "yearRound", yearRound: true },
@@ -335,7 +335,7 @@ export default function ManagePage() {
     setCampName("");
     setFormData({
       type: "day",
-      borough: "",
+      borough: null,
       ageRange: { type: "all", allAges: true },
       languages: [],
       dates: { type: "yearRound", yearRound: true },
@@ -355,6 +355,7 @@ export default function ManagePage() {
       ...formData,
       type: value,
       hours: value === "vacation" ? "" : formData.hours,
+      borough: value === "vacation" ? null : formData.borough,
     });
   };
 
@@ -495,25 +496,29 @@ export default function ManagePage() {
                 )}
               </div>
 
-              {/* Borough */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.name === "Name" ? "Borough" : "Arrondissement"}
-                </label>
-                <BoroughAutocomplete
-                  value={formData.borough}
-                  onChange={(value) =>
-                    setFormData({ ...formData, borough: value })
-                  }
-                  suggestions={availableBoroughs}
-                  required
-                />
-                {errors.borough && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.borough}
-                  </p>
-                )}
-              </div>
+              {/* Borough - only for day camps */}
+              {formData.type === "day" && (
+                <div>
+                  <label className="block text-sm font-medium mb-2">
+                    {t.campFields.name === "Name"
+                      ? "Borough"
+                      : "Arrondissement"}
+                  </label>
+                  <BoroughAutocomplete
+                    value={formData.borough || ""}
+                    onChange={(value) =>
+                      setFormData({ ...formData, borough: value })
+                    }
+                    suggestions={availableBoroughs}
+                    required
+                  />
+                  {errors.borough && (
+                    <p className="text-sm text-destructive mt-1">
+                      {errors.borough}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Age Range */}
               <div className="md:col-span-2">

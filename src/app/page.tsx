@@ -4,19 +4,19 @@ import { CampColumns } from "@/components/CampColumns";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { SearchBar } from "@/components/SearchBar";
-import { getCamps } from "@/lib/api/camps";
-import { useTranslation } from "@/localization/useTranslation";
-import { Camp, ViewMode } from "@/types/camp";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { Download } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getCamps } from "@/lib/api/camps";
 import { exportCampsToExcel } from "@/lib/exportCamps";
+import { useTranslation } from "@/localization/useTranslation";
+import { Camp, ViewMode } from "@/types/camp";
+import { Download } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 export default function Home() {
   const { t, language } = useTranslation();
@@ -86,10 +86,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <Header
-        showManageButton
-        onTitleClick={handleTitleClick}
-      />
+      <Header showManageButton onTitleClick={handleTitleClick} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">

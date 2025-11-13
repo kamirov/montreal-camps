@@ -87,7 +87,7 @@ export function formatDateRange(
   if (dates.type === "range") {
     const fromDate = new Date(dates.fromDate);
     const toDate = new Date(dates.toDate);
-    
+
     const monthIndex1 = fromDate.getMonth();
     const monthIndex2 = toDate.getMonth();
     const day1 = fromDate.getDate();
