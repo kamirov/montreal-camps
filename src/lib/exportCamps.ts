@@ -46,6 +46,8 @@ export function exportCampsToExcel(
       t.export.columns.notes,
     ];
 
+    console.log("dayCamps", dayCamps);
+
     const dayData = dayCamps.map((camp) => ({
       [t.export.columns.name]: camp.name,
       [t.export.columns.borough]: camp.borough || "",
