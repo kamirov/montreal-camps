@@ -1,10 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeSwitcher } from "@/components/ThemeSwitcher";
+import { Button } from "@/components/ui/button";
 import { useTranslation } from "@/localization/useTranslation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, SquarePen } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type HeaderProps = {
@@ -55,10 +55,10 @@ export function Header({
             {showManageButton && (
               <Button
                 variant="outline"
-                size="sm"
                 onClick={() => router.push("/manage")}
+                className="border-2"
               >
-                {t.manage?.button || "Manage"}
+                <SquarePen className="h-5 w-5" />
               </Button>
             )}
             <ThemeSwitcher />
@@ -69,4 +69,3 @@ export function Header({
     </header>
   );
 }
-
