@@ -60,9 +60,35 @@ export function formatDateRange(
       december: 11,
     };
 
+    // Extract optional parenthetical description
+    let description = "";
+    let dateString = dates;
+    const descMatch = dates.match(/\s*(\([^)]+\))\s*$/);
+    if (descMatch) {
+      description = ` ${descMatch[1]}`;
+      dateString = dates.replace(descMatch[1], "").trim();
+    }
+
+    // Try single-month date range pattern: "March 4-8, 2024"
+    const pattern2 = /([A-Za-z]+)\s+(\d{1,2})\s*-\s*(\d{1,2}),?\s*(\d{4})/i;
+    const match2 = dateString.match(pattern2);
+    if (match2) {
+      const [, month, day1, day2, year] = match2;
+      const monthIndex = monthMap[month.toLowerCase()];
+
+      if (monthIndex !== undefined) {
+        if (language === "fr") {
+          return `${day1}-${day2} ${t.months[monthIndex]} ${year}${description}`;
+        } else {
+          return `${t.months[monthIndex]} ${day1}-${day2}, ${year}${description}`;
+        }
+      }
+    }
+
+    // Try two-month date range pattern: "June 24 - August 23, 2024"
     const pattern1 =
       /([A-Za-z]+)\s+(\d{1,2})\s*-\s*([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})/i;
-    const match = dates.match(pattern1);
+    const match = dateString.match(pattern1);
     if (match) {
       const [, month1, day1, month2, day2, year] = match;
       const monthIndex1 = monthMap[month1.toLowerCase()];
@@ -70,9 +96,9 @@ export function formatDateRange(
 
       if (monthIndex1 !== undefined && monthIndex2 !== undefined) {
         if (language === "fr") {
-          return `${day1} ${t.months[monthIndex1]} - ${day2} ${t.months[monthIndex2]} ${year}`;
+          return `${day1} ${t.months[monthIndex1]} - ${day2} ${t.months[monthIndex2]} ${year}${description}`;
         } else {
-          return `${t.months[monthIndex1]} ${day1} - ${t.months[monthIndex2]} ${day2}, ${year}`;
+          return `${t.months[monthIndex1]} ${day1} - ${t.months[monthIndex2]} ${day2}, ${year}${description}`;
         }
       }
     }

@@ -19,7 +19,8 @@ export default defineConfig({
         "**/src/types/**",
         "**/src/data/**",
         "**/src/components/ui/**",
-        "**/src/app/layout.tsx",
+        "**/src/app/**/*.tsx", // Exclude Next.js pages and layouts (tested via E2E)
+        "**/src/app/**/*.ts", // Exclude API routes (tested via integration tests)
         "**/vitest.setup.ts",
         "**/*.spec.ts",
         "**/*.spec.tsx",

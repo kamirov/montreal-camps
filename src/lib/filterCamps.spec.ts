@@ -13,14 +13,19 @@ const mockCamps: Camp[] = [
     type: "day",
     name: "Camp Alpha",
     borough: "Plateau",
-    ageRange: "5-10",
+    ageRange: { type: "range", allAges: false, from: 5, to: 10 },
     languages: ["English", "French"],
-    dates: "July 1-30",
+    dates: {
+      type: "range",
+      yearRound: false,
+      fromDate: "2024-07-01",
+      toDate: "2024-07-30",
+    },
     hours: "9-5",
-    cost: "$200/week",
+    cost: { amount: 200, period: "week" },
     financialAid: "Available",
     link: "http://example.com",
-    phone: "514-555-0101",
+    phone: { number: "514-555-0101", extension: "" },
     notes: "Great camp with swimming",
     coordinates: [45.5, -73.6],
   },
@@ -29,13 +34,18 @@ const mockCamps: Camp[] = [
     type: "vacation",
     name: "Camp Beta",
     borough: null, // Vacation camps don't have boroughs
-    ageRange: "8-14",
+    ageRange: { type: "range", allAges: false, from: 8, to: 14 },
     languages: ["French"],
-    dates: "March 1-5",
-    cost: "$150/week",
+    dates: {
+      type: "range",
+      yearRound: false,
+      fromDate: "2024-03-01",
+      toDate: "2024-03-05",
+    },
+    cost: { amount: 150, period: "week" },
     financialAid: "Contact for information",
     link: "http://example.com",
-    phone: "514-555-0102",
+    phone: { number: "514-555-0102", extension: "" },
     notes: "Indoor activities",
     coordinates: [45.4, -73.7],
   },
@@ -44,14 +54,19 @@ const mockCamps: Camp[] = [
     type: "day",
     name: "Camp Gamma",
     borough: "Plateau",
-    ageRange: "6-12",
+    ageRange: { type: "range", allAges: false, from: 6, to: 12 },
     languages: ["English"],
-    dates: "July 15-Aug 15",
+    dates: {
+      type: "range",
+      yearRound: false,
+      fromDate: "2024-07-15",
+      toDate: "2024-08-15",
+    },
     hours: "8-4",
-    cost: "$180/week",
+    cost: { amount: 180, period: "week" },
     financialAid: "Available - Sliding scale",
     link: "http://example.com",
-    phone: "514-555-0103",
+    phone: { number: "514-555-0103", extension: "" },
     notes: "Arts and crafts",
     coordinates: [45.52, -73.58],
   },
@@ -129,14 +144,14 @@ describe("sortCamps", () => {
 
   it("should sort camps by cost (low to high)", () => {
     const result = sortCamps(mockCamps, "costLowToHigh");
-    expect(result[0].cost).toBe("$150/week");
-    expect(result[2].cost).toBe("$200/week");
+    expect(result[0].cost.amount).toBe(150);
+    expect(result[2].cost.amount).toBe(200);
   });
 
   it("should sort camps by cost (high to low)", () => {
     const result = sortCamps(mockCamps, "costHighToLow");
-    expect(result[0].cost).toBe("$200/week");
-    expect(result[2].cost).toBe("$150/week");
+    expect(result[0].cost.amount).toBe(200);
+    expect(result[2].cost.amount).toBe(150);
   });
 
   it("should sort camps by borough", () => {

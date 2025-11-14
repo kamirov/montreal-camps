@@ -141,7 +141,11 @@ export default function ManagePage() {
   // Extract unique boroughs and languages from camps
   const availableBoroughs = useMemo(() => {
     const boroughs = new Set<string>();
-    camps.forEach((camp) => boroughs.add(camp.borough));
+    camps.forEach((camp) => {
+      if (camp.borough !== null) {
+        boroughs.add(camp.borough);
+      }
+    });
     return Array.from(boroughs).sort();
   }, [camps]);
 

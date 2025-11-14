@@ -1,33 +1,10 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { useTranslation } from "@/localization/useTranslation";
-import { Camp } from "@/types/camp";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
-import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
+import { MapContainer, TileLayer } from "react-leaflet";
 
-// Fix for default marker icons in react-leaflet
-const icon = L.icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconRetinaUrl:
-    "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
-
-type CampMapProps = {
-  camps: Camp[];
-  onViewDetails: (camp: Camp) => void;
-};
-
-export function CampMap({ camps, onViewDetails }: CampMapProps) {
-  const { t } = useTranslation();
+export function CampMap() {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {

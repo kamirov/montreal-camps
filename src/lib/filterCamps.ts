@@ -10,11 +10,15 @@ export function filterCamps(camps: Camp[], filters: FilterState): Camp[] {
     // Filter by search query
     if (filters.searchQuery) {
       const query = filters.searchQuery.toLowerCase();
+      const ageRangeText =
+        camp.ageRange.type === "all"
+          ? "all ages"
+          : `${camp.ageRange.from}-${camp.ageRange.to}`;
       const searchableText = [
         camp.name,
         camp.borough || "", // Include borough only if it exists (day camps only)
         camp.notes,
-        camp.ageRange,
+        ageRangeText,
         ...camp.languages,
       ]
         .join(" ")
@@ -84,10 +88,17 @@ export function sortCamps(camps: Camp[], sortBy: SortOption): Camp[] {
   }
 }
 
-function parseCost(costString: string): number {
-  // Extract the first number from the cost string (e.g., "$180/week" -> 180)
-  const match = costString.match(/\d+/);
-  return match ? parseInt(match[0], 10) : 0;
+function parseCost(cost: { amount: number; period: string }): number {
+  // Normalize cost to weekly rate for comparison
+  const periodMultipliers: Record<string, number> = {
+    hour: 40, // Assume 40 hours per week
+    day: 5, // Assume 5 days per week
+    week: 1,
+    month: 0.25, // Assume 4 weeks per month
+  };
+
+  const multiplier = periodMultipliers[cost.period] || 1;
+  return cost.amount * multiplier;
 }
 
 export function getUniqueBoroughs(camps: Camp[]): string[] {

@@ -34,7 +34,9 @@ export function SearchBar({
 
   // Get unique boroughs from camps
   const uniqueBoroughs = useMemo(() => {
-    const boroughSet = new Set(camps.map((camp) => camp.borough));
+    const boroughSet = new Set(
+      camps.map((camp) => camp.borough).filter((b): b is string => b !== null)
+    );
     return Array.from(boroughSet).sort();
   }, [camps]);
 
@@ -52,7 +54,7 @@ export function SearchBar({
     return camps.filter((camp) => {
       return (
         camp.name.toLowerCase().includes(query) ||
-        camp.borough.toLowerCase().includes(query) ||
+        (camp.borough?.toLowerCase() ?? "").includes(query) ||
         (camp.notes?.toLowerCase() ?? "").includes(query)
       );
     });

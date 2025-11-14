@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { camps } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 import type { Camp } from "@/lib/validations/camp";
 
 export async function GET() {
