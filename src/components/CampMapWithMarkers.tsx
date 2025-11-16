@@ -1,9 +1,41 @@
 "use client";
 
-import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 import { Camp } from "@/types/camp";
-import { MapPin } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+// Dynamically import Leaflet components to avoid SSR issues
+const MapContainer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.MapContainer),
+  { ssr: false }
+);
+const TileLayer = dynamic(
+  () => import("react-leaflet").then((mod) => mod.TileLayer),
+  { ssr: false }
+);
+const Marker = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Marker),
+  { ssr: false }
+);
+const Popup = dynamic(
+  () => import("react-leaflet").then((mod) => mod.Popup),
+  { ssr: false }
+);
+
+// Function to create icon (must be called client-side)
+function createIcon() {
+  if (typeof window === "undefined") return null;
+  const L = require("leaflet");
+  return L.icon({
+    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41],
+  });
+}
 
 type CampMapWithMarkersProps = {
   camps: Camp[];
@@ -13,10 +45,42 @@ type CampMapWithMarkersProps = {
   className?: string;
 };
 
+type CampLocation = {
+  camp: Camp;
+  lat: number;
+  lng: number;
+};
+
 /**
- * Map component that shows camps with addresses as clickable markers
- * Since Google Maps Embed API doesn't support multiple markers without an API key,
- * we overlay clickable HTML markers on top of the map
+ * Geocode an address using our API route (which uses Nominatim server-side)
+ */
+async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
+  try {
+    const response = await fetch(
+      `/api/geocode?address=${encodeURIComponent(address)}`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`Geocoding failed: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.lat && data.lng) {
+      return {
+        lat: data.lat,
+        lng: data.lng,
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error("Error geocoding address:", address, error);
+    return null;
+  }
+}
+
+/**
+ * Map component that shows camps with addresses as markers on a Leaflet map
  */
 export function CampMapWithMarkers({
   camps,
@@ -25,96 +89,128 @@ export function CampMapWithMarkers({
   zoom = 11,
   className = "",
 }: CampMapWithMarkersProps) {
-  const [hoveredCamp, setHoveredCamp] = useState<Camp | null>(null);
+  const [isClient, setIsClient] = useState(false);
+  const [campLocations, setCampLocations] = useState<CampLocation[]>([]);
+  const [isGeocoding, setIsGeocoding] = useState(true);
+  const [markerIcon, setMarkerIcon] = useState<any>(null);
 
-  // For now, we'll position markers randomly or use a simple grid
-  // In a production app, you'd want to geocode addresses to get exact coordinates
-  // For this implementation, we'll create clickable markers that open individual maps
   const campsWithAddresses = camps.filter(
     (camp) => camp.address && camp.address.trim().length > 0
   );
 
-  if (campsWithAddresses.length === 0) {
+  useEffect(() => {
+    setIsClient(true);
+    // Import leaflet CSS only on client
+    import("leaflet/dist/leaflet.css");
+    // Create icon only on client
+    setMarkerIcon(createIcon());
+  }, []);
+
+  useEffect(() => {
+    if (!isClient || campsWithAddresses.length === 0) {
+      setIsGeocoding(false);
+      return;
+    }
+
+    async function geocodeAllCamps() {
+      setIsGeocoding(true);
+      const locations: CampLocation[] = [];
+
+      // Geocode all addresses
+      for (const camp of campsWithAddresses) {
+        if (camp.address) {
+          const coords = await geocodeAddress(camp.address);
+          if (coords) {
+            locations.push({
+              camp,
+              lat: coords.lat,
+              lng: coords.lng,
+            });
+          }
+          // Add a small delay to respect Nominatim's rate limit
+          await new Promise((resolve) => setTimeout(resolve, 200));
+        }
+      }
+
+      setCampLocations(locations);
+      setIsGeocoding(false);
+    }
+
+    geocodeAllCamps();
+  }, [isClient, campsWithAddresses]);
+
+  if (!isClient) {
     return (
       <div className={`w-full ${className}`} style={{ height }}>
-        <GoogleMapEmbed
-          address="Montreal, QC, Canada"
-          height={height}
-          zoom={zoom}
-          className="rounded-lg"
-        />
-      </div>
-    );
-  }
-
-  // If there's only one camp, center the map on that address and show a clear marker
-  if (campsWithAddresses.length === 1) {
-    const camp = campsWithAddresses[0];
-    return (
-      <div className={`w-full relative ${className}`} style={{ height }}>
-        <GoogleMapEmbed
-          address={camp.address!}
-          height={height}
-          zoom={15}
-          className="rounded-lg"
-        />
-        {/* Overlay marker - positioned at center of map */}
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none">
-          <div className="relative flex flex-col items-center">
-            <MapPin className="h-10 w-10 text-primary fill-primary drop-shadow-2xl animate-pulse" />
-            <div className="absolute top-full mt-2 bg-background border-2 border-primary rounded-lg px-3 py-2 shadow-lg pointer-events-auto min-w-[200px]">
-              <div className="font-semibold text-sm">{camp.name}</div>
-              <div className="text-xs text-muted-foreground mt-1">{camp.address}</div>
-              <button
-                onClick={() => onCampClick(camp)}
-                className="mt-2 text-xs text-primary hover:underline"
-              >
-                View details →
-              </button>
-            </div>
-          </div>
+        <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center">
+          <p className="text-muted-foreground">Loading map...</p>
         </div>
       </div>
     );
   }
 
-  // For multiple camps, show Montreal map with clickable list overlay
+  // Center on Montreal
+  const center: [number, number] = [45.5017, -73.5673];
+
+  // Calculate center based on markers if we have locations
+  let mapCenter: [number, number] = center;
+  if (campLocations.length > 0) {
+    const avgLat =
+      campLocations.reduce((sum, loc) => sum + loc.lat, 0) /
+      campLocations.length;
+    const avgLng =
+      campLocations.reduce((sum, loc) => sum + loc.lng, 0) /
+      campLocations.length;
+    mapCenter = [avgLat, avgLng];
+  }
+
   return (
     <div className={`w-full relative ${className}`} style={{ height }}>
-      <GoogleMapEmbed
-        address="Montreal, QC, Canada"
-        height={height}
-        zoom={zoom}
-        className="rounded-lg"
-      />
-      {/* Overlay with camp markers list */}
-      <div className="absolute top-4 left-4 bg-background/95 backdrop-blur-sm border rounded-lg p-4 max-w-xs max-h-[80%] overflow-y-auto shadow-lg z-10">
-        <h3 className="font-semibold mb-2 text-sm">
-          {campsWithAddresses.length} {campsWithAddresses.length === 1 ? "Camp" : "Camps"}
-        </h3>
-        <div className="space-y-2">
-          {campsWithAddresses.map((camp) => (
-            <button
-              key={camp.name}
-              onClick={() => onCampClick(camp)}
-              onMouseEnter={() => setHoveredCamp(camp)}
-              onMouseLeave={() => setHoveredCamp(null)}
-              className="w-full text-left p-2 rounded hover:bg-accent transition-colors text-sm"
-            >
-              <div className="flex items-start gap-2">
-                <MapPin className="h-4 w-4 text-primary mt-0.5 shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate">{camp.name}</div>
-                  <div className="text-xs text-muted-foreground truncate">
-                    {camp.address}
-                  </div>
-                </div>
-              </div>
-            </button>
-          ))}
+      {isGeocoding && (
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-[1000] flex items-center justify-center rounded-lg">
+          <div className="bg-background border rounded-lg p-4 shadow-lg">
+            <p className="text-sm text-muted-foreground">
+              Geocoding addresses...
+            </p>
+          </div>
         </div>
-      </div>
+      )}
+      <MapContainer
+        center={mapCenter}
+        zoom={campLocations.length === 1 ? 15 : zoom}
+        style={{ height: "100%", width: "100%" }}
+        scrollWheelZoom={true}
+        className="rounded-lg"
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {campLocations.map((location) => (
+          <Marker
+            key={location.camp.name}
+            position={[location.lat, location.lng]}
+            icon={markerIcon}
+          >
+            <Popup>
+              <div className="p-2">
+                <div className="font-semibold text-sm mb-1">
+                  {location.camp.name}
+                </div>
+                <div className="text-xs text-muted-foreground mb-2">
+                  {location.camp.address}
+                </div>
+                <button
+                  onClick={() => onCampClick(location.camp)}
+                  className="text-xs text-primary hover:underline"
+                >
+                  View details →
+                </button>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
     </div>
   );
 }
-

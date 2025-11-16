@@ -10,12 +10,23 @@ import {
 import { useTheme } from "@/contexts/ThemeContext";
 import { useTranslation } from "@/localization/useTranslation";
 import { Monitor, Moon, Sun } from "lucide-react";
+import { useEffect, useState } from "react";
 
 export function ThemeSwitcher() {
   const { theme, setTheme } = useTheme();
   const { t } = useTranslation();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch by only rendering icon after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const getThemeIcon = () => {
+    // Show default icon during SSR to prevent hydration mismatch
+    if (!mounted) {
+      return <Monitor className="h-5 w-5" />;
+    }
     switch (theme) {
       case "light":
         return <Sun className="h-5 w-5" />;
