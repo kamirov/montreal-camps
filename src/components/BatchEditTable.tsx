@@ -40,13 +40,15 @@ type SortState = {
 
 type ColumnKey =
   | "name"
-  | "type"
   | "borough"
-  | "ageRange"
+  | "ageFrom"
+  | "ageTo"
   | "languages"
   | "dates"
-  | "hours"
-  | "cost"
+  | "hoursFrom"
+  | "hoursTo"
+  | "costAmount"
+  | "costPeriod"
   | "financialAid"
   | "link"
   | "phone"
@@ -97,6 +99,9 @@ export function BatchEditTable({
   const [originalCamps, setOriginalCamps] = useState<Map<string, Camp>>(
     new Map(camps.map((camp) => [camp.name, camp]))
   );
+  const [nameMapping, setNameMapping] = useState<Map<string, string>>(
+    new Map(camps.map((camp) => [camp.name, camp.name]))
+  );
   const [changedRows, setChangedRows] = useState<Set<string>>(new Set());
   const [deletedRows, setDeletedRows] = useState<Set<string>>(new Set());
   const [sortState, setSortState] = useState<SortState>({
@@ -109,6 +114,7 @@ export function BatchEditTable({
   useEffect(() => {
     setLocalCamps(camps);
     setOriginalCamps(new Map(camps.map((camp) => [camp.name, camp])));
+    setNameMapping(new Map(camps.map((camp) => [camp.name, camp.name])));
     setChangedRows(new Set());
     setDeletedRows(new Set());
   }, [camps]);
@@ -151,17 +157,17 @@ export function BatchEditTable({
             aVal = a.name.toLowerCase();
             bVal = b.name.toLowerCase();
             break;
-          case "type":
-            aVal = a.type;
-            bVal = b.type;
-            break;
           case "borough":
             aVal = (a.borough || "").toLowerCase();
             bVal = (b.borough || "").toLowerCase();
             break;
-          case "ageRange":
-            aVal = formatAgeRange(a.ageRange);
-            bVal = formatAgeRange(b.ageRange);
+          case "ageFrom":
+            aVal = a.ageRange.type === "all" ? 0 : a.ageRange.from;
+            bVal = b.ageRange.type === "all" ? 0 : b.ageRange.from;
+            break;
+          case "ageTo":
+            aVal = a.ageRange.type === "all" ? 999 : a.ageRange.to;
+            bVal = b.ageRange.type === "all" ? 999 : b.ageRange.to;
             break;
           case "languages":
             aVal = formatLanguages(a.languages).toLowerCase();
@@ -171,13 +177,21 @@ export function BatchEditTable({
             aVal = formatDates(a.dates).toLowerCase();
             bVal = formatDates(b.dates).toLowerCase();
             break;
-          case "hours":
-            aVal = (a.hours || "").toLowerCase();
-            bVal = (b.hours || "").toLowerCase();
+          case "hoursFrom":
+            aVal = a.hours ? (a.hours.split(" - ")[0] || "").toLowerCase() : "";
+            bVal = b.hours ? (b.hours.split(" - ")[0] || "").toLowerCase() : "";
             break;
-          case "cost":
+          case "hoursTo":
+            aVal = a.hours ? (a.hours.split(" - ")[1] || "").toLowerCase() : "";
+            bVal = b.hours ? (b.hours.split(" - ")[1] || "").toLowerCase() : "";
+            break;
+          case "costAmount":
             aVal = a.cost.amount;
             bVal = b.cost.amount;
+            break;
+          case "costPeriod":
+            aVal = a.cost.period;
+            bVal = b.cost.period;
             break;
           case "financialAid":
             aVal = a.financialAid.toLowerCase();
@@ -251,36 +265,115 @@ export function BatchEditTable({
 
       switch (field) {
         case "name": {
-          const isNewCamp = !originalCamps.has(campName);
-          if (isNewCamp && value !== campName) {
-            // For new camps, update the name and track the change
-            setLocalCamps((prev) =>
-              prev.map((c) => (c.name === campName ? { ...c, name: value } : c))
+          // Check for uniqueness
+          const trimmedValue = value.trim();
+          if (trimmedValue && trimmedValue !== campName) {
+            const isDuplicate = localCamps.some(
+              (c) => c.name === trimmedValue && c.name !== campName
             );
-            // Update changedRows to use new name
-            setChangedRows((prev) => {
-              const next = new Set(prev);
-              next.delete(campName);
-              next.add(value);
+            if (isDuplicate) {
+              // Don't update if duplicate
+              return;
+            }
+            // Update name and track change
+            const isNewCamp = !originalCamps.has(campName);
+            const originalName = nameMapping.get(campName) || campName;
+            
+            setLocalCamps((prev) =>
+              prev.map((c) => (c.name === campName ? { ...c, name: trimmedValue } : c))
+            );
+            
+            // Update name mapping
+            setNameMapping((prev) => {
+              const next = new Map(prev);
+              next.set(trimmedValue, originalName);
+              if (next.has(campName)) {
+                next.delete(campName);
+              }
               return next;
             });
+            
+            // Update changedRows
+            setChangedRows((prev) => {
+              const next = new Set(prev);
+              if (isNewCamp) {
+                // For new camps, update the key
+                next.delete(campName);
+                next.add(trimmedValue);
+              } else {
+                // For existing camps, track by original name
+                next.add(originalName);
+              }
+              return next;
+            });
+            
+            // Update originalCamps if it's a new camp
+            if (isNewCamp) {
+              setOriginalCamps((prev) => {
+                const next = new Map(prev);
+                const camp = next.get(campName);
+                if (camp) {
+                  next.delete(campName);
+                  next.set(trimmedValue, { ...camp, name: trimmedValue });
+                }
+                return next;
+              });
+            }
           }
           return;
         }
-        case "type":
-          updateCamp(campName, {
-            type: value as "day" | "vacation",
-            borough: value === "vacation" ? null : camp.borough,
-            hours: value === "vacation" ? undefined : camp.hours,
-          });
-          return;
         case "borough":
           updateCamp(campName, { borough: value || null });
           return;
-        case "ageRange": {
-          const parsed = parseAgeRange(value);
-          if (parsed) {
-            updateCamp(campName, { ageRange: parsed });
+        case "ageFrom": {
+          const numValue = parseInt(value, 10);
+          if (!isNaN(numValue) && numValue > 0) {
+            const currentRange = camp.ageRange;
+            if (currentRange.type === "range") {
+              updateCamp(campName, {
+                ageRange: {
+                  type: "range",
+                  allAges: false,
+                  from: numValue,
+                  to: Math.max(numValue, currentRange.to),
+                },
+              });
+            } else {
+              updateCamp(campName, {
+                ageRange: {
+                  type: "range",
+                  allAges: false,
+                  from: numValue,
+                  to: numValue,
+                },
+              });
+            }
+          }
+          return;
+        }
+        case "ageTo": {
+          const numValue = parseInt(value, 10);
+          if (!isNaN(numValue) && numValue > 0) {
+            const currentRange = camp.ageRange;
+            if (currentRange.type === "range") {
+              updateCamp(campName, {
+                ageRange: {
+                  type: "range",
+                  allAges: false,
+                  from: currentRange.from,
+                  to: Math.max(numValue, currentRange.from),
+                },
+              });
+            } else {
+              updateCamp(campName, {
+                ageRange: {
+                  type: "range",
+                  allAges: false,
+                  from: 1,
+                  to: numValue,
+                },
+              });
+            }
           }
           return;
         }
@@ -298,13 +391,34 @@ export function BatchEditTable({
           }
           return;
         }
-        case "hours":
-          updateCamp(campName, { hours: value || undefined });
+        case "hoursFrom": {
+          const currentHours = camp.hours || "";
+          const parts = currentHours.split(" - ");
+          const newHours = `${value} - ${parts[1] || ""}`.trim();
+          updateCamp(campName, { hours: newHours || undefined });
           return;
-        case "cost": {
-          const parsed = parseCost(value);
-          if (parsed) {
-            updateCamp(campName, { cost: parsed });
+        }
+        case "hoursTo": {
+          const currentHours = camp.hours || "";
+          const parts = currentHours.split(" - ");
+          const newHours = `${parts[0] || ""} - ${value}`.trim();
+          updateCamp(campName, { hours: newHours || undefined });
+          return;
+        }
+        case "costAmount": {
+          const numValue = parseFloat(value);
+          if (!isNaN(numValue) && numValue >= 0) {
+            updateCamp(campName, {
+              cost: { ...camp.cost, amount: numValue },
+            });
+          }
+          return;
+        }
+        case "costPeriod": {
+          if (["year", "month", "week", "hour"].includes(value)) {
+            updateCamp(campName, {
+              cost: { ...camp.cost, period: value as "year" | "month" | "week" | "hour" },
+            });
           }
           return;
         }
@@ -343,6 +457,7 @@ export function BatchEditTable({
         name: `New ${type} camp ${Date.now()}`,
       };
       setLocalCamps((prev) => [...prev, newCamp]);
+      setNameMapping((prev) => new Map(prev).set(newCamp.name, newCamp.name));
       setChangedRows((prev) => new Set(prev).add(newCamp.name));
     },
     []
@@ -378,19 +493,50 @@ export function BatchEditTable({
   const handleSave = useCallback(async () => {
     setIsSaving(true);
     try {
-      const changedCamps = localCamps.filter((camp) => {
-        if (deletedRows.has(camp.name)) return false;
-        if (changedRows.has(camp.name)) return true;
-        return false;
-      });
-      const deletedNames = Array.from(deletedRows).filter((name) =>
-        originalCamps.has(name)
-      );
-      await onSave(changedCamps, deletedNames);
+      // Get all camps that have been changed
+      const campsToSave: Camp[] = [];
+      const renamedCamps: Array<{ oldName: string; newName: string }> = [];
+      
+      for (const camp of localCamps) {
+        if (deletedRows.has(camp.name)) continue;
+        
+        // Get the original name for this camp
+        const originalName = nameMapping.get(camp.name) || camp.name;
+        
+        // Check if this camp was changed (tracked by original name)
+        if (changedRows.has(originalName)) {
+          campsToSave.push(camp);
+          
+          // If the name changed, track it for deletion of old camp
+          if (originalName !== camp.name) {
+            renamedCamps.push({ oldName: originalName, newName: camp.name });
+          }
+        }
+      }
+
+      // Get deleted names (excluding renamed camps' old names, as they'll be handled separately)
+      const deletedNames = Array.from(deletedRows)
+        .filter((name) => {
+          // Get original name if this was renamed
+          const originalName = nameMapping.get(name) || name;
+          return originalCamps.has(originalName);
+        })
+        .filter((name) => {
+          const originalName = nameMapping.get(name) || name;
+          return !renamedCamps.some((rc) => rc.oldName === originalName);
+        });
+
+      // Add old names from renamed camps to deleted names
+      const allDeletedNames = [
+        ...deletedNames.map((name) => nameMapping.get(name) || name),
+        ...renamedCamps.map((rc) => rc.oldName),
+      ];
+
+      await onSave(campsToSave, allDeletedNames);
     } finally {
       setIsSaving(false);
     }
-  }, [localCamps, changedRows, deletedRows, originalCamps, onSave]);
+  }, [localCamps, changedRows, deletedRows, originalCamps, nameMapping, onSave]);
 
   const renderTable = useCallback(
     (campList: Camp[], campType: "day" | "vacation") => {
@@ -399,13 +545,15 @@ export function BatchEditTable({
         campType === "day"
           ? [
               "name",
-              "type",
               "borough",
-              "ageRange",
+              "ageFrom",
+              "ageTo",
               "languages",
               "dates",
-              "hours",
-              "cost",
+              "hoursFrom",
+              "hoursTo",
+              "costAmount",
+              "costPeriod",
               "financialAid",
               "link",
               "phone",
@@ -415,11 +563,12 @@ export function BatchEditTable({
             ]
           : [
               "name",
-              "type",
-              "ageRange",
+              "ageFrom",
+              "ageTo",
               "languages",
               "dates",
-              "cost",
+              "costAmount",
+              "costPeriod",
               "financialAid",
               "link",
               "phone",
@@ -456,7 +605,19 @@ export function BatchEditTable({
                     className="border-b border-border px-2 py-2 text-left text-sm font-medium cursor-pointer hover:bg-muted/80 whitespace-nowrap"
                     onClick={() => handleSort(col)}
                   >
-                    {t.campFields[col] || col}
+                    {col === "ageFrom"
+                      ? "Age From"
+                      : col === "ageTo"
+                        ? "Age To"
+                        : col === "hoursFrom"
+                          ? "Hours From"
+                          : col === "hoursTo"
+                            ? "Hours To"
+                            : col === "costAmount"
+                              ? "Cost"
+                              : col === "costPeriod"
+                                ? "Period"
+                                : t.campFields[col as keyof typeof t.campFields] || col}
                     {getSortIcon(col)}
                   </th>
                 ))}
@@ -484,15 +645,20 @@ export function BatchEditTable({
                         case "name":
                           cellValue = camp.name;
                           break;
-                        case "type":
-                          cellValue = camp.type;
-                          inputType = "select";
-                          break;
                         case "borough":
                           cellValue = camp.borough || "";
                           break;
-                        case "ageRange":
-                          cellValue = formatAgeRange(camp.ageRange);
+                        case "ageFrom":
+                          cellValue =
+                            camp.ageRange.type === "all"
+                              ? ""
+                              : camp.ageRange.from.toString();
+                          break;
+                        case "ageTo":
+                          cellValue =
+                            camp.ageRange.type === "all"
+                              ? ""
+                              : camp.ageRange.to.toString();
                           break;
                         case "languages":
                           cellValue = formatLanguages(camp.languages);
@@ -500,11 +666,22 @@ export function BatchEditTable({
                         case "dates":
                           cellValue = formatDates(camp.dates);
                           break;
-                        case "hours":
-                          cellValue = camp.hours || "";
+                        case "hoursFrom":
+                          cellValue = camp.hours
+                            ? (camp.hours.split(" - ")[0] || "")
+                            : "";
                           break;
-                        case "cost":
-                          cellValue = formatCost(camp.cost);
+                        case "hoursTo":
+                          cellValue = camp.hours
+                            ? (camp.hours.split(" - ")[1] || "")
+                            : "";
+                          break;
+                        case "costAmount":
+                          cellValue = camp.cost.amount.toString();
+                          break;
+                        case "costPeriod":
+                          cellValue = camp.cost.period;
+                          inputType = "select";
                           break;
                         case "financialAid":
                           cellValue = camp.financialAid;
@@ -526,12 +703,9 @@ export function BatchEditTable({
                           break;
                       }
 
-                      const isNameField = col === "name";
-                      const isNewCamp = !originalCamps.has(camp.name);
-                      const isNameDisabled = isNameField && !isNewCamp;
                       return (
                         <td key={col} className="border-b border-r border-border px-2 py-1 min-w-[100px]">
-                          {inputType === "select" && col === "type" ? (
+                          {inputType === "select" && col === "costPeriod" ? (
                             <Select
                               value={cellValue}
                               onValueChange={(value) =>
@@ -542,22 +716,22 @@ export function BatchEditTable({
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="day">{t.campTypes.day}</SelectItem>
-                                <SelectItem value="vacation">
-                                  {t.campTypes.vacation}
-                                </SelectItem>
+                                <SelectItem value="year">year</SelectItem>
+                                <SelectItem value="month">month</SelectItem>
+                                <SelectItem value="week">week</SelectItem>
+                                <SelectItem value="hour">hour</SelectItem>
                               </SelectContent>
                             </Select>
                           ) : (
                             <Input
-                              type="text"
+                              type={col === "ageFrom" || col === "ageTo" || col === "costAmount" ? "number" : "text"}
                               value={cellValue}
                               onChange={(e) =>
                                 handleCellChange(camp.name, col, e.target.value)
                               }
                               className="h-8 text-xs w-full"
-                              disabled={isDeleted || isNameDisabled}
-                              title={isNameDisabled ? "Name cannot be changed in batch view. Use form view to rename camps." : undefined}
+                              disabled={isDeleted}
+                              placeholder={col === "ageFrom" || col === "ageTo" ? (camp.ageRange.type === "all" ? "all" : "") : undefined}
                             />
                           )}
                         </td>
@@ -566,13 +740,23 @@ export function BatchEditTable({
                     <td className="border-b border-r border-border px-2 py-1">
                       <Button
                         type="button"
-                        variant={isDeleted ? "outline" : "destructive"}
+                        variant="ghost"
                         size="sm"
                         onClick={() => handleDeleteRow(camp.name)}
-                        className="h-8"
+                        className={`h-8 ${
+                          isDeleted
+                            ? "bg-red-50 dark:bg-red-950/20 border border-red-300 dark:border-red-800"
+                            : "bg-red-50 dark:bg-red-950/20 border border-red-500 dark:border-red-700"
+                        }`}
                         title={isDeleted ? "Click to undo deletion" : t.batchView.markForDeletion}
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2
+                          className={`h-3 w-3 ${
+                            isDeleted
+                              ? "text-red-400 dark:text-red-600"
+                              : "text-red-600 dark:text-red-400"
+                          }`}
+                        />
                       </Button>
                     </td>
                   </tr>

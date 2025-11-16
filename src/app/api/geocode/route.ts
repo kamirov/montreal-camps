@@ -19,7 +19,9 @@ async function geocodeWithRetry(
       });
 
       if (!response.ok) {
-        throw new Error(`Nominatim API error: ${response.status} ${response.statusText}`);
+        throw new Error(
+          `Nominatim API error: ${response.status} ${response.statusText}`
+        );
       }
 
       const data = await response.json();
@@ -34,7 +36,8 @@ async function geocodeWithRetry(
       return null;
     } catch (error: any) {
       const isLastAttempt = attempt === retries;
-      const isTimeout = error?.name === "TimeoutError" || error?.code === "ECONNREFUSED";
+      const isTimeout =
+        error?.name === "TimeoutError" || error?.code === "ECONNREFUSED";
 
       if (isLastAttempt) {
         console.error(
@@ -76,16 +79,15 @@ export async function GET(request: Request) {
       return NextResponse.json(result);
     }
 
-    return NextResponse.json(
-      { error: "Address not found" },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: "Address not found" }, { status: 404 });
   } catch (error) {
     console.error("Error geocoding address:", address, error);
     return NextResponse.json(
-      { error: "Failed to geocode address", details: error instanceof Error ? error.message : "Unknown error" },
+      {
+        error: "Failed to geocode address",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }
 }
-
