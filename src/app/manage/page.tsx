@@ -59,14 +59,18 @@ export default function ManagePage() {
   const [formData, setFormData] = useState<CampUpsert>({
     type: "day",
     borough: null,
-    ageRange: { type: "all", allAges: true },
-    languages: [],
+    ageRange: { type: "range", allAges: false, from: 5, to: 15 },
+    languages: ["English", "French"],
     dates: { type: "yearRound", yearRound: true },
     hours: "09:00 - 17:00",
-    cost: { amount: 0, period: "week" },
-    financialAid: "",
+    // TODO: Temporary cost and financial aid values
+    cost: { amount: 100, period: "week" },
+    financialAid: "NA",
+
     link: "",
     phone: { number: "", extension: "" },
+    email: "",
+    address: "",
     notes: "",
   });
 
@@ -195,6 +199,8 @@ export default function ManagePage() {
             financialAid: camp.financialAid,
             link: camp.link,
             phone: camp.phone,
+            email: camp.email ?? "",
+            address: camp.address ?? "",
             notes: camp.notes ?? "",
           });
           setErrors({});
@@ -219,15 +225,17 @@ export default function ManagePage() {
       setCampName("");
       setFormData({
         type: "day",
-        borough: null,
-        ageRange: { type: "all", allAges: true },
-        languages: [],
+        borough: "Ahuntsic-Cartierville",
+        ageRange: { type: "range", allAges: false, from: 5, to: 15 },
+        languages: ["English", "French"],
         dates: { type: "yearRound", yearRound: true },
         hours: "09:00 - 17:00",
-        cost: { amount: 0, period: "week" },
-        financialAid: "",
+        cost: { amount: 100, period: "week" },
+        financialAid: "NA",
         link: "",
         phone: { number: "", extension: "" },
+        email: "",
+        address: "",
         notes: "",
       });
       setErrors({});
@@ -321,6 +329,7 @@ export default function ManagePage() {
         financialAid: "",
         link: "",
         phone: { number: "", extension: "" },
+        email: "",
         notes: "",
       });
     } catch (err) {
@@ -348,6 +357,7 @@ export default function ManagePage() {
       financialAid: "",
       link: "",
       phone: { number: "", extension: "" },
+      email: "",
       notes: "",
     });
     setErrors({});
@@ -843,6 +853,48 @@ export default function ManagePage() {
                 {errors.phone && (
                   <p className="text-sm text-destructive mt-1">
                     {errors.phone}
+                  </p>
+                )}
+              </div>
+
+              {/* Email */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t.campFields.email}{" "}
+                  <span className="text-muted-foreground">(Optional)</span>
+                </label>
+                <Input
+                  type="email"
+                  value={formData.email ?? ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, email: e.target.value })
+                  }
+                  placeholder="example@email.com"
+                />
+                {errors.email && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
+              {/* Address */}
+              <div>
+                <label className="block text-sm font-medium mb-2">
+                  {t.campFields.address}{" "}
+                  <span className="text-muted-foreground">(Optional)</span>
+                </label>
+                <Input
+                  type="text"
+                  value={formData.address ?? ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, address: e.target.value })
+                  }
+                  placeholder="e.g., 123 Main St, Montreal, QC or Henri-Julien Park"
+                />
+                {errors.address && (
+                  <p className="text-sm text-destructive mt-1">
+                    {errors.address}
                   </p>
                 )}
               </div>

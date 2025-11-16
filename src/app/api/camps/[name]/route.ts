@@ -59,6 +59,8 @@ export async function GET(_request: Request, { params }: RouteParams) {
         number: camp.phone,
         extension: camp.phoneExtension ?? undefined,
       },
+      email: camp.email ?? undefined,
+      address: camp.address ?? undefined,
       notes: camp.notes ?? undefined,
     };
 
@@ -98,6 +100,9 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     const campData = validationResult.data;
 
+    // Convert empty email string to null
+    const emailValue = campData.email && campData.email.trim() !== "" ? campData.email.trim() : null;
+
     // Upsert using Drizzle's insert with onConflictDoUpdate
     await db
       .insert(camps)
@@ -115,6 +120,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
         link: campData.link,
         phone: campData.phone.number,
         phoneExtension: campData.phone.extension ?? null,
+        email: emailValue,
+        address: campData.address ?? null,
         notes: campData.notes ?? null,
       })
       .onConflictDoUpdate({
@@ -132,6 +139,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
           link: campData.link,
           phone: campData.phone.number,
           phoneExtension: campData.phone.extension ?? null,
+          email: emailValue,
+          address: campData.address ?? null,
           notes: campData.notes ?? null,
         },
       });
@@ -168,6 +177,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
         number: updatedCamp.phone,
         extension: updatedCamp.phoneExtension ?? undefined,
       },
+      email: updatedCamp.email ?? undefined,
+      address: updatedCamp.address ?? undefined,
       notes: updatedCamp.notes ?? undefined,
     };
 

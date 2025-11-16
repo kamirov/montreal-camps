@@ -43,6 +43,8 @@ export function exportCampsToExcel(
       t.export.columns.financialAid,
       t.export.columns.link,
       t.export.columns.phone,
+      t.export.columns.email,
+      t.export.columns.address,
       t.export.columns.notes,
     ];
 
@@ -61,6 +63,8 @@ export function exportCampsToExcel(
       [t.export.columns.financialAid]: camp.financialAid,
       [t.export.columns.link]: camp.link,
       [t.export.columns.phone]: formatPhone(camp.phone),
+      [t.export.columns.email]: camp.email ?? "",
+      [t.export.columns.address]: camp.address ?? "",
       [t.export.columns.notes]: camp.notes ?? "",
     }));
 
@@ -79,6 +83,8 @@ export function exportCampsToExcel(
       { wch: 30 }, // financialAid
       { wch: 40 }, // link
       { wch: 20 }, // phone
+      { wch: 30 }, // email
+      { wch: 40 }, // address
       { wch: 40 }, // notes
     ];
 
@@ -106,6 +112,8 @@ export function exportCampsToExcel(
       t.export.columns.financialAid,
       t.export.columns.link,
       t.export.columns.phone,
+      t.export.columns.email,
+      t.export.columns.address,
       t.export.columns.notes,
     ];
 
@@ -120,6 +128,8 @@ export function exportCampsToExcel(
       [t.export.columns.financialAid]: camp.financialAid,
       [t.export.columns.link]: camp.link,
       [t.export.columns.phone]: formatPhone(camp.phone),
+      [t.export.columns.email]: camp.email ?? "",
+      [t.export.columns.address]: camp.address ?? "",
       [t.export.columns.notes]: camp.notes ?? "",
     }));
 
@@ -136,6 +146,8 @@ export function exportCampsToExcel(
       { wch: 30 }, // financialAid
       { wch: 40 }, // link
       { wch: 20 }, // phone
+      { wch: 30 }, // email
+      { wch: 40 }, // address
       { wch: 40 }, // notes
     ];
 

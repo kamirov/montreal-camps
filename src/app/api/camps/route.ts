@@ -36,6 +36,8 @@ export async function GET() {
           number: camp.phone,
           extension: camp.phoneExtension ?? undefined,
         },
+        email: camp.email ?? undefined,
+        address: camp.address ?? undefined,
         notes: camp.notes ?? undefined,
       };
     });

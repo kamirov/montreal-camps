@@ -14,7 +14,8 @@ import { getCamps } from "@/lib/api/camps";
 import { exportCampsToExcel } from "@/lib/exportCamps";
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp, ViewMode } from "@/types/camp";
-import { Download } from "lucide-react";
+import { Download, Map } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
@@ -127,6 +128,20 @@ export default function Home() {
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
+                      <Link
+                        href="/map"
+                        className="flex items-center justify-center h-12 w-12 rounded-lg border-2 bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                        aria-label={t.views.map}
+                      >
+                        <Map className="h-5 w-5" />
+                      </Link>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>{t.views.map}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
                       <button
                         onClick={handleExport}
                         className="flex items-center justify-center h-12 w-12 rounded-lg border-2 bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
@@ -160,6 +175,20 @@ export default function Home() {
                     />
                   </div>
                   <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link
+                          href="/map"
+                          className="flex items-center justify-center h-12 w-12 rounded-lg border-2 bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                          aria-label={t.views.map}
+                        >
+                          <Map className="h-5 w-5" />
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>{t.views.map}</p>
+                      </TooltipContent>
+                    </Tooltip>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <button

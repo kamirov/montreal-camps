@@ -49,6 +49,8 @@ export const en: Translations = {
     financialAid: "Financial Aid",
     link: "Website",
     phone: "Phone",
+    email: "Email",
+    address: "Address",
     notes: "Notes",
   },
 
@@ -223,6 +225,8 @@ export const en: Translations = {
       financialAid: "Financial Aid",
       link: "Website",
       phone: "Phone",
+      email: "Email",
+      address: "Address",
       notes: "Notes",
     },
   },

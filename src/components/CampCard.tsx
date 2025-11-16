@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 import {
   formatAgeRange,
   formatCost,
@@ -28,9 +29,10 @@ import {
 
 type CampCardProps = {
   camp: Camp;
+  showMap?: boolean;
 };
 
-export function CampCard({ camp }: CampCardProps) {
+export function CampCard({ camp, showMap = true }: CampCardProps) {
   const { t, language } = useTranslation();
 
   const handleCall = () => {
@@ -43,8 +45,8 @@ export function CampCard({ camp }: CampCardProps) {
   };
 
   const handleDirections = () => {
-    // Search by camp name and borough (if day camp) since coordinates are no longer available
-    const location = camp.borough ? `${camp.name}, ${camp.borough}, Montreal` : `${camp.name}, Montreal`;
+    // Use address if available, otherwise fall back to camp name and borough
+    const location = camp.address || (camp.borough ? `${camp.name}, ${camp.borough}, Montreal` : `${camp.name}, Montreal`);
     const query = encodeURIComponent(location);
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${query}`,
@@ -132,6 +134,32 @@ export function CampCard({ camp }: CampCardProps) {
               {(camp.link || "").replace(/^https?:\/\//, "")}
             </a>
           </div>
+
+          {camp.address && (
+            <div className="flex items-start gap-2.5 text-sm pt-2">
+              <MapPin className="h-4 w-4 text-primary/70 mt-0.5 shrink-0" />
+              <div className="flex-1">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(camp.address)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-primary hover:underline text-xs"
+                >
+                  {camp.address}
+                </a>
+              </div>
+            </div>
+          )}
+
+          {camp.address && showMap && (
+            <div className="pt-2">
+              <GoogleMapEmbed
+                address={camp.address}
+                height="200px"
+                className="mt-2"
+              />
+            </div>
+          )}
 
           {camp.notes && (
             <div className="flex items-start gap-2.5 text-sm pt-2">

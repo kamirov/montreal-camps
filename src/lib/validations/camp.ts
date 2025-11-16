@@ -84,6 +84,8 @@ export const campSchema = z
     financialAid: z.string().min(1, "Financial aid information is required"),
     link: z.string().url("Must be a valid URL").min(1, "Link is required"),
     phone: phoneSchema,
+    email: z.union([z.string().email("Must be a valid email address"), z.literal("")]).optional(),
+    address: z.string().optional(),
     notes: z.string().optional(),
   })
   .refine(

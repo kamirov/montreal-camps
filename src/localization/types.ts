@@ -54,6 +54,8 @@ export type Translations = {
     financialAid: string;
     link: string;
     phone: string;
+    email: string;
+    address: string;
     notes: string;
   };
 
@@ -246,6 +248,7 @@ export type Translations = {
       financialAid: string;
       link: string;
       phone: string;
+      email: string;
       notes: string;
     };
   };

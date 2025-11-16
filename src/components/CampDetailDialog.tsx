@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 import {
   formatAgeRange,
   formatCost,
@@ -26,6 +27,7 @@ import {
   DollarSign,
   ExternalLink,
   Globe,
+  Mail,
   MapPin,
   Navigation,
   Phone,
@@ -61,13 +63,19 @@ export function CampDetailDialog({
   };
 
   const handleDirections = () => {
-    // Search by camp name and borough (if day camp) since coordinates are no longer available
-    const location = camp.borough ? `${camp.name}, ${camp.borough}, Montreal` : `${camp.name}, Montreal`;
+    // Use address if available, otherwise fall back to camp name and borough
+    const location = camp.address || (camp.borough ? `${camp.name}, ${camp.borough}, Montreal` : `${camp.name}, Montreal`);
     const query = encodeURIComponent(location);
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${query}`,
       "_blank"
     );
+  };
+
+  const handleEmail = () => {
+    if (camp.email) {
+      window.location.href = `mailto:${camp.email}`;
+    }
   };
 
   return (
@@ -175,7 +183,54 @@ export function CampDetailDialog({
                 </div>
               </div>
             </div>
+
+            {camp.email && (
+              <div className="flex items-start gap-3">
+                <Mail className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <div className="font-medium">{t.campFields.email}</div>
+                  <a
+                    href={`mailto:${camp.email}`}
+                    onClick={handleEmail}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {camp.email}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {camp.address && (
+              <div className="flex items-start gap-3">
+                <MapPin className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div className="flex-1">
+                  <div className="font-medium">{t.campFields.address}</div>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(camp.address)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {camp.address}
+                  </a>
+                </div>
+              </div>
+            )}
           </div>
+
+          {camp.address && (
+            <>
+              <Separator />
+              <div>
+                <div className="font-medium mb-2">{t.campFields.address}</div>
+                <GoogleMapEmbed
+                  address={camp.address}
+                  height="300px"
+                  className="mt-2"
+                />
+              </div>
+            </>
+          )}
 
           {camp.notes && (
             <>

@@ -14,5 +14,7 @@ export const camps = pgTable("camps", {
   link: varchar("link", { length: 500 }).notNull(),
   phone: varchar("phone", { length: 50 }).notNull(), // Formatted phone number
   phoneExtension: varchar("phone_extension", { length: 20 }), // Optional extension
+  email: varchar("email", { length: 255 }), // Optional email address
+  address: varchar("address", { length: 500 }), // Optional address
   notes: text("notes"), // Made nullable
 });
