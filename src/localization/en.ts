@@ -230,4 +230,19 @@ export const en: Translations = {
       notes: "Notes",
     },
   },
+
+  batchView: {
+    formView: "Form View",
+    batchView: "Batch View",
+    addRow: "Add Row",
+    deleteRow: "Delete",
+    markForDeletion: "Mark for deletion",
+    saveChanges: "Save Changes",
+    saving: "Saving...",
+    rowsChanged: "X rows changed",
+    rowsDeleted: "X rows marked for deletion",
+    noChanges: "No changes to save",
+    sortAscending: "Sort ascending",
+    sortDescending: "Sort descending",
+  },
 };

@@ -252,4 +252,20 @@ export type Translations = {
       notes: string;
     };
   };
+
+  // Batch view
+  batchView: {
+    formView: string;
+    batchView: string;
+    addRow: string;
+    deleteRow: string;
+    markForDeletion: string;
+    saveChanges: string;
+    saving: string;
+    rowsChanged: string;
+    rowsDeleted: string;
+    noChanges: string;
+    sortAscending: string;
+    sortDescending: string;
+  };
 };

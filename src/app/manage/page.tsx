@@ -1,5 +1,6 @@
 "use client";
 
+import { BatchEditTable } from "@/components/BatchEditTable";
 import { Header } from "@/components/Header";
 import { BoroughAutocomplete } from "@/components/ui/borough-autocomplete";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagsInput } from "@/components/ui/tags-input";
 import { TimeRangeInput } from "@/components/ui/time-range-input";
 import { deleteCamp, getCamp, getCamps, upsertCamp } from "@/lib/api/camps";
@@ -47,6 +49,7 @@ export default function ManagePage() {
     text: string;
   } | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [viewMode, setViewMode] = useState<"form" | "batch">("form");
 
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -373,6 +376,73 @@ export default function ManagePage() {
     });
   };
 
+  const handleBatchSave = async (
+    changedCamps: Camp[],
+    deletedNames: string[]
+  ) => {
+    try {
+      setIsSaving(true);
+      setMessage(null);
+
+      // Validate all changed camps
+      for (const camp of changedCamps) {
+        const validationResult = campUpsertSchema.safeParse({
+          type: camp.type,
+          borough: camp.borough,
+          ageRange: camp.ageRange,
+          languages: camp.languages,
+          dates: camp.dates,
+          hours: camp.hours,
+          cost: camp.cost,
+          financialAid: camp.financialAid,
+          link: camp.link,
+          phone: camp.phone,
+          email: camp.email,
+          address: camp.address,
+          notes: camp.notes,
+        });
+
+        if (!validationResult.success) {
+          throw new Error(
+            `Validation failed for camp "${
+              camp.name
+            }": ${validationResult.error.issues
+              .map((i) => i.message)
+              .join(", ")}`
+          );
+        }
+      }
+
+      // Upsert changed camps
+      for (const camp of changedCamps) {
+        const { name, ...campData } = camp;
+        await upsertCamp(name, campData);
+      }
+
+      // Delete marked camps
+      for (const name of deletedNames) {
+        await deleteCamp(name);
+      }
+
+      // Refresh camps list
+      const allCamps = await getCamps();
+      setCamps(allCamps);
+
+      setMessage({
+        type: "success",
+        text: `Successfully saved ${changedCamps.length} camp(s) and deleted ${deletedNames.length} camp(s)`,
+      });
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err instanceof Error ? err.message : t.manage.error.saveFailed,
+      });
+      throw err;
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   // Show loading state during authentication
   if (isAuthenticating) {
     return (
@@ -431,29 +501,17 @@ export default function ManagePage() {
     <div className="min-h-screen bg-background flex flex-col">
       <Header showBackButton />
       <div className="flex-1 container mx-auto px-4 max-w-4xl py-8">
-        <h1 className="text-3xl font-bold mb-8">{t.manage.pageTitle}</h1>
-
-        {/* Camp Selector */}
-        <div className="mb-6">
-          <label className="block text-sm font-medium mb-2">
-            {t.manage.selectCamp}
-          </label>
-          <Select
-            value={isNewCamp ? "new" : selectedCampName || undefined}
-            onValueChange={handleCampSelect}
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold">{t.manage.pageTitle}</h1>
+          <Tabs
+            value={viewMode}
+            onValueChange={(v) => setViewMode(v as "form" | "batch")}
           >
-            <SelectTrigger>
-              <SelectValue placeholder={t.manage.selectCamp} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="new">{t.manage.createNew}</SelectItem>
-              {camps.map((camp) => (
-                <SelectItem key={camp.name} value={camp.name}>
-                  {camp.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <TabsList>
+              <TabsTrigger value="form">{t.batchView.formView}</TabsTrigger>
+              <TabsTrigger value="batch">{t.batchView.batchView}</TabsTrigger>
+            </TabsList>
+          </Tabs>
         </div>
 
         {/* Message Display */}
@@ -469,481 +527,535 @@ export default function ManagePage() {
           </div>
         )}
 
-        {/* Form */}
-        {(selectedCampName || isNewCamp) && (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Camp Name */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.name}
-                </label>
-                <Input
-                  value={campName}
-                  onChange={(e) => setCampName(e.target.value)}
-                  required
-                  disabled={!isNewCamp}
-                />
-                {errors.name && (
-                  <p className="text-sm text-destructive mt-1">{errors.name}</p>
-                )}
-              </div>
-
-              {/* Camp Type */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.name === "Name" ? "Type" : "Type"}
-                </label>
-                <Select value={formData.type} onValueChange={handleTypeChange}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="day">{t.campTypes.day}</SelectItem>
-                    <SelectItem value="vacation">
-                      {t.campTypes.vacation}
+        {viewMode === "batch" ? (
+          <BatchEditTable
+            camps={camps}
+            onSave={handleBatchSave}
+            availableBoroughs={availableBoroughs}
+            availableLanguages={availableLanguages}
+          />
+        ) : (
+          <>
+            {/* Camp Selector */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium mb-2">
+                {t.manage.selectCamp}
+              </label>
+              <Select
+                value={isNewCamp ? "new" : selectedCampName || undefined}
+                onValueChange={handleCampSelect}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t.manage.selectCamp} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="new">{t.manage.createNew}</SelectItem>
+                  {camps.map((camp) => (
+                    <SelectItem key={camp.name} value={camp.name}>
+                      {camp.name}
                     </SelectItem>
-                  </SelectContent>
-                </Select>
-                {errors.type && (
-                  <p className="text-sm text-destructive mt-1">{errors.type}</p>
-                )}
-              </div>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-              {/* Borough - only for day camps */}
-              {formData.type === "day" && (
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    {t.campFields.name === "Name"
-                      ? "Borough"
-                      : "Arrondissement"}
-                  </label>
-                  <BoroughAutocomplete
-                    value={formData.borough || ""}
-                    onChange={(value) =>
-                      setFormData({ ...formData, borough: value })
-                    }
-                    suggestions={availableBoroughs}
-                    required
-                  />
-                  {errors.borough && (
-                    <p className="text-sm text-destructive mt-1">
-                      {errors.borough}
-                    </p>
-                  )}
-                </div>
-              )}
-
-              {/* Age Range */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.ageRange}
-                </label>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="allAges"
-                      checked={isAllAges}
-                      onCheckedChange={(checked) => {
-                        setFormData({
-                          ...formData,
-                          ageRange: checked
-                            ? { type: "all", allAges: true }
-                            : {
-                                type: "range",
-                                allAges: false,
-                                from: 5,
-                                to: 12,
-                              },
-                        });
-                      }}
-                    />
-                    <label
-                      htmlFor="allAges"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      All ages
+            {/* Form */}
+            {(selectedCampName || isNewCamp) && (
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Camp Name */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t.campFields.name}
                     </label>
+                    <Input
+                      value={campName}
+                      onChange={(e) => setCampName(e.target.value)}
+                      required
+                      disabled={!isNewCamp}
+                    />
+                    {errors.name && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.name}
+                      </p>
+                    )}
                   </div>
-                  {!isAllAges && formData.ageRange.type === "range" && (
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        min="1"
-                        value={formData.ageRange.from}
-                        onChange={(e) => {
-                          const from = parseInt(e.target.value) || 1;
-                          const currentRange = formData.ageRange;
-                          if (currentRange.type === "range") {
-                            setFormData({
-                              ...formData,
-                              ageRange: {
-                                type: "range",
-                                allAges: false,
-                                from,
-                                to: Math.max(from, currentRange.to),
-                              },
-                            });
-                          }
-                        }}
+
+                  {/* Camp Type */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t.campFields.name === "Name" ? "Type" : "Type"}
+                    </label>
+                    <Select
+                      value={formData.type}
+                      onValueChange={handleTypeChange}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="day">{t.campTypes.day}</SelectItem>
+                        <SelectItem value="vacation">
+                          {t.campTypes.vacation}
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.type && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.type}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Borough - only for day camps */}
+                  {formData.type === "day" && (
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        {t.campFields.name === "Name"
+                          ? "Borough"
+                          : "Arrondissement"}
+                      </label>
+                      <BoroughAutocomplete
+                        value={formData.borough || ""}
+                        onChange={(value) =>
+                          setFormData({ ...formData, borough: value })
+                        }
+                        suggestions={availableBoroughs}
                         required
-                        className="flex-1"
                       />
-                      <span className="text-muted-foreground">-</span>
-                      <Input
-                        type="number"
-                        min="1"
-                        value={formData.ageRange.to}
-                        onChange={(e) => {
-                          const to = parseInt(e.target.value) || 1;
-                          const currentRange = formData.ageRange;
-                          if (currentRange.type === "range") {
-                            setFormData({
-                              ...formData,
-                              ageRange: {
-                                type: "range",
-                                allAges: false,
-                                from: currentRange.from,
-                                to: Math.max(to, currentRange.from),
-                              },
-                            });
-                          }
-                        }}
-                        required
-                        className="flex-1"
-                      />
+                      {errors.borough && (
+                        <p className="text-sm text-destructive mt-1">
+                          {errors.borough}
+                        </p>
+                      )}
                     </div>
                   )}
-                </div>
-                {errors.ageRange && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.ageRange}
-                  </p>
-                )}
-              </div>
 
-              {/* Languages */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.languages}
-                </label>
-                <TagsInput
-                  value={formData.languages}
-                  onChange={(languages) =>
-                    setFormData({ ...formData, languages })
-                  }
-                  suggestions={availableLanguages}
-                />
-                {errors.languages && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.languages}
-                  </p>
-                )}
-              </div>
+                  {/* Age Range */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-2">
+                      {t.campFields.ageRange}
+                    </label>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="allAges"
+                          checked={isAllAges}
+                          onCheckedChange={(checked) => {
+                            setFormData({
+                              ...formData,
+                              ageRange: checked
+                                ? { type: "all", allAges: true }
+                                : {
+                                    type: "range",
+                                    allAges: false,
+                                    from: 5,
+                                    to: 12,
+                                  },
+                            });
+                          }}
+                        />
+                        <label
+                          htmlFor="allAges"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          All ages
+                        </label>
+                      </div>
+                      {!isAllAges && formData.ageRange.type === "range" && (
+                        <div className="flex items-center gap-2">
+                          <Input
+                            type="number"
+                            min="1"
+                            value={formData.ageRange.from}
+                            onChange={(e) => {
+                              const from = parseInt(e.target.value) || 1;
+                              const currentRange = formData.ageRange;
+                              if (currentRange.type === "range") {
+                                setFormData({
+                                  ...formData,
+                                  ageRange: {
+                                    type: "range",
+                                    allAges: false,
+                                    from,
+                                    to: Math.max(from, currentRange.to),
+                                  },
+                                });
+                              }
+                            }}
+                            required
+                            className="flex-1"
+                          />
+                          <span className="text-muted-foreground">-</span>
+                          <Input
+                            type="number"
+                            min="1"
+                            value={formData.ageRange.to}
+                            onChange={(e) => {
+                              const to = parseInt(e.target.value) || 1;
+                              const currentRange = formData.ageRange;
+                              if (currentRange.type === "range") {
+                                setFormData({
+                                  ...formData,
+                                  ageRange: {
+                                    type: "range",
+                                    allAges: false,
+                                    from: currentRange.from,
+                                    to: Math.max(to, currentRange.from),
+                                  },
+                                });
+                              }
+                            }}
+                            required
+                            className="flex-1"
+                          />
+                        </div>
+                      )}
+                    </div>
+                    {errors.ageRange && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.ageRange}
+                      </p>
+                    )}
+                  </div>
 
-              {/* Dates */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.dates}
-                </label>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="yearRound"
-                      checked={isYearRound}
-                      onCheckedChange={(checked) => {
+                  {/* Languages */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-2">
+                      {t.campFields.languages}
+                    </label>
+                    <TagsInput
+                      value={formData.languages}
+                      onChange={(languages) =>
+                        setFormData({ ...formData, languages })
+                      }
+                      suggestions={availableLanguages}
+                    />
+                    {errors.languages && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.languages}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Dates */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-2">
+                      {t.campFields.dates}
+                    </label>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="yearRound"
+                          checked={isYearRound}
+                          onCheckedChange={(checked) => {
+                            setFormData({
+                              ...formData,
+                              dates: checked
+                                ? { type: "yearRound", yearRound: true }
+                                : {
+                                    type: "range",
+                                    yearRound: false,
+                                    fromDate: new Date()
+                                      .toISOString()
+                                      .split("T")[0],
+                                    toDate: new Date()
+                                      .toISOString()
+                                      .split("T")[0],
+                                  },
+                            });
+                          }}
+                        />
+                        <label
+                          htmlFor="yearRound"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                          Year round
+                        </label>
+                      </div>
+                      {!isYearRound && formData.dates.type === "range" && (
+                        <DateRangePicker
+                          fromDate={formData.dates.fromDate}
+                          toDate={formData.dates.toDate}
+                          onFromDateChange={(fromDate) => {
+                            const currentDates = formData.dates;
+                            if (currentDates.type === "range") {
+                              setFormData({
+                                ...formData,
+                                dates: {
+                                  type: "range",
+                                  yearRound: false,
+                                  fromDate,
+                                  toDate:
+                                    fromDate > currentDates.toDate
+                                      ? fromDate
+                                      : currentDates.toDate,
+                                },
+                              });
+                            }
+                          }}
+                          onToDateChange={(toDate) => {
+                            const currentDates = formData.dates;
+                            if (currentDates.type === "range") {
+                              setFormData({
+                                ...formData,
+                                dates: {
+                                  type: "range",
+                                  yearRound: false,
+                                  fromDate: currentDates.fromDate,
+                                  toDate:
+                                    toDate < currentDates.fromDate
+                                      ? currentDates.fromDate
+                                      : toDate,
+                                },
+                              });
+                            }
+                          }}
+                          required
+                        />
+                      )}
+                    </div>
+                    {errors.dates && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.dates}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Hours (only for day camps) */}
+                  {formData.type === "day" && (
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        {t.campFields.hours}
+                      </label>
+                      <TimeRangeInput
+                        value={formData.hours ?? ""}
+                        onChange={(value) =>
+                          setFormData({ ...formData, hours: value })
+                        }
+                      />
+                      {errors.hours && (
+                        <p className="text-sm text-destructive mt-1">
+                          {errors.hours}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Cost */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t.campFields.cost}
+                    </label>
+                    <CostInput
+                      amount={formData.cost.amount}
+                      period={formData.cost.period}
+                      onAmountChange={(amount) =>
                         setFormData({
                           ...formData,
-                          dates: checked
-                            ? { type: "yearRound", yearRound: true }
-                            : {
-                                type: "range",
-                                yearRound: false,
-                                fromDate: new Date()
-                                  .toISOString()
-                                  .split("T")[0],
-                                toDate: new Date().toISOString().split("T")[0],
-                              },
-                        });
-                      }}
-                    />
-                    <label
-                      htmlFor="yearRound"
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                    >
-                      Year round
-                    </label>
-                  </div>
-                  {!isYearRound && formData.dates.type === "range" && (
-                    <DateRangePicker
-                      fromDate={formData.dates.fromDate}
-                      toDate={formData.dates.toDate}
-                      onFromDateChange={(fromDate) => {
-                        const currentDates = formData.dates;
-                        if (currentDates.type === "range") {
-                          setFormData({
-                            ...formData,
-                            dates: {
-                              type: "range",
-                              yearRound: false,
-                              fromDate,
-                              toDate:
-                                fromDate > currentDates.toDate
-                                  ? fromDate
-                                  : currentDates.toDate,
-                            },
-                          });
-                        }
-                      }}
-                      onToDateChange={(toDate) => {
-                        const currentDates = formData.dates;
-                        if (currentDates.type === "range") {
-                          setFormData({
-                            ...formData,
-                            dates: {
-                              type: "range",
-                              yearRound: false,
-                              fromDate: currentDates.fromDate,
-                              toDate:
-                                toDate < currentDates.fromDate
-                                  ? currentDates.fromDate
-                                  : toDate,
-                            },
-                          });
-                        }
-                      }}
+                          cost: { ...formData.cost, amount },
+                        })
+                      }
+                      onPeriodChange={(period) =>
+                        setFormData({
+                          ...formData,
+                          cost: { ...formData.cost, period },
+                        })
+                      }
                       required
                     />
-                  )}
+                    {errors.cost && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.cost}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Financial Aid */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-2">
+                      {t.campFields.financialAid}
+                    </label>
+                    <textarea
+                      className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                      value={formData.financialAid}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          financialAid: e.target.value,
+                        })
+                      }
+                      required
+                    />
+                    {errors.financialAid && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.financialAid}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Link */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t.campFields.link}
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="url"
+                        value={formData.link}
+                        onChange={(e) =>
+                          setFormData({ ...formData, link: e.target.value })
+                        }
+                        required
+                        className="flex-1"
+                      />
+                      {formData.link && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => {
+                            const url =
+                              formData.link.startsWith("http://") ||
+                              formData.link.startsWith("https://")
+                                ? formData.link
+                                : `https://${formData.link}`;
+                            window.open(url, "_blank");
+                          }}
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
+                    {errors.link && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.link}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Phone */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t.campFields.phone}
+                    </label>
+                    <PhoneInput
+                      value={formData.phone.number}
+                      extension={formData.phone.extension}
+                      onChange={(number) =>
+                        setFormData({
+                          ...formData,
+                          phone: { ...formData.phone, number },
+                        })
+                      }
+                      onExtensionChange={(extension) =>
+                        setFormData({
+                          ...formData,
+                          phone: { ...formData.phone, extension },
+                        })
+                      }
+                      required
+                    />
+                    {errors.phone && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.phone}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t.campFields.email}{" "}
+                      <span className="text-muted-foreground">(Optional)</span>
+                    </label>
+                    <Input
+                      type="email"
+                      value={formData.email ?? ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                      placeholder="example@email.com"
+                    />
+                    {errors.email && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.email}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Address */}
+                  <div>
+                    <label className="block text-sm font-medium mb-2">
+                      {t.campFields.address}{" "}
+                      <span className="text-muted-foreground">(Optional)</span>
+                    </label>
+                    <Input
+                      type="text"
+                      value={formData.address ?? ""}
+                      onChange={(e) =>
+                        setFormData({ ...formData, address: e.target.value })
+                      }
+                      placeholder="e.g., 123 Main St, Montreal, QC or Henri-Julien Park"
+                    />
+                    {errors.address && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.address}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Notes */}
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-2">
+                      {t.campFields.notes}{" "}
+                      <span className="text-muted-foreground">(Optional)</span>
+                    </label>
+                    <textarea
+                      className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                      value={formData.notes}
+                      onChange={(e) =>
+                        setFormData({ ...formData, notes: e.target.value })
+                      }
+                    />
+                    {errors.notes && (
+                      <p className="text-sm text-destructive mt-1">
+                        {errors.notes}
+                      </p>
+                    )}
+                  </div>
                 </div>
-                {errors.dates && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.dates}
-                  </p>
-                )}
-              </div>
 
-              {/* Hours (only for day camps) */}
-              {formData.type === "day" && (
-                <div>
-                  <label className="block text-sm font-medium mb-2">
-                    {t.campFields.hours}
-                  </label>
-                  <TimeRangeInput
-                    value={formData.hours ?? ""}
-                    onChange={(value) =>
-                      setFormData({ ...formData, hours: value })
-                    }
-                  />
-                  {errors.hours && (
-                    <p className="text-sm text-destructive mt-1">
-                      {errors.hours}
-                    </p>
+                {/* Action Buttons */}
+                <div className="flex gap-4">
+                  <Button type="submit" disabled={isSaving}>
+                    {isSaving ? "Saving..." : t.manage.save}
+                  </Button>
+
+                  {!isNewCamp && selectedCampName && (
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                    >
+                      {isDeleting ? "Deleting..." : t.manage.delete}
+                    </Button>
                   )}
-                </div>
-              )}
 
-              {/* Cost */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.cost}
-                </label>
-                <CostInput
-                  amount={formData.cost.amount}
-                  period={formData.cost.period}
-                  onAmountChange={(amount) =>
-                    setFormData({
-                      ...formData,
-                      cost: { ...formData.cost, amount },
-                    })
-                  }
-                  onPeriodChange={(period) =>
-                    setFormData({
-                      ...formData,
-                      cost: { ...formData.cost, period },
-                    })
-                  }
-                  required
-                />
-                {errors.cost && (
-                  <p className="text-sm text-destructive mt-1">{errors.cost}</p>
-                )}
-              </div>
-
-              {/* Financial Aid */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.financialAid}
-                </label>
-                <textarea
-                  className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                  value={formData.financialAid}
-                  onChange={(e) =>
-                    setFormData({ ...formData, financialAid: e.target.value })
-                  }
-                  required
-                />
-                {errors.financialAid && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.financialAid}
-                  </p>
-                )}
-              </div>
-
-              {/* Link */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.link}
-                </label>
-                <div className="flex gap-2">
-                  <Input
-                    type="url"
-                    value={formData.link}
-                    onChange={(e) =>
-                      setFormData({ ...formData, link: e.target.value })
-                    }
-                    required
-                    className="flex-1"
-                  />
-                  {formData.link && (
+                  {isNewCamp && (
                     <Button
                       type="button"
                       variant="outline"
-                      size="icon"
-                      onClick={() => {
-                        const url =
-                          formData.link.startsWith("http://") ||
-                          formData.link.startsWith("https://")
-                            ? formData.link
-                            : `https://${formData.link}`;
-                        window.open(url, "_blank");
-                      }}
+                      onClick={handleCancel}
                     >
-                      <ExternalLink className="h-4 w-4" />
+                      {t.manage.cancel}
                     </Button>
                   )}
                 </div>
-                {errors.link && (
-                  <p className="text-sm text-destructive mt-1">{errors.link}</p>
-                )}
-              </div>
-
-              {/* Phone */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.phone}
-                </label>
-                <PhoneInput
-                  value={formData.phone.number}
-                  extension={formData.phone.extension}
-                  onChange={(number) =>
-                    setFormData({
-                      ...formData,
-                      phone: { ...formData.phone, number },
-                    })
-                  }
-                  onExtensionChange={(extension) =>
-                    setFormData({
-                      ...formData,
-                      phone: { ...formData.phone, extension },
-                    })
-                  }
-                  required
-                />
-                {errors.phone && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.phone}
-                  </p>
-                )}
-              </div>
-
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.email}{" "}
-                  <span className="text-muted-foreground">(Optional)</span>
-                </label>
-                <Input
-                  type="email"
-                  value={formData.email ?? ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, email: e.target.value })
-                  }
-                  placeholder="example@email.com"
-                />
-                {errors.email && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.email}
-                  </p>
-                )}
-              </div>
-
-              {/* Address */}
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.address}{" "}
-                  <span className="text-muted-foreground">(Optional)</span>
-                </label>
-                <Input
-                  type="text"
-                  value={formData.address ?? ""}
-                  onChange={(e) =>
-                    setFormData({ ...formData, address: e.target.value })
-                  }
-                  placeholder="e.g., 123 Main St, Montreal, QC or Henri-Julien Park"
-                />
-                {errors.address && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.address}
-                  </p>
-                )}
-              </div>
-
-              {/* Notes */}
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2">
-                  {t.campFields.notes}{" "}
-                  <span className="text-muted-foreground">(Optional)</span>
-                </label>
-                <textarea
-                  className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                  value={formData.notes}
-                  onChange={(e) =>
-                    setFormData({ ...formData, notes: e.target.value })
-                  }
-                />
-                {errors.notes && (
-                  <p className="text-sm text-destructive mt-1">
-                    {errors.notes}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-4">
-              <Button type="submit" disabled={isSaving}>
-                {isSaving ? "Saving..." : t.manage.save}
-              </Button>
-
-              {!isNewCamp && selectedCampName && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                >
-                  {isDeleting ? "Deleting..." : t.manage.delete}
-                </Button>
-              )}
-
-              {isNewCamp && (
-                <Button type="button" variant="outline" onClick={handleCancel}>
-                  {t.manage.cancel}
-                </Button>
-              )}
-            </div>
-          </form>
+              </form>
+            )}
+          </>
         )}
       </div>
     </div>

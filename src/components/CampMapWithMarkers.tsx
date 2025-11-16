@@ -92,6 +92,7 @@ export function CampMapWithMarkers({
   const [isClient, setIsClient] = useState(false);
   const [campLocations, setCampLocations] = useState<CampLocation[]>([]);
   const [isGeocoding, setIsGeocoding] = useState(true);
+  const [geocodingError, setGeocodingError] = useState(false);
   const [markerIcon, setMarkerIcon] = useState<any>(null);
 
   const campsWithAddresses = camps.filter(
@@ -114,25 +115,35 @@ export function CampMapWithMarkers({
 
     async function geocodeAllCamps() {
       setIsGeocoding(true);
+      setGeocodingError(false);
       const locations: CampLocation[] = [];
 
-      // Geocode all addresses
+      // Geocode all addresses with delay to respect rate limits
+      let hasError = false;
       for (const camp of campsWithAddresses) {
         if (camp.address) {
-          const coords = await geocodeAddress(camp.address);
-          if (coords) {
-            locations.push({
-              camp,
-              lat: coords.lat,
-              lng: coords.lng,
-            });
+          try {
+            const coords = await geocodeAddress(camp.address);
+            if (coords) {
+              locations.push({
+                camp,
+                lat: coords.lat,
+                lng: coords.lng,
+              });
+            } else {
+              hasError = true;
+            }
+          } catch (error) {
+            console.error(`Failed to geocode ${camp.address}:`, error);
+            hasError = true;
           }
-          // Add a small delay to respect Nominatim's rate limit
-          await new Promise((resolve) => setTimeout(resolve, 200));
+          // Add a delay to respect Nominatim's rate limit (1 request per second)
+          await new Promise((resolve) => setTimeout(resolve, 1100));
         }
       }
 
       setCampLocations(locations);
+      setGeocodingError(hasError && locations.length === 0);
       setIsGeocoding(false);
     }
 
@@ -173,6 +184,13 @@ export function CampMapWithMarkers({
               Geocoding addresses...
             </p>
           </div>
+        </div>
+      )}
+      {geocodingError && campLocations.length === 0 && (
+        <div className="absolute top-4 left-4 right-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 z-[1000] shadow-lg">
+          <p className="text-sm text-yellow-800 dark:text-yellow-200">
+            Unable to geocode addresses. Showing map with clickable address links below.
+          </p>
         </div>
       )}
       <MapContainer
