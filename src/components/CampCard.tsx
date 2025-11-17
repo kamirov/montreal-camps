@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CampLocationMap } from "@/components/CampLocationMap";
 import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 import {
   formatAgeRange,
@@ -153,11 +154,21 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
 
           {camp.address && showMap && (
             <div className="pt-2">
-              <GoogleMapEmbed
-                address={camp.address}
-                height="200px"
-                className="mt-2"
-              />
+              {camp.latitude != null && camp.longitude != null ? (
+                <CampLocationMap
+                  latitude={camp.latitude}
+                  longitude={camp.longitude}
+                  address={camp.address}
+                  height="200px"
+                  className="mt-2"
+                />
+              ) : (
+                <GoogleMapEmbed
+                  address={camp.address}
+                  height="200px"
+                  className="mt-2"
+                />
+              )}
             </div>
           )}
 

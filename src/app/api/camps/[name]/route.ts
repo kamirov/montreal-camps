@@ -61,6 +61,8 @@ export async function GET(_request: Request, { params }: RouteParams) {
       },
       email: camp.email ?? undefined,
       address: camp.address ?? undefined,
+      latitude: camp.latitude ? parseFloat(camp.latitude) : undefined,
+      longitude: camp.longitude ? parseFloat(camp.longitude) : undefined,
       notes: camp.notes ?? undefined,
     };
 
@@ -102,6 +104,10 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     // Convert empty email string to null
     const emailValue = campData.email && campData.email.trim() !== "" ? campData.email.trim() : null;
+    
+    // Handle coordinates - convert to string for numeric field or null
+    const latitudeValue = campData.latitude != null ? campData.latitude.toString() : null;
+    const longitudeValue = campData.longitude != null ? campData.longitude.toString() : null;
 
     // Upsert using Drizzle's insert with onConflictDoUpdate
     await db
@@ -122,6 +128,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
         phoneExtension: campData.phone.extension ?? null,
         email: emailValue,
         address: campData.address ?? null,
+        latitude: latitudeValue,
+        longitude: longitudeValue,
         notes: campData.notes ?? null,
       })
       .onConflictDoUpdate({
@@ -141,6 +149,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
           phoneExtension: campData.phone.extension ?? null,
           email: emailValue,
           address: campData.address ?? null,
+          latitude: latitudeValue,
+          longitude: longitudeValue,
           notes: campData.notes ?? null,
         },
       });
@@ -179,6 +189,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
       },
       email: updatedCamp.email ?? undefined,
       address: updatedCamp.address ?? undefined,
+      latitude: updatedCamp.latitude ? parseFloat(updatedCamp.latitude) : undefined,
+      longitude: updatedCamp.longitude ? parseFloat(updatedCamp.longitude) : undefined,
       notes: updatedCamp.notes ?? undefined,
     };
 

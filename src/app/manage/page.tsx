@@ -277,7 +277,73 @@ export default function ManagePage() {
     try {
       setIsSaving(true);
       const nameToUse = campName.trim();
-      await upsertCamp(nameToUse, formData);
+
+      // Prepare camp data with coordinates
+      const campDataToSave = { ...formData };
+
+      // Check if we need to geocode the address
+      let needsGeocoding = false;
+      let existingCamp: Camp | null = null;
+
+      if (!isNewCamp && selectedCampName) {
+        // Get existing camp to check if address changed
+        try {
+          existingCamp = await getCamp(selectedCampName);
+        } catch (err) {
+          console.error("Error fetching existing camp:", err);
+        }
+      }
+
+      // Determine if geocoding is needed
+      if (campDataToSave.address && campDataToSave.address.trim().length > 0) {
+        // Need to geocode if:
+        // 1. It's a new camp, OR
+        // 2. Address has changed
+        const addressChanged =
+          isNewCamp ||
+          !existingCamp ||
+          existingCamp.address !== campDataToSave.address;
+
+        if (addressChanged) {
+          needsGeocoding = true;
+        } else if (existingCamp) {
+          // Address unchanged, keep existing coordinates
+          campDataToSave.latitude = existingCamp.latitude;
+          campDataToSave.longitude = existingCamp.longitude;
+        }
+      } else {
+        // Address removed, clear coordinates
+        campDataToSave.latitude = null;
+        campDataToSave.longitude = null;
+      }
+
+      console.log("needsGeocoding", needsGeocoding);
+      console.log("campDataToSave.address", campDataToSave.address);
+
+      // Geocode if needed
+      if (needsGeocoding && campDataToSave.address) {
+        try {
+          const response = await fetch(
+            `/api/geocode?address=${encodeURIComponent(campDataToSave.address)}`
+          );
+
+          if (response.ok) {
+            const coords = await response.json();
+            if (coords.lat && coords.lng) {
+              campDataToSave.latitude = coords.lat;
+              campDataToSave.longitude = coords.lng;
+            }
+          } else {
+            console.warn("Geocoding failed, saving camp without coordinates");
+            // Continue saving without coordinates - user can retry later
+          }
+        } catch (error) {
+          console.error("Error geocoding address:", error);
+          // Continue saving without coordinates - user can retry later
+        }
+      }
+
+      await upsertCamp(nameToUse, campDataToSave);
 
       setMessage({
         type: "success",

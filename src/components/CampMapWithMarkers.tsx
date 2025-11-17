@@ -45,42 +45,8 @@ type CampMapWithMarkersProps = {
   className?: string;
 };
 
-type CampLocation = {
-  camp: Camp;
-  lat: number;
-  lng: number;
-};
-
 /**
- * Geocode an address using our API route (which uses Nominatim server-side)
- */
-async function geocodeAddress(address: string): Promise<{ lat: number; lng: number } | null> {
-  try {
-    const response = await fetch(
-      `/api/geocode?address=${encodeURIComponent(address)}`
-    );
-    
-    if (!response.ok) {
-      throw new Error(`Geocoding failed: ${response.statusText}`);
-    }
-    
-    const data = await response.json();
-    
-    if (data.lat && data.lng) {
-      return {
-        lat: data.lat,
-        lng: data.lng,
-      };
-    }
-    return null;
-  } catch (error) {
-    console.error("Error geocoding address:", address, error);
-    return null;
-  }
-}
-
-/**
- * Map component that shows camps with addresses as markers on a Leaflet map
+ * Map component that shows camps with addresses and coordinates as markers on a Leaflet map
  */
 export function CampMapWithMarkers({
   camps,
@@ -90,13 +56,15 @@ export function CampMapWithMarkers({
   className = "",
 }: CampMapWithMarkersProps) {
   const [isClient, setIsClient] = useState(false);
-  const [campLocations, setCampLocations] = useState<CampLocation[]>([]);
-  const [isGeocoding, setIsGeocoding] = useState(true);
-  const [geocodingError, setGeocodingError] = useState(false);
   const [markerIcon, setMarkerIcon] = useState<any>(null);
 
-  const campsWithAddresses = camps.filter(
-    (camp) => camp.address && camp.address.trim().length > 0
+  // Filter camps to only those with both address and coordinates
+  const campsWithCoordinates = camps.filter(
+    (camp) =>
+      camp.address &&
+      camp.address.trim().length > 0 &&
+      camp.latitude != null &&
+      camp.longitude != null
   );
 
   useEffect(() => {
@@ -106,49 +74,6 @@ export function CampMapWithMarkers({
     // Create icon only on client
     setMarkerIcon(createIcon());
   }, []);
-
-  useEffect(() => {
-    if (!isClient || campsWithAddresses.length === 0) {
-      setIsGeocoding(false);
-      return;
-    }
-
-    async function geocodeAllCamps() {
-      setIsGeocoding(true);
-      setGeocodingError(false);
-      const locations: CampLocation[] = [];
-
-      // Geocode all addresses with delay to respect rate limits
-      let hasError = false;
-      for (const camp of campsWithAddresses) {
-        if (camp.address) {
-          try {
-            const coords = await geocodeAddress(camp.address);
-            if (coords) {
-              locations.push({
-                camp,
-                lat: coords.lat,
-                lng: coords.lng,
-              });
-            } else {
-              hasError = true;
-            }
-          } catch (error) {
-            console.error(`Failed to geocode ${camp.address}:`, error);
-            hasError = true;
-          }
-          // Add a delay to respect Nominatim's rate limit (1 request per second)
-          await new Promise((resolve) => setTimeout(resolve, 1100));
-        }
-      }
-
-      setCampLocations(locations);
-      setGeocodingError(hasError && locations.length === 0);
-      setIsGeocoding(false);
-    }
-
-    geocodeAllCamps();
-  }, [isClient, campsWithAddresses]);
 
   if (!isClient) {
     return (
@@ -165,37 +90,25 @@ export function CampMapWithMarkers({
 
   // Calculate center based on markers if we have locations
   let mapCenter: [number, number] = center;
-  if (campLocations.length > 0) {
+  if (campsWithCoordinates.length > 0) {
     const avgLat =
-      campLocations.reduce((sum, loc) => sum + loc.lat, 0) /
-      campLocations.length;
+      campsWithCoordinates.reduce(
+        (sum, camp) => sum + (camp.latitude || 0),
+        0
+      ) / campsWithCoordinates.length;
     const avgLng =
-      campLocations.reduce((sum, loc) => sum + loc.lng, 0) /
-      campLocations.length;
+      campsWithCoordinates.reduce(
+        (sum, camp) => sum + (camp.longitude || 0),
+        0
+      ) / campsWithCoordinates.length;
     mapCenter = [avgLat, avgLng];
   }
 
   return (
     <div className={`w-full relative ${className}`} style={{ height }}>
-      {isGeocoding && (
-        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-[1000] flex items-center justify-center rounded-lg">
-          <div className="bg-background border rounded-lg p-4 shadow-lg">
-            <p className="text-sm text-muted-foreground">
-              Geocoding addresses...
-            </p>
-          </div>
-        </div>
-      )}
-      {geocodingError && campLocations.length === 0 && (
-        <div className="absolute top-4 left-4 right-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 z-[1000] shadow-lg">
-          <p className="text-sm text-yellow-800 dark:text-yellow-200">
-            Unable to geocode addresses. Showing map with clickable address links below.
-          </p>
-        </div>
-      )}
       <MapContainer
         center={mapCenter}
-        zoom={campLocations.length === 1 ? 15 : zoom}
+        zoom={campsWithCoordinates.length === 1 ? 15 : zoom}
         style={{ height: "100%", width: "100%" }}
         scrollWheelZoom={true}
         className="rounded-lg"
@@ -204,22 +117,20 @@ export function CampMapWithMarkers({
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {campLocations.map((location) => (
+        {campsWithCoordinates.map((camp) => (
           <Marker
-            key={location.camp.name}
-            position={[location.lat, location.lng]}
+            key={camp.name}
+            position={[camp.latitude!, camp.longitude!]}
             icon={markerIcon}
           >
             <Popup>
               <div className="p-2">
-                <div className="font-semibold text-sm mb-1">
-                  {location.camp.name}
-                </div>
+                <div className="font-semibold text-sm mb-1">{camp.name}</div>
                 <div className="text-xs text-muted-foreground mb-2">
-                  {location.camp.address}
+                  {camp.address}
                 </div>
                 <button
-                  onClick={() => onCampClick(location.camp)}
+                  onClick={() => onCampClick(camp)}
                   className="text-xs text-primary hover:underline"
                 >
                   View details →

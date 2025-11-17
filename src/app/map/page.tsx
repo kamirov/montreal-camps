@@ -35,9 +35,15 @@ export default function MapPage() {
     fetchCamps();
   }, []);
 
-  // Filter to only camps with addresses
+  // Filter to only camps with addresses and coordinates
   const campsWithAddresses = useMemo(() => {
-    return allCamps.filter((camp) => camp.address && camp.address.trim().length > 0);
+    return allCamps.filter(
+      (camp) =>
+        camp.address &&
+        camp.address.trim().length > 0 &&
+        camp.latitude != null &&
+        camp.longitude != null
+    );
   }, [allCamps]);
 
   const handleCampClick = (camp: Camp) => {
@@ -76,7 +82,11 @@ export default function MapPage() {
             <div className="mb-6">
               <h1 className="text-3xl font-bold mb-2">{t.views.map}</h1>
               <p className="text-muted-foreground">
-                {campsWithAddresses.length} {campsWithAddresses.length === 1 ? t.results.campSingular : t.results.campPlural} with addresses
+                {campsWithAddresses.length}{" "}
+                {campsWithAddresses.length === 1
+                  ? t.results.campSingular
+                  : t.results.campPlural}{" "}
+                with addresses
               </p>
             </div>
 
@@ -95,7 +105,11 @@ export default function MapPage() {
             {campsWithAddresses.length > 0 ? (
               <div>
                 <h2 className="text-2xl font-semibold mb-4">
-                  {campsWithAddresses.length} {campsWithAddresses.length === 1 ? t.results.campSingular : t.results.campPlural} with addresses
+                  {campsWithAddresses.length}{" "}
+                  {campsWithAddresses.length === 1
+                    ? t.results.campSingular
+                    : t.results.campPlural}{" "}
+                  with addresses
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {campsWithAddresses.map((camp) => (
@@ -136,4 +150,3 @@ export default function MapPage() {
     </div>
   );
 }
-

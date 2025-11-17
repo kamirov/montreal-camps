@@ -38,6 +38,8 @@ export async function GET() {
         },
         email: camp.email ?? undefined,
         address: camp.address ?? undefined,
+        latitude: camp.latitude ? parseFloat(camp.latitude) : undefined,
+        longitude: camp.longitude ? parseFloat(camp.longitude) : undefined,
         notes: camp.notes ?? undefined,
       };
     });

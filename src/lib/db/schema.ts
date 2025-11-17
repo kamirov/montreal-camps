@@ -16,5 +16,7 @@ export const camps = pgTable("camps", {
   phoneExtension: varchar("phone_extension", { length: 20 }), // Optional extension
   email: varchar("email", { length: 255 }), // Optional email address
   address: varchar("address", { length: 500 }), // Optional address
+  latitude: numeric("latitude", { precision: 10, scale: 7 }), // Optional latitude coordinate
+  longitude: numeric("longitude", { precision: 10, scale: 7 }), // Optional longitude coordinate
   notes: text("notes"), // Made nullable
 });

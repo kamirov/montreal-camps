@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { CampLocationMap } from "@/components/CampLocationMap";
 import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 import {
   formatAgeRange,
@@ -223,11 +224,21 @@ export function CampDetailDialog({
               <Separator />
               <div>
                 <div className="font-medium mb-2">{t.campFields.address}</div>
-                <GoogleMapEmbed
-                  address={camp.address}
-                  height="300px"
-                  className="mt-2"
-                />
+                {camp.latitude != null && camp.longitude != null ? (
+                  <CampLocationMap
+                    latitude={camp.latitude}
+                    longitude={camp.longitude}
+                    address={camp.address}
+                    height="300px"
+                    className="mt-2"
+                  />
+                ) : (
+                  <GoogleMapEmbed
+                    address={camp.address}
+                    height="300px"
+                    className="mt-2"
+                  />
+                )}
               </div>
             </>
           )}
