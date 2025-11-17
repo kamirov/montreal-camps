@@ -1,5 +1,7 @@
 "use client";
 
+import { CampLocationMap } from "@/components/CampLocationMap";
+import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,8 +12,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { CampLocationMap } from "@/components/CampLocationMap";
-import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 import {
   formatAgeRange,
   formatCost,
@@ -55,7 +55,8 @@ export function CampDetailDialog({
     camp.financialAid.toLowerCase().includes("disponible");
 
   const handleCall = () => {
-    const phoneNumber = typeof camp.phone === "string" ? camp.phone : camp.phone.number;
+    const phoneNumber =
+      typeof camp.phone === "string" ? camp.phone : camp.phone.number;
     window.location.href = `tel:${phoneNumber}`;
   };
 
@@ -65,7 +66,11 @@ export function CampDetailDialog({
 
   const handleDirections = () => {
     // Use address if available, otherwise fall back to camp name and borough
-    const location = camp.address || (camp.borough ? `${camp.name}, ${camp.borough}, Montreal` : `${camp.name}, Montreal`);
+    const location =
+      camp.address ||
+      (camp.borough
+        ? `${camp.name}, ${camp.borough}, Montreal`
+        : `${camp.name}, Montreal`);
     const query = encodeURIComponent(location);
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${query}`,
@@ -207,7 +212,9 @@ export function CampDetailDialog({
                 <div className="flex-1">
                   <div className="font-medium">{t.campFields.address}</div>
                   <a
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(camp.address)}`}
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                      camp.address
+                    )}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-sm text-primary hover:underline"

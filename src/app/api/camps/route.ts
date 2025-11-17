@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { camps } from "@/lib/db/schema";
 import type { Camp } from "@/lib/validations/camp";
+import { NextResponse } from "next/server";
 
 export async function GET() {
   try {
@@ -13,7 +13,7 @@ export async function GET() {
       const ageRange = camp.ageRange as unknown as
         | { type: "all"; allAges: true }
         | { type: "range"; allAges: false; from: number; to: number };
-      
+
       const dates = camp.dates as unknown as
         | { type: "yearRound"; yearRound: true }
         | { type: "range"; yearRound: false; fromDate: string; toDate: string };
@@ -53,4 +53,3 @@ export async function GET() {
     );
   }
 }
-

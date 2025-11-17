@@ -103,11 +103,16 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const campData = validationResult.data;
 
     // Convert empty email string to null
-    const emailValue = campData.email && campData.email.trim() !== "" ? campData.email.trim() : null;
-    
+    const emailValue =
+      campData.email && campData.email.trim() !== ""
+        ? campData.email.trim()
+        : null;
+
     // Handle coordinates - convert to string for numeric field or null
-    const latitudeValue = campData.latitude != null ? campData.latitude.toString() : null;
-    const longitudeValue = campData.longitude != null ? campData.longitude.toString() : null;
+    const latitudeValue =
+      campData.latitude != null ? campData.latitude.toString() : null;
+    const longitudeValue =
+      campData.longitude != null ? campData.longitude.toString() : null;
 
     // Upsert using Drizzle's insert with onConflictDoUpdate
     await db
@@ -189,8 +194,12 @@ export async function PUT(request: Request, { params }: RouteParams) {
       },
       email: updatedCamp.email ?? undefined,
       address: updatedCamp.address ?? undefined,
-      latitude: updatedCamp.latitude ? parseFloat(updatedCamp.latitude) : undefined,
-      longitude: updatedCamp.longitude ? parseFloat(updatedCamp.longitude) : undefined,
+      latitude: updatedCamp.latitude
+        ? parseFloat(updatedCamp.latitude)
+        : undefined,
+      longitude: updatedCamp.longitude
+        ? parseFloat(updatedCamp.longitude)
+        : undefined,
       notes: updatedCamp.notes ?? undefined,
     };
 

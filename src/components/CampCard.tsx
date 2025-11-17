@@ -1,10 +1,10 @@
 "use client";
 
+import { CampLocationMap } from "@/components/CampLocationMap";
+import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CampLocationMap } from "@/components/CampLocationMap";
-import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 import {
   formatAgeRange,
   formatCost,
@@ -37,7 +37,8 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
   const { t, language } = useTranslation();
 
   const handleCall = () => {
-    const phoneNumber = typeof camp.phone === "string" ? camp.phone : camp.phone.number;
+    const phoneNumber =
+      typeof camp.phone === "string" ? camp.phone : camp.phone.number;
     window.location.href = `tel:${phoneNumber}`;
   };
 
@@ -47,7 +48,11 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
 
   const handleDirections = () => {
     // Use address if available, otherwise fall back to camp name and borough
-    const location = camp.address || (camp.borough ? `${camp.name}, ${camp.borough}, Montreal` : `${camp.name}, Montreal`);
+    const location =
+      camp.address ||
+      (camp.borough
+        ? `${camp.name}, ${camp.borough}, Montreal`
+        : `${camp.name}, Montreal`);
     const query = encodeURIComponent(location);
     window.open(
       `https://www.google.com/maps/search/?api=1&query=${query}`,
@@ -141,7 +146,9 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
               <MapPin className="h-4 w-4 text-primary/70 mt-0.5 shrink-0" />
               <div className="flex-1">
                 <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(camp.address)}`}
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    camp.address
+                  )}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-medium text-primary hover:underline text-xs"
