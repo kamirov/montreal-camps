@@ -77,7 +77,10 @@ export function CampMapWithMarkers({
 
   return (
     <div className={`w-full relative ${className}`} style={{ height }}>
-      <div className="w-full overflow-hidden rounded-lg border" style={{ height }}>
+      <div
+        className="w-full overflow-hidden rounded-lg border"
+        style={{ height }}
+      >
         <iframe
           width="100%"
           height={height}
