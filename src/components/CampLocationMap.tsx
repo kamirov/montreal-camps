@@ -1,37 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-
-// Dynamically import Leaflet components to avoid SSR issues
-const MapContainer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false }
-);
-const TileLayer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.TileLayer),
-  { ssr: false }
-);
-const Marker = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Marker),
-  { ssr: false }
-);
-
-// Function to create icon (must be called client-side)
-function createIcon() {
-  if (typeof window === "undefined") return null;
-  const L = require("leaflet");
-  return L.icon({
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  });
-}
-
 type CampLocationMapProps = {
   latitude: number;
   longitude: number;
@@ -43,6 +11,7 @@ type CampLocationMapProps = {
 
 /**
  * Small map component showing a single location with a marker using stored coordinates
+ * Uses Google Maps Embed API with coordinates
  */
 export function CampLocationMap({
   latitude,
@@ -52,42 +21,40 @@ export function CampLocationMap({
   zoom = 15,
   className = "",
 }: CampLocationMapProps) {
-  const [isClient, setIsClient] = useState(false);
-  const [markerIcon, setMarkerIcon] = useState<any>(null);
+  // Build Google Maps Embed URL - prefer address to avoid coordinates info box
+  // Fall back to coordinates if address is not available
+  const mapUrl = address
+    ? `https://maps.google.com/maps?q=${encodeURIComponent(
+        address
+      )}&z=${zoom}&output=embed`
+    : `https://maps.google.com/maps?ll=${latitude},${longitude}&z=${zoom}&output=embed&markers=${latitude},${longitude}`;
 
-  useEffect(() => {
-    setIsClient(true);
-    import("leaflet/dist/leaflet.css");
-    setMarkerIcon(createIcon());
-  }, []);
-
-  if (!isClient) {
-    return (
-      <div className={`w-full ${className}`} style={{ height }}>
-        <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center">
-          <p className="text-muted-foreground text-xs">Loading map...</p>
-        </div>
-      </div>
-    );
-  }
+  const mapTitle =
+    address || `Map showing coordinates ${latitude}, ${longitude}`;
 
   return (
-    <div className={`w-full overflow-hidden rounded-lg border ${className}`} style={{ height }}>
-      <MapContainer
-        center={[latitude, longitude]}
-        zoom={zoom}
-        style={{ height: "100%", width: "100%" }}
-        scrollWheelZoom={true}
-        className="rounded-lg"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+    <div
+      className={`w-full overflow-hidden rounded-lg border relative ${className}`}
+      style={{ height }}
+    >
+      <iframe
+        width="100%"
+        height={height}
+        style={{ border: 0 }}
+        loading="lazy"
+        allowFullScreen
+        referrerPolicy="no-referrer-when-downgrade"
+        src={mapUrl}
+        title={mapTitle}
+        className="w-full"
+      />
+      {/* Overlay to hide the coordinates info box in the top-left corner when using coordinates */}
+      {!address && (
+        <div
+          className="absolute top-0 left-0 w-72 h-20 bg-background pointer-events-none"
+          aria-hidden="true"
         />
-        <Marker position={[latitude, longitude]} icon={markerIcon} />
-      </MapContainer>
+      )}
     </div>
   );
 }
-
-

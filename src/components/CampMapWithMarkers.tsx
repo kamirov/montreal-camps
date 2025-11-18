@@ -1,41 +1,6 @@
 "use client";
 
 import { Camp } from "@/types/camp";
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
-
-// Dynamically import Leaflet components to avoid SSR issues
-const MapContainer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false }
-);
-const TileLayer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.TileLayer),
-  { ssr: false }
-);
-const Marker = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Marker),
-  { ssr: false }
-);
-const Popup = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Popup),
-  { ssr: false }
-);
-
-// Function to create icon (must be called client-side)
-function createIcon() {
-  if (typeof window === "undefined") return null;
-  const L = require("leaflet");
-  return L.icon({
-    iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-    iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-    shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41],
-  });
-}
 
 type CampMapWithMarkersProps = {
   camps: Camp[];
@@ -46,18 +11,16 @@ type CampMapWithMarkersProps = {
 };
 
 /**
- * Map component that shows camps with addresses and coordinates as markers on a Leaflet map
+ * Map component that shows camps with addresses and coordinates as markers on a Google Maps embed
  */
 export function CampMapWithMarkers({
   camps,
-  onCampClick,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onCampClick, // Kept for API compatibility, though Google Maps embed doesn't support custom click handlers
   height = "500px",
   zoom = 11,
   className = "",
 }: CampMapWithMarkersProps) {
-  const [isClient, setIsClient] = useState(false);
-  const [markerIcon, setMarkerIcon] = useState<any>(null);
-
   // Filter camps to only those with both address and coordinates
   const campsWithCoordinates = camps.filter(
     (camp) =>
@@ -67,25 +30,7 @@ export function CampMapWithMarkers({
       camp.longitude != null
   );
 
-  useEffect(() => {
-    setIsClient(true);
-    // Import leaflet CSS only on client
-    import("leaflet/dist/leaflet.css");
-    // Create icon only on client
-    setMarkerIcon(createIcon());
-  }, []);
-
-  if (!isClient) {
-    return (
-      <div className={`w-full ${className}`} style={{ height }}>
-        <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center">
-          <p className="text-muted-foreground">Loading map...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Center on Montreal
+  // Center on Montreal (default)
   const center: [number, number] = [45.5017, -73.5673];
 
   // Calculate center based on markers if we have locations
@@ -104,42 +49,47 @@ export function CampMapWithMarkers({
     mapCenter = [avgLat, avgLng];
   }
 
+  // Determine zoom level - use 15 for single location, provided zoom for multiple
+  const mapZoom = campsWithCoordinates.length === 1 ? 15 : zoom;
+
+  // Build markers parameter for Google Maps embed API
+  // Format: markers=lat1,lng1|label1|lat2,lng2|label2
+  // For better visual, we'll use coordinates without labels (simpler)
+  const markersParam = campsWithCoordinates
+    .map((camp) => `${camp.latitude},${camp.longitude}`)
+    .join("|");
+
+  // Build Google Maps Embed URL
+  // Use center as q parameter, and markers for all camp locations
+  const mapUrl = `https://maps.google.com/maps?q=${mapCenter[0]},${mapCenter[1]}&markers=${markersParam}&z=${mapZoom}&output=embed`;
+
+  if (campsWithCoordinates.length === 0) {
+    return (
+      <div className={`w-full ${className}`} style={{ height }}>
+        <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center border">
+          <p className="text-muted-foreground">
+            No camps with coordinates available
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={`w-full relative ${className}`} style={{ height }}>
-      <MapContainer
-        center={mapCenter}
-        zoom={campsWithCoordinates.length === 1 ? 15 : zoom}
-        style={{ height: "100%", width: "100%" }}
-        scrollWheelZoom={true}
-        className="rounded-lg"
-      >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      <div className="w-full overflow-hidden rounded-lg border" style={{ height }}>
+        <iframe
+          width="100%"
+          height={height}
+          style={{ border: 0 }}
+          loading="lazy"
+          allowFullScreen
+          referrerPolicy="no-referrer-when-downgrade"
+          src={mapUrl}
+          title={`Map showing ${campsWithCoordinates.length} camp locations`}
+          className="w-full rounded-lg"
         />
-        {campsWithCoordinates.map((camp) => (
-          <Marker
-            key={camp.name}
-            position={[camp.latitude!, camp.longitude!]}
-            icon={markerIcon}
-          >
-            <Popup>
-              <div className="p-2">
-                <div className="font-semibold text-sm mb-1">{camp.name}</div>
-                <div className="text-xs text-muted-foreground mb-2">
-                  {camp.address}
-                </div>
-                <button
-                  onClick={() => onCampClick(camp)}
-                  className="text-xs text-primary hover:underline"
-                >
-                  View details →
-                </button>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
+      </div>
     </div>
   );
 }
