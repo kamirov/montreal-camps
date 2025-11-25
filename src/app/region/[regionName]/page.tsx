@@ -1,6 +1,6 @@
 "use client";
 
-import { CampColumns } from "@/components/CampColumns";
+import { CampCard } from "@/components/CampCard";
 import { Footer } from "@/components/Footer";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { SearchBar } from "@/components/SearchBar";
@@ -66,7 +66,9 @@ export default function RegionPage({ params }: RegionPageProps) {
 
   const filteredCamps = useMemo(() => {
     if (!regionName) return [];
-    return allCamps.filter((camp) => camp.borough === regionName);
+    return allCamps.filter(
+      (camp) => camp.borough === regionName && camp.type === "day"
+    );
   }, [regionName, allCamps]);
 
   const hasResults = filteredCamps.length > 0;
@@ -156,10 +158,16 @@ export default function RegionPage({ params }: RegionPageProps) {
               </div>
             </div>
 
-            {/* Columns Content */}
-            <div className="flex-1 container mx-auto px-4 py-6 overflow-hidden">
+            {/* Grid Content */}
+            <div className="flex-1 container mx-auto px-4 py-6">
               {hasResults ? (
-                <CampColumns camps={filteredCamps} showSampleNotice />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                  {filteredCamps.map((camp) => (
+                    <div key={camp.name} className="[&_.h-full]:!h-auto">
+                      <CampCard camp={camp} />
+                    </div>
+                  ))}
+                </div>
               ) : (
                 <div className="flex items-center justify-center h-40">
                   <p className="text-muted-foreground">{t.regions.notFound}</p>
