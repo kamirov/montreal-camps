@@ -650,22 +650,30 @@ export default function ManagePage() {
               <label className="block text-sm font-medium mb-2">
                 {t.manage.selectCamp}
               </label>
-              <Select
-                value={isNewCamp ? "new" : selectedCampName || undefined}
-                onValueChange={handleCampSelect}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t.manage.selectCamp} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="new">{t.manage.createNew}</SelectItem>
-                  {camps.map((camp) => (
-                    <SelectItem key={camp.name} value={camp.name}>
-                      {camp.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2">
+                <Select
+                  value={selectedCampName || undefined}
+                  onValueChange={handleCampSelect}
+                >
+                  <SelectTrigger className="flex-1">
+                    <SelectValue placeholder={t.manage.selectCamp} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {camps.map((camp) => (
+                      <SelectItem key={camp.name} value={camp.name}>
+                        {camp.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  type="button"
+                  onClick={() => handleCampSelect("new")}
+                  variant="outline"
+                >
+                  {t.manage.createNew}
+                </Button>
+              </div>
             </div>
 
             {/* Form */}
