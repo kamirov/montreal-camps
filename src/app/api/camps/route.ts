@@ -25,11 +25,6 @@ export async function GET() {
         ageRange,
         languages: camp.languages,
         dates,
-        hours: camp.hours ?? undefined,
-        cost: {
-          amount: parseFloat(camp.costAmount),
-          period: camp.costPeriod as "year" | "month" | "week" | "hour",
-        },
         financialAid: camp.financialAid,
         link: camp.link,
         phone: {

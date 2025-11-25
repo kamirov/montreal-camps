@@ -48,11 +48,6 @@ export async function GET(_request: Request, { params }: RouteParams) {
       ageRange,
       languages: camp.languages,
       dates,
-      hours: camp.hours ?? undefined,
-      cost: {
-        amount: parseFloat(camp.costAmount),
-        period: camp.costPeriod as "year" | "month" | "week" | "hour",
-      },
       financialAid: camp.financialAid,
       link: camp.link,
       phone: {
@@ -124,9 +119,6 @@ export async function PUT(request: Request, { params }: RouteParams) {
         ageRange: campData.ageRange as unknown,
         languages: campData.languages,
         dates: campData.dates as unknown,
-        hours: campData.hours ?? null,
-        costAmount: campData.cost.amount.toString(),
-        costPeriod: campData.cost.period,
         financialAid: campData.financialAid,
         link: campData.link,
         phone: campData.phone.number,
@@ -145,9 +137,6 @@ export async function PUT(request: Request, { params }: RouteParams) {
           ageRange: campData.ageRange as unknown,
           languages: campData.languages,
           dates: campData.dates as unknown,
-          hours: campData.hours ?? null,
-          costAmount: campData.cost.amount.toString(),
-          costPeriod: campData.cost.period,
           financialAid: campData.financialAid,
           link: campData.link,
           phone: campData.phone.number,
@@ -181,11 +170,6 @@ export async function PUT(request: Request, { params }: RouteParams) {
       ageRange,
       languages: updatedCamp.languages,
       dates,
-      hours: updatedCamp.hours ?? undefined,
-      cost: {
-        amount: parseFloat(updatedCamp.costAmount),
-        period: updatedCamp.costPeriod as "year" | "month" | "week" | "hour",
-      },
       financialAid: updatedCamp.financialAid,
       link: updatedCamp.link,
       phone: {

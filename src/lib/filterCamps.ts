@@ -60,20 +60,6 @@ export function sortCamps(camps: Camp[], sortBy: SortOption): Camp[] {
     case "alphabetical":
       return sorted.sort((a, b) => a.name.localeCompare(b.name));
 
-    case "costLowToHigh":
-      return sorted.sort((a, b) => {
-        const costA = parseCost(a.cost);
-        const costB = parseCost(b.cost);
-        return costA - costB;
-      });
-
-    case "costHighToLow":
-      return sorted.sort((a, b) => {
-        const costA = parseCost(a.cost);
-        const costB = parseCost(b.cost);
-        return costB - costA;
-      });
-
     case "borough":
       return sorted.sort((a, b) => {
         // Handle null boroughs (vacation camps) - put them at the end
@@ -86,19 +72,6 @@ export function sortCamps(camps: Camp[], sortBy: SortOption): Camp[] {
     default:
       return sorted;
   }
-}
-
-function parseCost(cost: { amount: number; period: string }): number {
-  // Normalize cost to weekly rate for comparison
-  const periodMultipliers: Record<string, number> = {
-    hour: 40, // Assume 40 hours per week
-    day: 5, // Assume 5 days per week
-    week: 1,
-    month: 0.25, // Assume 4 weeks per month
-  };
-
-  const multiplier = periodMultipliers[cost.period] || 1;
-  return cost.amount * multiplier;
 }
 
 export function getUniqueBoroughs(camps: Camp[]): string[] {

@@ -2,8 +2,6 @@ import { z } from "zod";
 
 export const campTypeSchema = z.enum(["day", "vacation"]);
 
-export const costPeriodSchema = z.enum(["year", "month", "week", "hour"]);
-
 // Age range schema: either all ages or a range
 export const ageRangeSchema = z.discriminatedUnion("type", [
   z.object({
@@ -59,12 +57,6 @@ export const datesSchema = z.discriminatedUnion("type", [
     ),
 ]);
 
-// Cost schema: amount and period
-export const costSchema = z.object({
-  amount: z.number().positive("Cost amount must be positive"),
-  period: costPeriodSchema,
-});
-
 // Phone schema: formatted number and optional extension
 export const phoneSchema = z.object({
   number: z.string().min(1, "Phone number is required"),
@@ -79,8 +71,6 @@ export const campSchema = z
     ageRange: ageRangeSchema,
     languages: z.array(z.string()).min(1, "At least one language is required"),
     dates: datesSchema,
-    hours: z.string().optional(),
-    cost: costSchema,
     financialAid: z.string().min(1, "Financial aid information is required"),
     link: z.string().url("Must be a valid URL").min(1, "Link is required"),
     phone: phoneSchema,

@@ -30,11 +30,6 @@ const mockCamp: Camp = {
     fromDate: "2024-07-01",
     toDate: "2024-07-30",
   },
-  hours: "9:00 AM - 5:00 PM",
-  cost: {
-    amount: 200,
-    period: "week",
-  },
   financialAid: "Available - Sliding scale",
   link: "https://example.com",
   phone: {
@@ -77,7 +72,6 @@ describe("CampDetailDialog", () => {
     expect(screen.getByText("Plateau")).toBeInTheDocument();
     // Age range will be formatted as "5 years - 10 years" or "5 ans - 10 ans"
     expect(screen.getByText(/^5.*10.*(years|ans)$/)).toBeInTheDocument();
-    expect(screen.getByText(/\$200/)).toBeInTheDocument();
   });
 
   it("should display camp notes", () => {

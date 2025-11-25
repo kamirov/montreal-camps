@@ -11,8 +11,6 @@ export type FilterState = {
 
 export type SortOption =
   | "alphabetical"
-  | "costLowToHigh"
-  | "costHighToLow"
   | "borough";
 
 export type ViewMode = "search" | "columns";

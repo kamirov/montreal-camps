@@ -69,8 +69,6 @@ Each camp listing includes:
 - Age Range (Tranche d'âge)
 - Languages (Langues)
 - Dates
-- Hours (Heures) - for day camps only
-- Cost (Coût)
 - Financial Aid (Aide financière)
 - Website Link (Lien)
 - Phone (Tél)

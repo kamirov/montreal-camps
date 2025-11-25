@@ -7,18 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   formatAgeRange,
-  formatCost,
   formatDateRange,
   formatLanguage,
   formatPhone,
-  formatTime,
 } from "@/localization/formatters";
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp } from "@/types/camp";
 import {
   Calendar,
-  Clock,
-  DollarSign,
   ExternalLink,
   FileText,
   Globe,
@@ -86,24 +82,8 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
             {formatDateRange(camp.dates, language, t)}
           </span>
         </div>
-        <div className="flex items-center gap-2.5 text-sm">
-          <Clock className="h-4 w-4 text-primary/70" />
-          <span>
-            {camp.hours
-              ? formatTime(camp.hours, language)
-              : camp.type === "day"
-              ? t.campTypes.day
-              : t.campTypes.vacation}
-          </span>
-        </div>
         <div className="bg-primary/5 -mx-6 px-6 py-2 space-y-1">
-          <div className="flex items-center gap-2.5 text-sm">
-            <DollarSign className="h-5 w-5 text-primary" />
-            <span className="font-bold text-base text-primary">
-              {formatCost(camp.cost, language, t)}
-            </span>
-          </div>
-          <div className="text-xs text-muted-foreground pl-7">
+          <div className="text-xs text-muted-foreground">
             <span className="font-medium">{t.campFields.financialAid}:</span>{" "}
             {camp.financialAid}
           </div>

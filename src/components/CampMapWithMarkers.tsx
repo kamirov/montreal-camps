@@ -11,7 +11,7 @@ type CampMapWithMarkersProps = {
 };
 
 /**
- * Map component that shows camps with addresses and coordinates as markers on a Google Maps embed
+ * Map component that shows camps with geocoded addresses as markers on a Google Maps embed
  */
 export function CampMapWithMarkers({
   camps,
@@ -21,55 +21,35 @@ export function CampMapWithMarkers({
   zoom = 11,
   className = "",
 }: CampMapWithMarkersProps) {
-  // Filter camps to only those with both address and coordinates
-  const campsWithCoordinates = camps.filter(
-    (camp) =>
-      camp.address &&
-      camp.address.trim().length > 0 &&
-      camp.latitude != null &&
-      camp.longitude != null
+  // Filter camps to only those with addresses (coordinates will be removed soon)
+  const campsWithAddresses = camps.filter(
+    (camp) => camp.address && camp.address.trim().length > 0
   );
 
-  // Center on Montreal (default)
-  const center: [number, number] = [45.5017, -73.5673];
-
-  // Calculate center based on markers if we have locations
-  let mapCenter: [number, number] = center;
-  if (campsWithCoordinates.length > 0) {
-    const avgLat =
-      campsWithCoordinates.reduce(
-        (sum, camp) => sum + (camp.latitude || 0),
-        0
-      ) / campsWithCoordinates.length;
-    const avgLng =
-      campsWithCoordinates.reduce(
-        (sum, camp) => sum + (camp.longitude || 0),
-        0
-      ) / campsWithCoordinates.length;
-    mapCenter = [avgLat, avgLng];
-  }
+  // Calculate center based on the first address if available
+  const defaultCenterQuery = "Montreal, QC";
+  const mapCenterQuery =
+    campsWithAddresses[0]?.address?.trim() || defaultCenterQuery;
 
   // Determine zoom level - use 15 for single location, provided zoom for multiple
-  const mapZoom = campsWithCoordinates.length === 1 ? 15 : zoom;
+  const mapZoom = campsWithAddresses.length === 1 ? 15 : zoom;
 
-  // Build markers parameter for Google Maps embed API
-  // Format: markers=lat1,lng1|label1|lat2,lng2|label2
-  // For better visual, we'll use coordinates without labels (simpler)
-  const markersParam = campsWithCoordinates
-    .map((camp) => `${camp.latitude},${camp.longitude}`)
+  // Build markers parameter for Google Maps embed API using addresses
+  const markersParam = campsWithAddresses
+    .map((camp) => encodeURIComponent(camp.address.trim()))
     .join("|");
 
   // Build Google Maps Embed URL
   // Use center as q parameter, and markers for all camp locations
-  const mapUrl = `https://maps.google.com/maps?q=${mapCenter[0]},${mapCenter[1]}&markers=${markersParam}&z=${mapZoom}&output=embed`;
+  const mapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
+    mapCenterQuery
+  )}&markers=${markersParam}&z=${mapZoom}&output=embed`;
 
-  if (campsWithCoordinates.length === 0) {
+  if (campsWithAddresses.length === 0) {
     return (
       <div className={`w-full ${className}`} style={{ height }}>
         <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center border">
-          <p className="text-muted-foreground">
-            No camps with coordinates available
-          </p>
+          <p className="text-muted-foreground">No camps with addresses</p>
         </div>
       </div>
     );
@@ -89,7 +69,7 @@ export function CampMapWithMarkers({
           allowFullScreen
           referrerPolicy="no-referrer-when-downgrade"
           src={mapUrl}
-          title={`Map showing ${campsWithCoordinates.length} camp locations`}
+          title={`Map showing ${campsWithAddresses.length} camp locations`}
           className="w-full rounded-lg"
         />
       </div>

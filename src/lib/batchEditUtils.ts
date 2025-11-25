@@ -74,27 +74,6 @@ export function parseLanguages(str: string): string[] {
     .filter((lang) => lang.length > 0);
 }
 
-// Format cost to string: "100/week"
-export function formatCost(cost: Camp["cost"]): string {
-  return `${cost.amount}/${cost.period}`;
-}
-
-// Parse cost from string: "100/week"
-export function parseCost(
-  str: string
-): { amount: number; period: "year" | "month" | "week" | "hour" } | null {
-  const trimmed = str.trim();
-  const match = trimmed.match(/^(\d+(?:\.\d+)?)\/(year|month|week|hour)$/);
-  if (match) {
-    const amount = parseFloat(match[1]!);
-    const period = match[2] as "year" | "month" | "week" | "hour";
-    if (!isNaN(amount) && amount > 0) {
-      return { amount, period };
-    }
-  }
-  return null;
-}
-
 // Format phone to string: "123-456-7890 ext 123" or "123-456-7890"
 export function formatPhone(phone: Camp["phone"]): string {
   if (phone.extension && phone.extension.trim().length > 0) {

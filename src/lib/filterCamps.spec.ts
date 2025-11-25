@@ -21,8 +21,6 @@ const mockCamps: Camp[] = [
       fromDate: "2024-07-01",
       toDate: "2024-07-30",
     },
-    hours: "9-5",
-    cost: { amount: 200, period: "week" },
     financialAid: "Available",
     link: "http://example.com",
     phone: { number: "514-555-0101", extension: "" },
@@ -42,7 +40,6 @@ const mockCamps: Camp[] = [
       fromDate: "2024-03-01",
       toDate: "2024-03-05",
     },
-    cost: { amount: 150, period: "week" },
     financialAid: "Contact for information",
     link: "http://example.com",
     phone: { number: "514-555-0102", extension: "" },
@@ -62,8 +59,6 @@ const mockCamps: Camp[] = [
       fromDate: "2024-07-15",
       toDate: "2024-08-15",
     },
-    hours: "8-4",
-    cost: { amount: 180, period: "week" },
     financialAid: "Available - Sliding scale",
     link: "http://example.com",
     phone: { number: "514-555-0103", extension: "" },
@@ -140,18 +135,6 @@ describe("sortCamps", () => {
     expect(result[0].name).toBe("Camp Alpha");
     expect(result[1].name).toBe("Camp Beta");
     expect(result[2].name).toBe("Camp Gamma");
-  });
-
-  it("should sort camps by cost (low to high)", () => {
-    const result = sortCamps(mockCamps, "costLowToHigh");
-    expect(result[0].cost.amount).toBe(150);
-    expect(result[2].cost.amount).toBe(200);
-  });
-
-  it("should sort camps by cost (high to low)", () => {
-    const result = sortCamps(mockCamps, "costHighToLow");
-    expect(result[0].cost.amount).toBe(200);
-    expect(result[2].cost.amount).toBe(150);
   });
 
   it("should sort camps by borough", () => {

@@ -5,7 +5,6 @@ import { Header } from "@/components/Header";
 import { BoroughAutocomplete } from "@/components/ui/borough-autocomplete";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CostInput } from "@/components/ui/cost-input";
 import { DateRangePicker } from "@/components/ui/date-picker";
 import {
   Dialog,
@@ -26,7 +25,6 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagsInput } from "@/components/ui/tags-input";
-import { TimeRangeInput } from "@/components/ui/time-range-input";
 import { deleteCamp, getCamp, getCamps, upsertCamp } from "@/lib/api/camps";
 import type { Camp, CampUpsert } from "@/lib/validations/camp";
 import { campUpsertSchema } from "@/lib/validations/camp";
@@ -65,9 +63,6 @@ export default function ManagePage() {
     ageRange: { type: "range", allAges: false, from: 5, to: 15 },
     languages: ["English", "French"],
     dates: { type: "yearRound", yearRound: true },
-    hours: "09:00 - 17:00",
-    // TODO: Temporary cost and financial aid values
-    cost: { amount: 100, period: "week" },
     financialAid: "NA",
 
     link: "",
@@ -197,8 +192,6 @@ export default function ManagePage() {
             ageRange: camp.ageRange,
             languages: camp.languages,
             dates: camp.dates,
-            hours: camp.hours ?? "",
-            cost: camp.cost,
             financialAid: camp.financialAid,
             link: camp.link,
             phone: camp.phone,
@@ -232,8 +225,6 @@ export default function ManagePage() {
         ageRange: { type: "range", allAges: false, from: 5, to: 15 },
         languages: ["English", "French"],
         dates: { type: "yearRound", yearRound: true },
-        hours: "09:00 - 17:00",
-        cost: { amount: 100, period: "week" },
         financialAid: "NA",
         link: "",
         phone: { number: "", extension: "" },
@@ -393,8 +384,6 @@ export default function ManagePage() {
         ageRange: { type: "all", allAges: true },
         languages: [],
         dates: { type: "yearRound", yearRound: true },
-        hours: "09:00 - 17:00",
-        cost: { amount: 0, period: "week" },
         financialAid: "",
         link: "",
         phone: { number: "", extension: "" },
@@ -421,8 +410,6 @@ export default function ManagePage() {
       ageRange: { type: "all", allAges: true },
       languages: [],
       dates: { type: "yearRound", yearRound: true },
-      hours: "09:00 - 17:00",
-      cost: { amount: 0, period: "week" },
       financialAid: "",
       link: "",
       phone: { number: "", extension: "" },
@@ -437,7 +424,6 @@ export default function ManagePage() {
     setFormData({
       ...formData,
       type: value,
-      hours: value === "vacation" ? "" : formData.hours || "09:00 - 17:00",
       borough: value === "vacation" ? null : formData.borough,
     });
   };
@@ -458,8 +444,6 @@ export default function ManagePage() {
           ageRange: camp.ageRange,
           languages: camp.languages,
           dates: camp.dates,
-          hours: camp.hours,
-          cost: camp.cost,
           financialAid: camp.financialAid,
           link: camp.link,
           phone: camp.phone,
@@ -884,55 +868,6 @@ export default function ManagePage() {
                     {errors.dates && (
                       <p className="text-sm text-destructive mt-1">
                         {errors.dates}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Hours (only for day camps) */}
-                  {formData.type === "day" && (
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        {t.campFields.hours}
-                      </label>
-                      <TimeRangeInput
-                        value={formData.hours ?? ""}
-                        onChange={(value) =>
-                          setFormData({ ...formData, hours: value })
-                        }
-                      />
-                      {errors.hours && (
-                        <p className="text-sm text-destructive mt-1">
-                          {errors.hours}
-                        </p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Cost */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2">
-                      {t.campFields.cost}
-                    </label>
-                    <CostInput
-                      amount={formData.cost.amount}
-                      period={formData.cost.period}
-                      onAmountChange={(amount) =>
-                        setFormData({
-                          ...formData,
-                          cost: { ...formData.cost, amount },
-                        })
-                      }
-                      onPeriodChange={(period) =>
-                        setFormData({
-                          ...formData,
-                          cost: { ...formData.cost, period },
-                        })
-                      }
-                      required
-                    />
-                    {errors.cost && (
-                      <p className="text-sm text-destructive mt-1">
-                        {errors.cost}
                       </p>
                     )}
                   </div>

@@ -48,11 +48,6 @@ describe("exportCampsToExcel", () => {
       fromDate: "2024-06-15",
       toDate: "2024-08-15",
     },
-    hours: "9:00 AM - 5:00 PM",
-    cost: {
-      amount: 200,
-      period: "week",
-    },
     financialAid: "Available for low-income families",
     link: "https://example.com",
     phone: {
@@ -107,8 +102,6 @@ describe("exportCampsToExcel", () => {
     expect(exportedCamp).toHaveProperty("Borough", "Plateau-Mont-Royal");
     expect(exportedCamp).toHaveProperty("Age Range", "5 years - 12 years");
     expect(exportedCamp).toHaveProperty("Languages", "French, English");
-    expect(exportedCamp).toHaveProperty("Hours", "9:00 AM - 5:00 PM");
-    expect(exportedCamp).toHaveProperty("Cost", "$200.00/week");
     expect(exportedCamp).toHaveProperty("Financial Aid", "Available for low-income families");
     expect(exportedCamp).toHaveProperty("Website", "https://example.com");
     expect(exportedCamp).toHaveProperty("Phone", "514-123-4567 ext. 123");
@@ -127,8 +120,6 @@ describe("exportCampsToExcel", () => {
     expect(exportedCamp).toHaveProperty("Arrondissement", "Plateau-Mont-Royal");
     expect(exportedCamp).toHaveProperty("Tranche d'âge", "5 ans - 12 ans");
     expect(exportedCamp).toHaveProperty("Langues", "Français, Anglais");
-    expect(exportedCamp).toHaveProperty("Heures", "9:00 AM - 5:00 PM");
-    expect(exportedCamp).toHaveProperty("Coût", "$200.00/semaine");
   });
 
   it("should handle camps with all ages", () => {
@@ -176,19 +167,6 @@ describe("exportCampsToExcel", () => {
     const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock.calls[0][0];
     const exportedCamp = jsonToSheetCall[0];
     expect(exportedCamp).toHaveProperty("Phone", "514-123-4567");
-  });
-
-  it("should handle camps without hours", () => {
-    const campNoHours: Camp = {
-      ...mockCamp,
-      hours: undefined,
-    };
-
-    exportCampsToExcel([campNoHours], { translations: en, language: "en" });
-
-    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock.calls[0][0];
-    const exportedCamp = jsonToSheetCall[0];
-    expect(exportedCamp).toHaveProperty("Hours", "");
   });
 
   it("should handle camps without notes", () => {
@@ -245,11 +223,11 @@ describe("exportCampsToExcel", () => {
       { wch: 15 }, // ageRange
       { wch: 25 }, // languages
       { wch: 25 }, // dates
-      { wch: 20 }, // hours
-      { wch: 15 }, // cost
       { wch: 30 }, // financialAid
       { wch: 40 }, // link
       { wch: 20 }, // phone
+      { wch: 30 }, // email
+      { wch: 40 }, // address
       { wch: 40 }, // notes
     ]);
   });

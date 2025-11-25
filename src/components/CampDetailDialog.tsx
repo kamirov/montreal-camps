@@ -14,18 +14,14 @@ import {
 import { Separator } from "@/components/ui/separator";
 import {
   formatAgeRange,
-  formatCost,
   formatDateRange,
   formatLanguage,
   formatPhone,
-  formatTime,
 } from "@/localization/formatters";
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp } from "@/types/camp";
 import {
   Calendar,
-  Clock,
-  DollarSign,
   ExternalLink,
   Globe,
   Mail,
@@ -134,28 +130,6 @@ export function CampDetailDialog({
                 <div className="font-medium">{t.campFields.dates}</div>
                 <div className="text-sm text-muted-foreground">
                   {formatDateRange(camp.dates, language, t)}
-                </div>
-              </div>
-            </div>
-
-            {camp.hours && (
-              <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 text-muted-foreground mt-0.5" />
-                <div>
-                  <div className="font-medium">{t.campFields.hours}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {formatTime(camp.hours, language)}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-start gap-3">
-              <DollarSign className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <div className="font-medium">{t.campFields.cost}</div>
-                <div className="text-sm text-muted-foreground">
-                  {formatCost(camp.cost, language, t)}
                 </div>
               </div>
             </div>

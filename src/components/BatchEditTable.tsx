@@ -3,20 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   formatAgeRange,
-  formatCost,
   formatDates,
   formatLanguages,
   formatPhone,
   parseAgeRange,
-  parseCost,
   parseDates,
   parseLanguages,
   parsePhone,
@@ -45,10 +36,6 @@ type ColumnKey =
   | "ageTo"
   | "languages"
   | "dates"
-  | "hoursFrom"
-  | "hoursTo"
-  | "costAmount"
-  | "costPeriod"
   | "financialAid"
   | "link"
   | "phone"
@@ -62,8 +49,6 @@ const DEFAULT_DAY_CAMP: Omit<Camp, "name"> = {
   ageRange: { type: "range", allAges: false, from: 5, to: 15 },
   languages: ["English", "French"],
   dates: { type: "yearRound", yearRound: true },
-  hours: "09:00 - 17:00",
-  cost: { amount: 100, period: "week" },
   financialAid: "NA",
   link: "",
   phone: { number: "", extension: "" },
@@ -78,8 +63,6 @@ const DEFAULT_VACATION_CAMP: Omit<Camp, "name"> = {
   ageRange: { type: "range", allAges: false, from: 5, to: 15 },
   languages: ["English", "French"],
   dates: { type: "yearRound", yearRound: true },
-  hours: undefined,
-  cost: { amount: 100, period: "week" },
   financialAid: "NA",
   link: "",
   phone: { number: "", extension: "" },
@@ -176,22 +159,6 @@ export function BatchEditTable({
           case "dates":
             aVal = formatDates(a.dates).toLowerCase();
             bVal = formatDates(b.dates).toLowerCase();
-            break;
-          case "hoursFrom":
-            aVal = a.hours ? (a.hours.split(" - ")[0] || "").toLowerCase() : "";
-            bVal = b.hours ? (b.hours.split(" - ")[0] || "").toLowerCase() : "";
-            break;
-          case "hoursTo":
-            aVal = a.hours ? (a.hours.split(" - ")[1] || "").toLowerCase() : "";
-            bVal = b.hours ? (b.hours.split(" - ")[1] || "").toLowerCase() : "";
-            break;
-          case "costAmount":
-            aVal = a.cost.amount;
-            bVal = b.cost.amount;
-            break;
-          case "costPeriod":
-            aVal = a.cost.period;
-            bVal = b.cost.period;
             break;
           case "financialAid":
             aVal = a.financialAid.toLowerCase();
@@ -391,37 +358,6 @@ export function BatchEditTable({
           }
           return;
         }
-        case "hoursFrom": {
-          const currentHours = camp.hours || "";
-          const parts = currentHours.split(" - ");
-          const newHours = `${value} - ${parts[1] || ""}`.trim();
-          updateCamp(campName, { hours: newHours || undefined });
-          return;
-        }
-        case "hoursTo": {
-          const currentHours = camp.hours || "";
-          const parts = currentHours.split(" - ");
-          const newHours = `${parts[0] || ""} - ${value}`.trim();
-          updateCamp(campName, { hours: newHours || undefined });
-          return;
-        }
-        case "costAmount": {
-          const numValue = parseFloat(value);
-          if (!isNaN(numValue) && numValue >= 0) {
-            updateCamp(campName, {
-              cost: { ...camp.cost, amount: numValue },
-            });
-          }
-          return;
-        }
-        case "costPeriod": {
-          if (["year", "month", "week", "hour"].includes(value)) {
-            updateCamp(campName, {
-              cost: { ...camp.cost, period: value as "year" | "month" | "week" | "hour" },
-            });
-          }
-          return;
-        }
         case "financialAid":
           updateCamp(campName, { financialAid: value });
           return;
@@ -550,10 +486,6 @@ export function BatchEditTable({
               "ageTo",
               "languages",
               "dates",
-              "hoursFrom",
-              "hoursTo",
-              "costAmount",
-              "costPeriod",
               "financialAid",
               "link",
               "phone",
@@ -567,8 +499,6 @@ export function BatchEditTable({
               "ageTo",
               "languages",
               "dates",
-              "costAmount",
-              "costPeriod",
               "financialAid",
               "link",
               "phone",
@@ -609,15 +539,7 @@ export function BatchEditTable({
                       ? "Age From"
                       : col === "ageTo"
                         ? "Age To"
-                        : col === "hoursFrom"
-                          ? "Hours From"
-                          : col === "hoursTo"
-                            ? "Hours To"
-                            : col === "costAmount"
-                              ? "Cost"
-                              : col === "costPeriod"
-                                ? "Period"
-                                : t.campFields[col as keyof typeof t.campFields] || col}
+                        : t.campFields[col as keyof typeof t.campFields] || col}
                     {getSortIcon(col)}
                   </th>
                 ))}
@@ -666,23 +588,6 @@ export function BatchEditTable({
                         case "dates":
                           cellValue = formatDates(camp.dates);
                           break;
-                        case "hoursFrom":
-                          cellValue = camp.hours
-                            ? (camp.hours.split(" - ")[0] || "")
-                            : "";
-                          break;
-                        case "hoursTo":
-                          cellValue = camp.hours
-                            ? (camp.hours.split(" - ")[1] || "")
-                            : "";
-                          break;
-                        case "costAmount":
-                          cellValue = camp.cost.amount.toString();
-                          break;
-                        case "costPeriod":
-                          cellValue = camp.cost.period;
-                          inputType = "select";
-                          break;
                         case "financialAid":
                           cellValue = camp.financialAid;
                           break;
@@ -705,35 +610,16 @@ export function BatchEditTable({
 
                       return (
                         <td key={col} className="border-b border-r border-border px-2 py-1 min-w-[100px]">
-                          {inputType === "select" && col === "costPeriod" ? (
-                            <Select
-                              value={cellValue}
-                              onValueChange={(value) =>
-                                handleCellChange(camp.name, col, value)
-                              }
-                            >
-                              <SelectTrigger className="h-8 text-xs">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="year">year</SelectItem>
-                                <SelectItem value="month">month</SelectItem>
-                                <SelectItem value="week">week</SelectItem>
-                                <SelectItem value="hour">hour</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          ) : (
-                            <Input
-                              type={col === "ageFrom" || col === "ageTo" || col === "costAmount" ? "number" : "text"}
-                              value={cellValue}
-                              onChange={(e) =>
-                                handleCellChange(camp.name, col, e.target.value)
-                              }
-                              className="h-8 text-xs w-full"
-                              disabled={isDeleted}
-                              placeholder={col === "ageFrom" || col === "ageTo" ? (camp.ageRange.type === "all" ? "all" : "") : undefined}
-                            />
-                          )}
+                          <Input
+                            type={col === "ageFrom" || col === "ageTo" ? "number" : "text"}
+                            value={cellValue}
+                            onChange={(e) =>
+                              handleCellChange(camp.name, col, e.target.value)
+                            }
+                            className="h-8 text-xs w-full"
+                            disabled={isDeleted}
+                            placeholder={col === "ageFrom" || col === "ageTo" ? (camp.ageRange.type === "all" ? "all" : "") : undefined}
+                          />
                         </td>
                       );
                     })}

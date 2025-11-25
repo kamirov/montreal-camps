@@ -38,22 +38,13 @@ export default function MapPage() {
   // Filter to only camps with addresses and coordinates
   const campsWithAddresses = useMemo(() => {
     return allCamps.filter(
-      (camp) =>
-        camp.address &&
-        camp.address.trim().length > 0 &&
-        camp.latitude != null &&
-        camp.longitude != null
+      (camp) => camp.address && camp.address.trim().length > 0
     );
   }, [allCamps]);
 
   const handleCampClick = (camp: Camp) => {
     setSelectedCamp(camp);
     setIsDialogOpen(true);
-  };
-
-  const handleDialogClose = () => {
-    setIsDialogOpen(false);
-    setSelectedCamp(null);
   };
 
   return (

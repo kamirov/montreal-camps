@@ -1,6 +1,5 @@
 import {
   formatAgeRange,
-  formatCost,
   formatDateRange,
   formatLanguage,
   formatPhone,
@@ -38,8 +37,6 @@ export function exportCampsToExcel(
       t.export.columns.ageRange,
       t.export.columns.languages,
       t.export.columns.dates,
-      t.export.columns.hours,
-      t.export.columns.cost,
       t.export.columns.financialAid,
       t.export.columns.link,
       t.export.columns.phone,
@@ -58,8 +55,6 @@ export function exportCampsToExcel(
         .map((lang) => formatLanguage(lang, t))
         .join(", "),
       [t.export.columns.dates]: formatDateRange(camp.dates, language, t),
-      [t.export.columns.hours]: camp.hours ?? "",
-      [t.export.columns.cost]: formatCost(camp.cost, language, t),
       [t.export.columns.financialAid]: camp.financialAid,
       [t.export.columns.link]: camp.link,
       [t.export.columns.phone]: formatPhone(camp.phone),
@@ -78,8 +73,6 @@ export function exportCampsToExcel(
       { wch: 15 }, // ageRange
       { wch: 25 }, // languages
       { wch: 25 }, // dates
-      { wch: 20 }, // hours
-      { wch: 15 }, // cost
       { wch: 30 }, // financialAid
       { wch: 40 }, // link
       { wch: 20 }, // phone
@@ -108,7 +101,6 @@ export function exportCampsToExcel(
       t.export.columns.ageRange,
       t.export.columns.languages,
       t.export.columns.dates,
-      t.export.columns.cost,
       t.export.columns.financialAid,
       t.export.columns.link,
       t.export.columns.phone,
@@ -124,7 +116,6 @@ export function exportCampsToExcel(
         .map((lang) => formatLanguage(lang, t))
         .join(", "),
       [t.export.columns.dates]: formatDateRange(camp.dates, language, t),
-      [t.export.columns.cost]: formatCost(camp.cost, language, t),
       [t.export.columns.financialAid]: camp.financialAid,
       [t.export.columns.link]: camp.link,
       [t.export.columns.phone]: formatPhone(camp.phone),
@@ -142,7 +133,6 @@ export function exportCampsToExcel(
       { wch: 15 }, // ageRange
       { wch: 25 }, // languages
       { wch: 25 }, // dates
-      { wch: 15 }, // cost
       { wch: 30 }, // financialAid
       { wch: 40 }, // link
       { wch: 20 }, // phone
