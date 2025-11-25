@@ -1,6 +1,8 @@
 "use client";
 
 import { Camp } from "@/types/camp";
+import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { useEffect, useMemo, useState } from "react";
 
 type CampMapWithMarkersProps = {
   camps: Camp[];
@@ -11,51 +13,93 @@ type CampMapWithMarkersProps = {
 };
 
 /**
- * Map component that shows camps with geocoded addresses as markers on a Google Maps embed
+ * Map component that shows camps with coordinates as markers on a Google Maps
  */
 export function CampMapWithMarkers({
   camps,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  onCampClick, // Kept for API compatibility, though Google Maps embed doesn't support custom click handlers
+  onCampClick,
   height = "500px",
   zoom = 11,
   className = "",
 }: CampMapWithMarkersProps) {
-  // Filter camps to only those with addresses (coordinates will be removed soon)
-  const campsWithAddresses = camps.filter(
-    (camp) => camp.address && camp.address.trim().length > 0
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+
+  // Filter camps to only those with coordinates
+  const campsWithCoordinates = useMemo(
+    () =>
+      camps.filter(
+        (camp) =>
+          camp.latitude !== null &&
+          camp.latitude !== undefined &&
+          camp.longitude !== null &&
+          camp.longitude !== undefined
+      ),
+    [camps]
   );
 
-  // Calculate center based on the first address if available
-  const defaultCenterQuery = "Montreal, QC";
-  const mapCenterQuery =
-    campsWithAddresses[0]?.address?.trim() || defaultCenterQuery;
+  // Calculate map center from first camp with coordinates
+  const mapCenter = useMemo(() => {
+    if (campsWithCoordinates.length > 0) {
+      const firstCamp = campsWithCoordinates[0];
+      return {
+        lat: firstCamp.latitude!,
+        lng: firstCamp.longitude!,
+      };
+    }
+    return { lat: 45.5017, lng: -73.5673 }; // Default Montreal center
+  }, [campsWithCoordinates]);
 
   // Determine zoom level - use 15 for single location, provided zoom for multiple
-  const mapZoom = campsWithAddresses.length === 1 ? 15 : zoom;
+  const mapZoom = campsWithCoordinates.length === 1 ? 15 : zoom;
 
-  // Build markers parameter for Google Maps embed API using addresses
-  const markersParam = campsWithAddresses
-    .map((camp) => encodeURIComponent(camp.address?.trim() || ""))
-    .join("|");
+  // Update map center when camps change
+  useEffect(() => {
+    if (map && campsWithCoordinates.length > 0) {
+      map.setCenter(mapCenter);
+    }
+  }, [map, mapCenter, campsWithCoordinates]);
 
-  console.log(markersParam);
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
-  // Build Google Maps Embed URL
-  // Use center as q parameter, and markers for all camp locations
-  const mapUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
-    mapCenterQuery
-  )}&markers=${markersParam}&z=${mapZoom}&output=embed`;
-
-  if (campsWithAddresses.length === 0) {
+  if (!apiKey) {
     return (
       <div className={`w-full ${className}`} style={{ height }}>
         <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center border">
-          <p className="text-muted-foreground">No camps with addresses</p>
+          <p className="text-muted-foreground">
+            Google Maps API key not configured
+          </p>
         </div>
       </div>
     );
   }
+
+  if (campsWithCoordinates.length === 0) {
+    return (
+      <div className={`w-full ${className}`} style={{ height }}>
+        <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center border">
+          <p className="text-muted-foreground">No camps with coordinates</p>
+        </div>
+      </div>
+    );
+  }
+
+  const mapContainerStyle = {
+    width: "100%",
+    height: height,
+  };
+
+  const mapOptions: google.maps.MapOptions = {
+    zoom: mapZoom,
+    center: mapCenter,
+    zoomControl: true,
+    streetViewControl: false,
+    mapTypeControl: false,
+    fullscreenControl: true,
+  };
+
+  const handleMapLoad = (mapInstance: google.maps.Map) => {
+    setMap(mapInstance);
+  };
 
   return (
     <div className={`w-full relative ${className}`} style={{ height }}>
@@ -63,17 +107,36 @@ export function CampMapWithMarkers({
         className="w-full overflow-hidden rounded-lg border"
         style={{ height }}
       >
-        <iframe
-          width="100%"
-          height={height}
-          style={{ border: 0 }}
-          loading="lazy"
-          allowFullScreen
-          referrerPolicy="no-referrer-when-downgrade"
-          src={mapUrl}
-          title={`Map showing ${campsWithAddresses.length} camp locations`}
-          className="w-full rounded-lg"
-        />
+        <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
+          <GoogleMap
+            mapContainerStyle={mapContainerStyle}
+            options={mapOptions}
+            onLoad={handleMapLoad}
+          >
+            {campsWithCoordinates.map((camp) => {
+              if (
+                camp.latitude === null ||
+                camp.latitude === undefined ||
+                camp.longitude === null ||
+                camp.longitude === undefined
+              ) {
+                return null;
+              }
+
+              return (
+                <Marker
+                  key={camp.name}
+                  position={{
+                    lat: camp.latitude,
+                    lng: camp.longitude,
+                  }}
+                  onClick={() => onCampClick(camp)}
+                  title={camp.name}
+                />
+              );
+            })}
+          </GoogleMap>
+        </LoadScript>
       </div>
     </div>
   );

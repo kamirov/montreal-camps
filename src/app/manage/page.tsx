@@ -463,9 +463,68 @@ export default function ManagePage() {
         }
       }
 
-      // Upsert changed camps
+      // Upsert changed camps with geocoding
       for (const camp of changedCamps) {
         const { name, ...campData } = camp;
+
+        // Check if we need to geocode the address
+        let needsGeocoding = false;
+        let existingCamp: Camp | null = null;
+
+        // Get existing camp to check if address changed
+        try {
+          existingCamp = await getCamp(name);
+        } catch (err) {
+          // Camp might be new, that's okay
+          console.error("Error fetching existing camp:", err);
+        }
+
+        // Determine if geocoding is needed
+        if (campData.address && campData.address.trim().length > 0) {
+          // Need to geocode if:
+          // 1. Camp doesn't exist yet, OR
+          // 2. Address has changed
+          const addressChanged =
+            !existingCamp || existingCamp.address !== campData.address;
+
+          if (addressChanged) {
+            needsGeocoding = true;
+          } else if (existingCamp) {
+            // Address unchanged, keep existing coordinates
+            campData.latitude = existingCamp.latitude;
+            campData.longitude = existingCamp.longitude;
+          }
+        } else {
+          // Address removed, clear coordinates
+          campData.latitude = null;
+          campData.longitude = null;
+        }
+
+        // Geocode if needed
+        if (needsGeocoding && campData.address) {
+          try {
+            const response = await fetch(
+              `/api/geocode?address=${encodeURIComponent(campData.address)}`
+            );
+
+            if (response.ok) {
+              const coords = await response.json();
+              if (coords.lat && coords.lng) {
+                campData.latitude = coords.lat;
+                campData.longitude = coords.lng;
+              }
+            } else {
+              console.warn(
+                `Geocoding failed for camp "${name}", saving without coordinates`
+              );
+              // Continue saving without coordinates - user can retry later
+            }
+          } catch (error) {
+            console.error(`Error geocoding address for camp "${name}":`, error);
+            // Continue saving without coordinates - user can retry later
+          }
+        }
+
         await upsertCamp(name, campData);
       }
 

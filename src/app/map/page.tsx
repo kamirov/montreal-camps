@@ -34,10 +34,14 @@ export default function MapPage() {
     fetchCamps();
   }, []);
 
-  // Filter to only camps with addresses and coordinates
-  const campsWithAddresses = useMemo(() => {
+  // Filter to only camps with coordinates
+  const campsWithCoordinates = useMemo(() => {
     return allCamps.filter(
-      (camp) => camp.address && camp.address.trim().length > 0
+      (camp) =>
+        camp.latitude !== null &&
+        camp.latitude !== undefined &&
+        camp.longitude !== null &&
+        camp.longitude !== undefined
     );
   }, [allCamps]);
 
@@ -72,18 +76,18 @@ export default function MapPage() {
             <div className="mb-6">
               <h1 className="text-3xl font-bold mb-2">{t.views.map}</h1>
               <p className="text-muted-foreground">
-                {campsWithAddresses.length}{" "}
-                {campsWithAddresses.length === 1
+                {campsWithCoordinates.length}{" "}
+                {campsWithCoordinates.length === 1
                   ? t.results.campSingular
                   : t.results.campPlural}{" "}
-                with addresses
+                with coordinates
               </p>
             </div>
 
             {/* Map Section */}
             <div className="mb-8">
               <CampMapWithMarkers
-                camps={campsWithAddresses}
+                camps={campsWithCoordinates}
                 onCampClick={handleCampClick}
                 height="500px"
                 zoom={11}
