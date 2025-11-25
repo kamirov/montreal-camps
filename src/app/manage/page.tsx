@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagsInput } from "@/components/ui/tags-input";
+import { useToast } from "@/components/ui/use-toast";
 import { deleteCamp, getCamp, getCamps, upsertCamp } from "@/lib/api/camps";
 import type { Camp, CampUpsert } from "@/lib/validations/camp";
 import { campUpsertSchema } from "@/lib/validations/camp";
@@ -36,6 +37,7 @@ type FormErrors = Partial<Record<keyof CampUpsert | "name", string>>;
 
 export default function ManagePage() {
   const { t } = useTranslation();
+  const { toast } = useToast();
   const [camps, setCamps] = useState<Camp[]>([]);
   const [selectedCampName, setSelectedCampName] = useState<string | null>(null);
   const [isNewCamp, setIsNewCamp] = useState(false);
@@ -377,6 +379,15 @@ export default function ManagePage() {
 
       await upsertCamp(nameToUse, campDataToSave);
 
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      // Show toast notification
+      toast({
+        variant: "success",
+        description: t.manage.success.saved,
+      });
+
       setMessage({
         type: "success",
         text: t.manage.success.saved,
@@ -577,6 +588,15 @@ export default function ManagePage() {
       // Refresh camps list
       const allCamps = await getCamps();
       setCamps(allCamps);
+
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      // Show toast notification
+      toast({
+        variant: "success",
+        description: `Successfully saved ${changedCamps.length} camp(s) and deleted ${deletedNames.length} camp(s)`,
+      });
 
       setMessage({
         type: "success",

@@ -1,5 +1,6 @@
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LocalizationProvider } from "@/localization/context";
+import { Toaster } from "@/components/ui/toaster";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
@@ -35,6 +36,7 @@ export default function RootLayout({
           <Suspense fallback={null}>
             <LocalizationProvider>{children}</LocalizationProvider>
           </Suspense>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>
