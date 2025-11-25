@@ -185,6 +185,7 @@ export const fr: Translations = {
       required: "Ce champ est obligatoire",
       invalidUrl: "Doit être une URL valide",
       invalidCoordinates: "Coordonnées invalides",
+      duplicateName: "Un camp avec ce nom existe déjà",
     },
     success: {
       saved: "Camp enregistré avec succès",

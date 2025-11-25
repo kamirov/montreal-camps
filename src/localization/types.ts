@@ -206,6 +206,7 @@ export type Translations = {
       required: string;
       invalidUrl: string;
       invalidCoordinates: string;
+      duplicateName: string;
     };
     success: {
       saved: string;

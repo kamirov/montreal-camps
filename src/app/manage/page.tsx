@@ -240,14 +240,55 @@ export default function ManagePage() {
     }
   };
 
+  const checkDuplicateName = (name: string): boolean => {
+    const trimmedName = name.trim();
+    if (!trimmedName) return false;
+
+    // Check if a camp with this name exists (excluding the current camp if editing)
+    return camps.some(
+      (camp) =>
+        camp.name.trim().toLowerCase() === trimmedName.toLowerCase() &&
+        (!selectedCampName || camp.name !== selectedCampName)
+    );
+  };
+
+  const handleCampNameChange = (value: string) => {
+    setCampName(value);
+
+    // Trim both sides for duplicate checking
+    const trimmedName = value.trim();
+    if (trimmedName && checkDuplicateName(trimmedName)) {
+      setErrors((prev) => ({
+        ...prev,
+        name: t.manage.validation.duplicateName,
+      }));
+    } else {
+      // Clear duplicate error, but keep other name errors if any
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        if (newErrors.name === t.manage.validation.duplicateName) {
+          delete newErrors.name;
+        }
+        return newErrors;
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrors({});
     setMessage(null);
 
     // Validate camp name
-    if (!campName.trim()) {
+    const trimmedName = campName.trim();
+    if (!trimmedName) {
       setErrors({ name: t.manage.validation.required });
+      return;
+    }
+
+    // Check for duplicate name
+    if (checkDuplicateName(trimmedName)) {
+      setErrors({ name: t.manage.validation.duplicateName });
       return;
     }
 
@@ -267,7 +308,7 @@ export default function ManagePage() {
 
     try {
       setIsSaving(true);
-      const nameToUse = campName.trim();
+      const nameToUse = trimmedName;
 
       // Prepare camp data with coordinates
       const campDataToSave = { ...formData };
@@ -687,7 +728,7 @@ export default function ManagePage() {
                     </label>
                     <Input
                       value={campName}
-                      onChange={(e) => setCampName(e.target.value)}
+                      onChange={(e) => handleCampNameChange(e.target.value)}
                       required
                       disabled={!isNewCamp}
                     />
