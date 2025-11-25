@@ -693,6 +693,7 @@ export default function ManagePage() {
               </label>
               <div className="flex gap-2">
                 <Select
+                  key={isNewCamp ? "new-camp" : selectedCampName || "empty"}
                   value={selectedCampName || undefined}
                   onValueChange={handleCampSelect}
                 >
