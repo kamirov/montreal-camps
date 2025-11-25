@@ -7,7 +7,7 @@ export function Footer() {
   const { t } = useTranslation();
 
   return (
-    <footer className="border-t bg-background py-4 mt-12">
+    <footer className="border-t bg-background py-4">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
           <p>{t.footer.madeWithLove}</p>

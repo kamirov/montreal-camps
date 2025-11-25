@@ -51,15 +51,15 @@ export default function MapPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="h-screen bg-background flex flex-col">
       <Header showManageButton />
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col">
+      {/* Main Content Area - Map fills remaining space */}
+      <div className="flex-1 flex flex-col relative overflow-hidden">
         {error && (
-          <div className="container mx-auto px-4 py-8">
-            <div className="bg-destructive/10 border border-destructive/20 rounded-lg px-4 py-3">
-              <p className="text-destructive">
+          <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-50">
+            <div className="bg-destructive/90 text-destructive-foreground border border-destructive/20 rounded-lg px-4 py-3 shadow-lg">
+              <p className="text-sm font-medium">
                 {t.error?.loadCamps || "Error loading camps"}: {error}
               </p>
             </div>
@@ -72,29 +72,13 @@ export default function MapPage() {
             </p>
           </div>
         ) : (
-          <div className="flex-1 container mx-auto px-4 py-6">
-            <div className="mb-6">
-              <h1 className="text-3xl font-bold mb-2">{t.views.map}</h1>
-              <p className="text-muted-foreground">
-                {campsWithCoordinates.length}{" "}
-                {campsWithCoordinates.length === 1
-                  ? t.results.campSingular
-                  : t.results.campPlural}{" "}
-                with coordinates
-              </p>
-            </div>
-
-            {/* Map Section */}
-            <div className="mb-8">
-              <CampMapWithMarkers
-                camps={campsWithCoordinates}
-                onCampClick={handleCampClick}
-                height="500px"
-                zoom={11}
-                className="rounded-lg"
-              />
-            </div>
-          </div>
+          <CampMapWithMarkers
+            camps={campsWithCoordinates}
+            onCampClick={handleCampClick}
+            height="100%"
+            zoom={11}
+            className=""
+          />
         )}
       </div>
 

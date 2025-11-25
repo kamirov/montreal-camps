@@ -63,8 +63,8 @@ export function CampMapWithMarkers({
 
   if (!apiKey) {
     return (
-      <div className={`w-full ${className}`} style={{ height }}>
-        <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center border">
+      <div className={`w-full h-full ${className}`}>
+        <div className="w-full h-full bg-muted flex items-center justify-center">
           <p className="text-muted-foreground">
             Google Maps API key not configured
           </p>
@@ -75,8 +75,8 @@ export function CampMapWithMarkers({
 
   if (campsWithCoordinates.length === 0) {
     return (
-      <div className={`w-full ${className}`} style={{ height }}>
-        <div className="w-full h-full bg-muted rounded-lg flex items-center justify-center border">
+      <div className={`w-full h-full ${className}`}>
+        <div className="w-full h-full bg-muted flex items-center justify-center">
           <p className="text-muted-foreground">No camps with coordinates</p>
         </div>
       </div>
@@ -85,7 +85,7 @@ export function CampMapWithMarkers({
 
   const mapContainerStyle = {
     width: "100%",
-    height: height,
+    height: "100%",
   };
 
   const mapOptions: google.maps.MapOptions = {
@@ -102,11 +102,8 @@ export function CampMapWithMarkers({
   };
 
   return (
-    <div className={`w-full relative ${className}`} style={{ height }}>
-      <div
-        className="w-full overflow-hidden rounded-lg border"
-        style={{ height }}
-      >
+    <div className={`w-full h-full relative ${className}`}>
+      <div className="w-full h-full overflow-hidden">
         <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
           <GoogleMap
             mapContainerStyle={mapContainerStyle}
