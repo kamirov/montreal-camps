@@ -1,12 +1,18 @@
 "use client";
 
+import { CampInfoWindowContent } from "@/components/CampInfoWindowContent";
 import { Camp } from "@/types/camp";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  InfoWindow,
+  LoadScript,
+  Marker,
+} from "@react-google-maps/api";
 import { useEffect, useMemo, useState } from "react";
 
 type CampMapWithMarkersProps = {
   camps: Camp[];
-  onCampClick: (camp: Camp) => void;
+  onCampClick?: (camp: Camp) => void;
   height?: string;
   zoom?: number;
   className?: string;
@@ -23,6 +29,7 @@ export function CampMapWithMarkers({
   className = "",
 }: CampMapWithMarkersProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const [selectedCamp, setSelectedCamp] = useState<Camp | null>(null);
 
   // Filter camps to only those with coordinates
   const campsWithCoordinates = useMemo(
@@ -120,16 +127,42 @@ export function CampMapWithMarkers({
                 return null;
               }
 
+              const isSelected = selectedCamp?.name === camp.name;
+
               return (
-                <Marker
-                  key={camp.name}
-                  position={{
-                    lat: camp.latitude,
-                    lng: camp.longitude,
-                  }}
-                  onClick={() => onCampClick(camp)}
-                  title={camp.name}
-                />
+                <div key={camp.name}>
+                  <Marker
+                    position={{
+                      lat: camp.latitude,
+                      lng: camp.longitude,
+                    }}
+                    onClick={() => {
+                      // Toggle InfoWindow - close if already open for this camp
+                      if (selectedCamp?.name === camp.name) {
+                        setSelectedCamp(null);
+                      } else {
+                        setSelectedCamp(camp);
+                      }
+                      if (onCampClick) {
+                        onCampClick(camp);
+                      }
+                    }}
+                    title={camp.name}
+                  />
+                  {isSelected && (
+                    <InfoWindow
+                      position={{
+                        lat: camp.latitude,
+                        lng: camp.longitude,
+                      }}
+                      onCloseClick={() => setSelectedCamp(null)}
+                    >
+                      <div>
+                        <CampInfoWindowContent camp={camp} />
+                      </div>
+                    </InfoWindow>
+                  )}
+                </div>
               );
             })}
           </GoogleMap>

@@ -1,6 +1,5 @@
 "use client";
 
-import { CampDetailDialog } from "@/components/CampDetailDialog";
 import { CampMapWithMarkers } from "@/components/CampMapWithMarkers";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
@@ -14,8 +13,6 @@ export default function MapPage() {
   const [allCamps, setAllCamps] = useState<Camp[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCamp, setSelectedCamp] = useState<Camp | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     async function fetchCamps() {
@@ -45,11 +42,6 @@ export default function MapPage() {
     );
   }, [allCamps]);
 
-  const handleCampClick = (camp: Camp) => {
-    setSelectedCamp(camp);
-    setIsDialogOpen(true);
-  };
-
   return (
     <div className="h-screen bg-background flex flex-col">
       <Header showManageButton />
@@ -74,7 +66,6 @@ export default function MapPage() {
         ) : (
           <CampMapWithMarkers
             camps={campsWithCoordinates}
-            onCampClick={handleCampClick}
             height="100%"
             zoom={11}
             className=""
@@ -83,18 +74,6 @@ export default function MapPage() {
       </div>
 
       <Footer />
-
-      {/* Camp Detail Dialog */}
-      <CampDetailDialog
-        camp={selectedCamp}
-        open={isDialogOpen}
-        onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) {
-            setSelectedCamp(null);
-          }
-        }}
-      />
     </div>
   );
 }
