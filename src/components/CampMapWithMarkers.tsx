@@ -36,8 +36,10 @@ export function CampMapWithMarkers({
 
   // Build markers parameter for Google Maps embed API using addresses
   const markersParam = campsWithAddresses
-    .map((camp) => encodeURIComponent(camp.address.trim()))
+    .map((camp) => encodeURIComponent(camp.address?.trim() || ""))
     .join("|");
+
+  console.log(markersParam);
 
   // Build Google Maps Embed URL
   // Use center as q parameter, and markers for all camp locations

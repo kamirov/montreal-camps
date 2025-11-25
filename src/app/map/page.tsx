@@ -1,6 +1,5 @@
 "use client";
 
-import { CampCard } from "@/components/CampCard";
 import { CampDetailDialog } from "@/components/CampDetailDialog";
 import { CampMapWithMarkers } from "@/components/CampMapWithMarkers";
 import { Footer } from "@/components/Footer";
@@ -91,36 +90,6 @@ export default function MapPage() {
                 className="rounded-lg"
               />
             </div>
-
-            {/* Camps Grid */}
-            {campsWithAddresses.length > 0 ? (
-              <div>
-                <h2 className="text-2xl font-semibold mb-4">
-                  {campsWithAddresses.length}{" "}
-                  {campsWithAddresses.length === 1
-                    ? t.results.campSingular
-                    : t.results.campPlural}{" "}
-                  with addresses
-                </h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {campsWithAddresses.map((camp) => (
-                    <div
-                      key={camp.name}
-                      onClick={() => handleCampClick(camp)}
-                      className="cursor-pointer"
-                    >
-                      <CampCard camp={camp} showMap={false} />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">
-                  {t.search.noResults || "No camps with addresses found"}
-                </p>
-              </div>
-            )}
           </div>
         )}
       </div>
