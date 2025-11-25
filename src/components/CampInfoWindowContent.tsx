@@ -3,20 +3,20 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-    formatAgeRange,
-    formatLanguage,
-    formatPhone,
+  formatAgeRange,
+  formatLanguage,
+  formatPhone,
 } from "@/localization/formatters";
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp } from "@/types/camp";
 import {
-    ExternalLink,
-    FileText,
-    Globe,
-    MapPin,
-    Navigation,
-    Phone,
-    Users,
+  ExternalLink,
+  FileText,
+  Globe,
+  MapPin,
+  Navigation,
+  Phone,
+  Users,
 } from "lucide-react";
 
 type CampInfoWindowContentProps = {
@@ -51,7 +51,7 @@ export function CampInfoWindowContent({ camp }: CampInfoWindowContentProps) {
   };
 
   return (
-    <div className="w-80 max-w-sm p-4 space-y-3">
+    <div className="w-80 max-w-sm px-4 pt-2 pb-4 space-y-3">
       {/* Header */}
       <div>
         <h3 className="text-lg font-bold mb-1">{camp.name}</h3>
