@@ -21,13 +21,9 @@ export function CampLocationMap({
   zoom = 15,
   className = "",
 }: CampLocationMapProps) {
-  // Build Google Maps Embed URL - prefer address to avoid coordinates info box
-  // Fall back to coordinates if address is not available
-  const mapUrl = address
-    ? `https://maps.google.com/maps?q=${encodeURIComponent(
-        address
-      )}&z=${zoom}&output=embed`
-    : `https://maps.google.com/maps?ll=${latitude},${longitude}&z=${zoom}&output=embed&markers=${latitude},${longitude}`;
+  // Build Google Maps Embed URL - prefer coordinates for accurate marker placement
+  // Fall back to address if coordinates are not available
+  const mapUrl = `https://maps.google.com/maps?ll=${latitude},${longitude}&z=${zoom}&output=embed&markers=${latitude},${longitude}`;
 
   const mapTitle =
     address || `Map showing coordinates ${latitude}, ${longitude}`;
@@ -48,13 +44,11 @@ export function CampLocationMap({
         title={mapTitle}
         className="w-full"
       />
-      {/* Overlay to hide the coordinates info box in the top-left corner when using coordinates */}
-      {!address && (
-        <div
-          className="absolute top-0 left-0 w-72 h-20 bg-background pointer-events-none"
-          aria-hidden="true"
-        />
-      )}
+      {/* Overlay to hide the coordinates info box in the top-left corner */}
+      <div
+        className="absolute top-0 left-0 w-72 h-20 bg-background pointer-events-none"
+        aria-hidden="true"
+      />
     </div>
   );
 }

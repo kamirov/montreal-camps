@@ -1,6 +1,6 @@
 "use client";
 
-import { CampLocationMap } from "@/components/CampLocationMap";
+import { CampSingleLocationMap } from "@/components/CampSingleLocationMap";
 import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -139,25 +139,27 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
             </div>
           )}
 
-          {camp.address && showMap && (
+          {showMap && camp.latitude != null && camp.longitude != null && (
             <div className="pt-2">
-              {camp.latitude != null && camp.longitude != null ? (
-                <CampLocationMap
-                  latitude={camp.latitude}
-                  longitude={camp.longitude}
-                  address={camp.address}
-                  height="200px"
-                  className="mt-2"
-                />
-              ) : (
+              <CampSingleLocationMap
+                camp={camp}
+                height="200px"
+                className="mt-2"
+              />
+            </div>
+          )}
+          {showMap &&
+            camp.latitude == null &&
+            camp.longitude == null &&
+            camp.address && (
+              <div className="pt-2">
                 <GoogleMapEmbed
                   address={camp.address}
                   height="200px"
                   className="mt-2"
                 />
-              )}
-            </div>
-          )}
+              </div>
+            )}
 
           {camp.notes && (
             <div className="flex items-start gap-2.5 text-sm pt-2">
