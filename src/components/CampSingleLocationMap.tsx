@@ -56,7 +56,9 @@ export function CampSingleLocationMap({
         className={`w-full overflow-hidden rounded-lg border bg-muted flex items-center justify-center ${className}`}
         style={{ height }}
       >
-        <p className="text-muted-foreground text-sm">No coordinates available</p>
+        <p className="text-muted-foreground text-sm">
+          No coordinates available
+        </p>
       </div>
     );
   }
