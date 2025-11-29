@@ -1,11 +1,11 @@
 -- Sample camp data for Montreal Camps
--- Schema: name, type, borough, age_range (jsonb), languages (array), dates (jsonb), financial_aid, link, phone, phone_extension, notes
+-- Schema: name, borough, age_range (jsonb), languages (array), dates (jsonb), financial_aid, link, phone, phone_extension, notes
+-- Note: After migration 0003, the type column is removed. All camps are day camps.
 
-INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_aid, link, phone, phone_extension, notes) VALUES
+INSERT INTO camps (name, borough, age_range, languages, dates, financial_aid, link, phone, phone_extension, notes) VALUES
 -- Day Camps
 (
   'Camp Plateau Aventure',
-  'day',
   'Le Plateau-Mont-Royal',
   '{"type": "range", "allAges": false, "from": 5, "to": 12}'::jsonb,
   ARRAY['French', 'English'],
@@ -18,7 +18,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'NDG Sports Camp',
-  'day',
   'Côte-des-Neiges–Notre-Dame-de-Grâce',
   '{"type": "range", "allAges": false, "from": 6, "to": 14}'::jsonb,
   ARRAY['English', 'French'],
@@ -31,7 +30,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Rosemont Creative Arts',
-  'day',
   'Rosemont–La Petite-Patrie',
   '{"type": "all", "allAges": true}'::jsonb,
   ARRAY['French'],
@@ -44,7 +42,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Verdun Nature Camp',
-  'day',
   'Le Sud-Ouest',
   '{"type": "range", "allAges": false, "from": 7, "to": 15}'::jsonb,
   ARRAY['French', 'English'],
@@ -57,7 +54,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Outremont Science Lab',
-  'day',
   'Outremont',
   '{"type": "range", "allAges": false, "from": 8, "to": 13}'::jsonb,
   ARRAY['French', 'English'],
@@ -68,10 +64,9 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
   NULL,
   'STEM activities, experiments, robotics. Advanced program.'
 ),
--- Vacation Camps
+-- Day Camps (converted from vacation camps)
 (
   'Lachine Winter Break Camp',
-  'vacation',
   'Lachine',
   '{"type": "range", "allAges": false, "from": 5, "to": 12}'::jsonb,
   ARRAY['French', 'English'],
@@ -84,7 +79,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Ahuntsic Spring Camp',
-  'vacation',
   'Ahuntsic-Cartierville',
   '{"type": "range", "allAges": false, "from": 6, "to": 14}'::jsonb,
   ARRAY['French'],
@@ -97,7 +91,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'LaSalle Music Camp',
-  'vacation',
   'LaSalle',
   '{"type": "all", "allAges": true}'::jsonb,
   ARRAY['English', 'French', 'Spanish'],
@@ -110,7 +103,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Ville-Marie Tech Camp',
-  'vacation',
   'Ville-Marie',
   '{"type": "range", "allAges": false, "from": 10, "to": 16}'::jsonb,
   ARRAY['French', 'English'],
@@ -123,7 +115,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Pierrefonds Adventure Camp',
-  'vacation',
   'Pierrefonds-Roxboro',
   '{"type": "range", "allAges": false, "from": 8, "to": 15}'::jsonb,
   ARRAY['English', 'French'],
@@ -137,7 +128,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 -- More Day Camps
 (
   'Montreal North Dance Studio',
-  'day',
   'Montréal-Nord',
   '{"type": "range", "allAges": false, "from": 4, "to": 18}'::jsonb,
   ARRAY['French', 'English', 'Arabic'],
@@ -150,7 +140,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Saint-Laurent Language Immersion',
-  'day',
   'Saint-Laurent',
   '{"type": "range", "allAges": false, "from": 5, "to": 10}'::jsonb,
   ARRAY['English', 'French'],
@@ -163,7 +152,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Westmount Chess Academy',
-  'day',
   'Westmount',
   '{"type": "range", "allAges": false, "from": 7, "to": 16}'::jsonb,
   ARRAY['English', 'French'],
@@ -176,7 +164,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Côte-Saint-Luc Tennis Camp',
-  'day',
   'Côte-Saint-Luc',
   '{"type": "range", "allAges": false, "from": 6, "to": 17}'::jsonb,
   ARRAY['English', 'French'],
@@ -189,7 +176,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Mercier-Hochelaga Cooking Camp',
-  'day',
   'Mercier–Hochelaga-Maisonneuve',
   '{"type": "range", "allAges": false, "from": 8, "to": 14}'::jsonb,
   ARRAY['French'],
@@ -200,10 +186,9 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
   NULL,
   'Learn to cook, bake, meal prep. Ingredients included. Take home meals.'
 ),
--- More Vacation Camps
+-- More Day Camps
 (
   'Beaconsfield Winter Sports',
-  'vacation',
   'Beaconsfield',
   '{"type": "range", "allAges": false, "from": 9, "to": 16}'::jsonb,
   ARRAY['English', 'French'],
@@ -216,7 +201,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Dollard-des-Ormeaux Theatre Camp',
-  'vacation',
   'Dollard-des-Ormeaux',
   '{"type": "range", "allAges": false, "from": 7, "to": 15}'::jsonb,
   ARRAY['English', 'French'],
@@ -229,7 +213,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Rivière-des-Prairies Nature',
-  'vacation',
   'Rivière-des-Prairies–Pointe-aux-Trembles',
   '{"type": "range", "allAges": false, "from": 6, "to": 12}'::jsonb,
   ARRAY['French', 'English'],
@@ -242,7 +225,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Saint-Léonard Soccer Intensive',
-  'vacation',
   'Saint-Léonard',
   '{"type": "range", "allAges": false, "from": 10, "to": 17}'::jsonb,
   ARRAY['French', 'English', 'Italian'],
@@ -255,7 +237,6 @@ INSERT INTO camps (name, type, borough, age_range, languages, dates, financial_a
 ),
 (
   'Anjou Swimming Camp',
-  'vacation',
   'Anjou',
   '{"type": "range", "allAges": false, "from": 5, "to": 13}'::jsonb,
   ARRAY['French', 'English'],

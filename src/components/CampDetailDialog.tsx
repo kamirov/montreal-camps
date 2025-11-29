@@ -51,13 +51,18 @@ export function CampDetailDialog({
     camp.financialAid.toLowerCase().includes("disponible");
 
   const handleCall = () => {
+    if (!camp.phone) return;
     const phoneNumber =
       typeof camp.phone === "string" ? camp.phone : camp.phone.number;
-    window.location.href = `tel:${phoneNumber}`;
+    if (phoneNumber) {
+      window.location.href = `tel:${phoneNumber}`;
+    }
   };
 
   const handleWebsite = () => {
-    window.open(camp.link, "_blank");
+    if (camp.link) {
+      window.open(camp.link, "_blank");
+    }
   };
 
   const handleDirections = () => {
@@ -84,12 +89,7 @@ export function CampDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-start justify-between gap-4">
-            <DialogTitle className="text-2xl">{camp.name}</DialogTitle>
-            <Badge variant={camp.type === "day" ? "default" : "secondary"}>
-              {camp.type === "day" ? t.campTypes.day : t.campTypes.vacation}
-            </Badge>
-          </div>
+          <DialogTitle className="text-2xl">{camp.name}</DialogTitle>
           {camp.borough && (
             <DialogDescription className="flex items-center gap-2">
               <MapPin className="h-4 w-4" />
@@ -154,15 +154,34 @@ export function CampDetailDialog({
               </div>
             </div>
 
-            <div className="flex items-start gap-3">
-              <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
-              <div>
-                <div className="font-medium">{t.campFields.phone}</div>
-                <div className="text-sm text-muted-foreground">
-                  {formatPhone(camp.phone)}
+            {camp.phone && (
+              <div className="flex items-start gap-3">
+                <Phone className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <div className="font-medium">{t.campFields.phone}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {formatPhone(camp.phone)}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
+
+            {camp.link && (
+              <div className="flex items-start gap-3">
+                <ExternalLink className="h-5 w-5 text-muted-foreground mt-0.5" />
+                <div>
+                  <div className="font-medium">{t.campFields.link}</div>
+                  <a
+                    href={camp.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {camp.link.replace(/^https?:\/\//, "")}
+                  </a>
+                </div>
+              </div>
+            )}
 
             {camp.email && (
               <div className="flex items-start gap-3">
@@ -237,14 +256,18 @@ export function CampDetailDialog({
           <Separator />
 
           <div className="flex flex-wrap gap-2">
-            <Button onClick={handleCall} variant="outline" className="gap-2">
-              <Phone className="h-4 w-4" />
-              {t.actions.call}
-            </Button>
-            <Button onClick={handleWebsite} variant="outline" className="gap-2">
-              <ExternalLink className="h-4 w-4" />
-              {t.actions.visitWebsite}
-            </Button>
+            {camp.phone && (
+              <Button onClick={handleCall} variant="outline" className="gap-2">
+                <Phone className="h-4 w-4" />
+                {t.actions.call}
+              </Button>
+            )}
+            {camp.link && (
+              <Button onClick={handleWebsite} variant="outline" className="gap-2">
+                <ExternalLink className="h-4 w-4" />
+                {t.actions.visitWebsite}
+              </Button>
+            )}
             <Button
               onClick={handleDirections}
               variant="outline"

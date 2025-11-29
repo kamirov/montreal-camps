@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Montreal Camps Directory | Répertoire des Camps de Montréal",
   description:
-    "Find summer and vacation camps in Greater Montreal with financial assistance options. Trouvez des camps d'été et de vacances dans le Grand Montréal avec des options d'aide financière.",
+    "Find summer day camps in Greater Montreal with financial assistance options. Trouvez des camps de jour d'été dans le Grand Montréal avec des options d'aide financière.",
 };
 
 export default function RootLayout({

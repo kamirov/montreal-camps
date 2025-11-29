@@ -19,7 +19,6 @@ export type Translations = {
   // Camp types
   campTypes: {
     day: string;
-    vacation: string;
   };
 
   // View modes

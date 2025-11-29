@@ -66,9 +66,7 @@ export default function RegionPage({ params }: RegionPageProps) {
 
   const filteredCamps = useMemo(() => {
     if (!regionName) return [];
-    return allCamps.filter(
-      (camp) => camp.borough === regionName && camp.type === "day"
-    );
+    return allCamps.filter((camp) => camp.borough === regionName);
   }, [regionName, allCamps]);
 
   const hasResults = filteredCamps.length > 0;

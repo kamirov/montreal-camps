@@ -187,14 +187,19 @@ export function formatAgeRange(
 /**
  * Formats phone number
  * Handles structured format with optional extension
+ * Returns empty string if phone is not provided
  */
 export function formatPhone(phone: Camp["phone"]): string {
+  if (!phone) {
+    return "";
+  }
+
   if (typeof phone === "string") {
     // Legacy format
     return phone;
   }
 
-  let formatted = phone.number;
+  let formatted = phone.number || "";
   if (phone.extension) {
     formatted += ` ext. ${phone.extension}`;
   }

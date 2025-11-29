@@ -1,6 +1,6 @@
 # Montreal Camps Directory / Répertoire des Camps de Montréal
 
-A bilingual (English/French) web application to help families find summer and vacation camps in Greater Montreal, with special emphasis on options for families facing financial hardship.
+A bilingual (English/French) web application to help families find summer day camps in Greater Montreal, with special emphasis on options for families facing financial hardship.
 
 ## 🌐 Live Application
 
@@ -49,7 +49,6 @@ The application will be running at **http://localhost:3000**
 
 ### 🔍 Advanced Filtering
 
-- **Camp Type**: Day camps vs. Vacation camps
 - **Borough**: Filter by Montreal boroughs
 - **Languages**: Filter by camp languages (English, French, Spanish, etc.)
 - **Financial Aid**: Show only camps with financial assistance

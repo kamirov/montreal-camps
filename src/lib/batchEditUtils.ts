@@ -76,10 +76,13 @@ export function parseLanguages(str: string): string[] {
 
 // Format phone to string: "123-456-7890 ext 123" or "123-456-7890"
 export function formatPhone(phone: Camp["phone"]): string {
+  if (!phone) {
+    return "";
+  }
   if (phone.extension && phone.extension.trim().length > 0) {
     return `${phone.number} ext ${phone.extension}`;
   }
-  return phone.number;
+  return phone.number || "";
 }
 
 // Parse phone from string: "123-456-7890 ext 123" or "123-456-7890"

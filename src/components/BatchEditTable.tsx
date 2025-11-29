@@ -43,29 +43,14 @@ type ColumnKey =
   | "address"
   | "notes";
 
-const DEFAULT_DAY_CAMP: Omit<Camp, "name"> = {
-  type: "day",
+const DEFAULT_CAMP: Omit<Camp, "name"> = {
   borough: "Ahuntsic-Cartierville",
   ageRange: { type: "range", allAges: false, from: 5, to: 15 },
   languages: ["English", "French"],
   dates: { type: "yearRound", yearRound: true },
   financialAid: "NA",
-  link: "",
-  phone: { number: "", extension: "" },
-  email: "",
-  address: "",
-  notes: "",
-};
-
-const DEFAULT_VACATION_CAMP: Omit<Camp, "name"> = {
-  type: "vacation",
-  borough: null,
-  ageRange: { type: "range", allAges: false, from: 5, to: 15 },
-  languages: ["English", "French"],
-  dates: { type: "yearRound", yearRound: true },
-  financialAid: "NA",
-  link: "",
-  phone: { number: "", extension: "" },
+  link: undefined,
+  phone: undefined,
   email: "",
   address: "",
   notes: "",
@@ -102,14 +87,6 @@ export function BatchEditTable({
     setDeletedRows(new Set());
   }, [camps]);
 
-  const dayCamps = useMemo(
-    () => localCamps.filter((camp) => camp.type === "day"),
-    [localCamps]
-  );
-  const vacationCamps = useMemo(
-    () => localCamps.filter((camp) => camp.type === "vacation"),
-    [localCamps]
-  );
 
   const handleSort = useCallback((column: string) => {
     setSortState((prev) => {
@@ -385,19 +362,15 @@ export function BatchEditTable({
     [localCamps, updateCamp, originalCamps]
   );
 
-  const handleAddRow = useCallback(
-    (type: "day" | "vacation") => {
-      const defaults = type === "day" ? DEFAULT_DAY_CAMP : DEFAULT_VACATION_CAMP;
-      const newCamp: Camp = {
-        ...defaults,
-        name: `New ${type} camp ${Date.now()}`,
-      };
-      setLocalCamps((prev) => [...prev, newCamp]);
-      setNameMapping((prev) => new Map(prev).set(newCamp.name, newCamp.name));
-      setChangedRows((prev) => new Set(prev).add(newCamp.name));
-    },
-    []
-  );
+  const handleAddRow = useCallback(() => {
+    const newCamp: Camp = {
+      ...DEFAULT_CAMP,
+      name: `New camp ${Date.now()}`,
+    };
+    setLocalCamps((prev) => [...prev, newCamp]);
+    setNameMapping((prev) => new Map(prev).set(newCamp.name, newCamp.name));
+    setChangedRows((prev) => new Set(prev).add(newCamp.name));
+  }, []);
 
   const handleDeleteRow = useCallback((campName: string) => {
     setDeletedRows((prev) => {
@@ -475,37 +448,22 @@ export function BatchEditTable({
   }, [localCamps, changedRows, deletedRows, originalCamps, nameMapping, onSave]);
 
   const renderTable = useCallback(
-    (campList: Camp[], campType: "day" | "vacation") => {
+    (campList: Camp[]) => {
       const sorted = sortedCamps(campList);
-      const columns: ColumnKey[] =
-        campType === "day"
-          ? [
-              "name",
-              "borough",
-              "ageFrom",
-              "ageTo",
-              "languages",
-              "dates",
-              "financialAid",
-              "link",
-              "phone",
-              "email",
-              "address",
-              "notes",
-            ]
-          : [
-              "name",
-              "ageFrom",
-              "ageTo",
-              "languages",
-              "dates",
-              "financialAid",
-              "link",
-              "phone",
-              "email",
-              "address",
-              "notes",
-            ];
+      const columns: ColumnKey[] = [
+        "name",
+        "borough",
+        "ageFrom",
+        "ageTo",
+        "languages",
+        "dates",
+        "financialAid",
+        "link",
+        "phone",
+        "email",
+        "address",
+        "notes",
+      ];
 
       const getSortIcon = (column: string) => {
         if (sortState.column !== column) return null;
@@ -519,7 +477,7 @@ export function BatchEditTable({
       if (sorted.length === 0) {
         return (
           <div className="text-center py-8 text-muted-foreground">
-            No {campType} camps found
+            No camps found
           </div>
         );
       }
@@ -696,7 +654,6 @@ export function BatchEditTable({
         </Button>
       </div>
 
-      {/* Day Camps Section */}
       <div>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold">{t.campTypes.day}</h2>
@@ -704,30 +661,13 @@ export function BatchEditTable({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => handleAddRow("day")}
+            onClick={handleAddRow}
           >
             <Plus className="h-4 w-4 mr-2" />
             {t.batchView.addRow}
           </Button>
         </div>
-        {renderTable(dayCamps, "day")}
-      </div>
-
-      {/* Vacation Camps Section */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">{t.campTypes.vacation}</h2>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handleAddRow("vacation")}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t.batchView.addRow}
-          </Button>
-        </div>
-        {renderTable(vacationCamps, "vacation")}
+        {renderTable(localCamps)}
       </div>
     </div>
   );

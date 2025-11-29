@@ -43,17 +43,18 @@ export async function GET(_request: Request, { params }: RouteParams) {
     // Transform database row to Camp format
     const campData: Camp = {
       name: camp.name,
-      type: camp.type as "day" | "vacation",
-      borough: camp.borough,
+      borough: camp.borough ?? "",
       ageRange,
       languages: camp.languages,
       dates,
       financialAid: camp.financialAid,
-      link: camp.link,
-      phone: {
-        number: camp.phone,
-        extension: camp.phoneExtension ?? undefined,
-      },
+      link: camp.link ?? undefined,
+      phone: camp.phone
+        ? {
+            number: camp.phone,
+            extension: camp.phoneExtension ?? undefined,
+          }
+        : undefined,
       email: camp.email ?? undefined,
       address: camp.address ?? undefined,
       latitude: camp.latitude ? parseFloat(camp.latitude) : undefined,
@@ -109,20 +110,24 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const longitudeValue =
       campData.longitude != null ? campData.longitude.toString() : null;
 
+    // Handle optional phone and link
+    const phoneValue = campData.phone?.number ?? null;
+    const phoneExtensionValue = campData.phone?.extension ?? null;
+    const linkValue = campData.link && campData.link.trim() !== "" ? campData.link : null;
+
     // Upsert using Drizzle's insert with onConflictDoUpdate
     await db
       .insert(camps)
       .values({
         name,
-        type: campData.type,
         borough: campData.borough,
         ageRange: campData.ageRange as unknown,
         languages: campData.languages,
         dates: campData.dates as unknown,
         financialAid: campData.financialAid,
-        link: campData.link,
-        phone: campData.phone.number,
-        phoneExtension: campData.phone.extension ?? null,
+        link: linkValue,
+        phone: phoneValue,
+        phoneExtension: phoneExtensionValue,
         email: emailValue,
         address: campData.address ?? null,
         latitude: latitudeValue,
@@ -132,15 +137,14 @@ export async function PUT(request: Request, { params }: RouteParams) {
       .onConflictDoUpdate({
         target: camps.name,
         set: {
-          type: campData.type,
           borough: campData.borough,
           ageRange: campData.ageRange as unknown,
           languages: campData.languages,
           dates: campData.dates as unknown,
           financialAid: campData.financialAid,
-          link: campData.link,
-          phone: campData.phone.number,
-          phoneExtension: campData.phone.extension ?? null,
+          link: linkValue,
+          phone: phoneValue,
+          phoneExtension: phoneExtensionValue,
           email: emailValue,
           address: campData.address ?? null,
           latitude: latitudeValue,
@@ -165,17 +169,18 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     const response: Camp = {
       name: updatedCamp.name,
-      type: updatedCamp.type as "day" | "vacation",
-      borough: updatedCamp.borough,
+      borough: updatedCamp.borough ?? "",
       ageRange,
       languages: updatedCamp.languages,
       dates,
       financialAid: updatedCamp.financialAid,
-      link: updatedCamp.link,
-      phone: {
-        number: updatedCamp.phone,
-        extension: updatedCamp.phoneExtension ?? undefined,
-      },
+      link: updatedCamp.link ?? undefined,
+      phone: updatedCamp.phone
+        ? {
+            number: updatedCamp.phone,
+            extension: updatedCamp.phoneExtension ?? undefined,
+          }
+        : undefined,
       email: updatedCamp.email ?? undefined,
       address: updatedCamp.address ?? undefined,
       latitude: updatedCamp.latitude

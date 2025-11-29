@@ -33,13 +33,18 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
   const { t, language } = useTranslation();
 
   const handleCall = () => {
+    if (!camp.phone) return;
     const phoneNumber =
       typeof camp.phone === "string" ? camp.phone : camp.phone.number;
-    window.location.href = `tel:${phoneNumber}`;
+    if (phoneNumber) {
+      window.location.href = `tel:${phoneNumber}`;
+    }
   };
 
   const handleWebsite = () => {
-    window.open(camp.link, "_blank");
+    if (camp.link) {
+      window.open(camp.link, "_blank");
+    }
   };
 
   const handleDirections = () => {
@@ -104,22 +109,26 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
         </div>
 
         <div className="mt-4 pt-3 space-y-3">
-          <div className="flex items-center gap-2.5 text-sm">
-            <Phone className="h-4 w-4 text-primary/70" />
-            <span className="font-medium">{formatPhone(camp.phone)}</span>
-          </div>
+          {camp.phone && (
+            <div className="flex items-center gap-2.5 text-sm">
+              <Phone className="h-4 w-4 text-primary/70" />
+              <span className="font-medium">{formatPhone(camp.phone)}</span>
+            </div>
+          )}
 
-          <div className="flex items-center gap-2.5 text-sm">
-            <ExternalLink className="h-4 w-4 text-primary/70" />
-            <a
-              href={camp.link}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-primary hover:underline truncate cursor-pointer"
-            >
-              {(camp.link || "").replace(/^https?:\/\//, "")}
-            </a>
-          </div>
+          {camp.link && (
+            <div className="flex items-center gap-2.5 text-sm">
+              <ExternalLink className="h-4 w-4 text-primary/70" />
+              <a
+                href={camp.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-primary hover:underline truncate cursor-pointer"
+              >
+                {camp.link.replace(/^https?:\/\//, "")}
+              </a>
+            </div>
+          )}
 
           {camp.address && (
             <div className="flex items-start gap-2.5 text-sm pt-2">
@@ -172,24 +181,28 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
         </div>
 
         <div className="flex flex-wrap gap-2 pt-3">
-          <Button
-            onClick={handleCall}
-            variant="outline"
-            size="sm"
-            className="gap-2 flex-1 cursor-pointer"
-          >
-            <Phone className="h-3 w-3" />
-            {t.actions.call}
-          </Button>
-          <Button
-            onClick={handleWebsite}
-            variant="outline"
-            size="sm"
-            className="gap-2 flex-1 cursor-pointer"
-          >
-            <ExternalLink className="h-3 w-3" />
-            {t.actions.visitWebsite}
-          </Button>
+          {camp.phone && (
+            <Button
+              onClick={handleCall}
+              variant="outline"
+              size="sm"
+              className="gap-2 flex-1 cursor-pointer"
+            >
+              <Phone className="h-3 w-3" />
+              {t.actions.call}
+            </Button>
+          )}
+          {camp.link && (
+            <Button
+              onClick={handleWebsite}
+              variant="outline"
+              size="sm"
+              className="gap-2 flex-1 cursor-pointer"
+            >
+              <ExternalLink className="h-3 w-3" />
+              {t.actions.visitWebsite}
+            </Button>
+          )}
           <Button
             onClick={handleDirections}
             variant="outline"

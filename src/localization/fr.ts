@@ -3,7 +3,7 @@ import { Translations } from "./types";
 export const fr: Translations = {
   pageTitle: "Répertoire des Camps de Montréal",
   pageDescription:
-    "Trouvez des camps d'été et de vacances dans le Grand Montréal avec des options d'aide financière",
+    "Trouvez des camps de jour d'été dans le Grand Montréal avec des options d'aide financière",
 
   appName: "Camps de Montréal",
   tagline: "Trouvez le camp parfait pour votre famille",
@@ -17,7 +17,6 @@ export const fr: Translations = {
 
   campTypes: {
     day: "Camps de jour",
-    vacation: "Camps de vacances",
   },
 
   views: {

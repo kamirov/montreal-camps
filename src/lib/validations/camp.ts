@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-export const campTypeSchema = z.enum(["day", "vacation"]);
-
 // Age range schema: either all ages or a range
 export const ageRangeSchema = z.discriminatedUnion("type", [
   z.object({
@@ -58,51 +56,40 @@ export const datesSchema = z.discriminatedUnion("type", [
 ]);
 
 // Phone schema: formatted number and optional extension
-export const phoneSchema = z.object({
-  number: z.string().min(1, "Phone number is required"),
-  extension: z.string().optional(),
-});
-
-export const campSchema = z
+// Phone is optional, but if provided, number can be empty string
+export const phoneSchema = z
   .object({
-    name: z.string().min(1, "Name is required"),
-    type: campTypeSchema,
-    borough: z.string().nullable(),
-    ageRange: ageRangeSchema,
-    languages: z.array(z.string()).min(1, "At least one language is required"),
-    dates: datesSchema,
-    financialAid: z.string().min(1, "Financial aid information is required"),
-    link: z.string().url("Must be a valid URL").min(1, "Link is required"),
-    phone: phoneSchema,
-    email: z
-      .union([z.string().email("Must be a valid email address"), z.literal("")])
-      .optional(),
-    address: z.string().optional(),
-    latitude: z.number().min(-90).max(90).optional().nullable(),
-    longitude: z.number().min(-180).max(180).optional().nullable(),
-    notes: z.string().optional(),
+    number: z.string(),
+    extension: z.string().optional(),
   })
-  .refine(
-    (data) => {
-      // Day camps must have a borough
-      if (data.type === "day") {
-        return data.borough !== null && data.borough.trim().length > 0;
-      }
-      // Vacation camps must NOT have a borough
-      if (data.type === "vacation") {
-        return data.borough === null;
-      }
-      return true;
-    },
-    {
-      message: "Day camps require a borough; vacation camps must not have one",
-      path: ["borough"],
-    }
-  );
+  .optional();
+
+export const campSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  borough: z.string().min(1, "Borough is required"),
+  ageRange: ageRangeSchema,
+  languages: z.array(z.string()).min(1, "At least one language is required"),
+  dates: datesSchema,
+  financialAid: z.string().min(1, "Financial aid information is required"),
+  link: z
+    .union([
+      z.string().url("Must be a valid URL"),
+      z.literal(""),
+      z.undefined(),
+    ])
+    .optional(),
+  phone: phoneSchema,
+  email: z
+    .union([z.string().email("Must be a valid email address"), z.literal("")])
+    .optional(),
+  address: z.string().optional(),
+  latitude: z.number().min(-90).max(90).optional().nullable(),
+  longitude: z.number().min(-180).max(180).optional().nullable(),
+  notes: z.string().optional(),
+});
 
 // Schema for PUT request body (camp data without name, name comes from route)
 export const campUpsertSchema = campSchema.omit({ name: true });
 
 export type Camp = z.infer<typeof campSchema>;
 export type CampUpsert = z.infer<typeof campUpsertSchema>;
-export type CampType = z.infer<typeof campTypeSchema>;

@@ -33,7 +33,6 @@ export function ActiveFilters({ filters, onFilterChange }: ActiveFiltersProps) {
   const clearAllFilters = () => {
     onFilterChange({
       searchQuery: "",
-      campType: filters.campType,
       boroughs: [],
       selectedLanguages: [],
     });

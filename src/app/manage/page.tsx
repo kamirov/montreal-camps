@@ -60,15 +60,13 @@ export default function ManagePage() {
 
   const [campName, setCampName] = useState("");
   const [formData, setFormData] = useState<CampUpsert>({
-    type: "day",
-    borough: null,
+    borough: "Ahuntsic-Cartierville",
     ageRange: { type: "range", allAges: false, from: 5, to: 15 },
     languages: ["English", "French"],
     dates: { type: "yearRound", yearRound: true },
     financialAid: "NA",
-
-    link: "",
-    phone: { number: "", extension: "" },
+    link: undefined,
+    phone: undefined,
     email: "",
     address: "",
     notes: "",
@@ -189,7 +187,6 @@ export default function ManagePage() {
           const camp = await getCamp(selectedCampName!);
           setCampName(camp.name);
           setFormData({
-            type: camp.type,
             borough: camp.borough,
             ageRange: camp.ageRange,
             languages: camp.languages,
@@ -222,14 +219,13 @@ export default function ManagePage() {
       setSelectedCampName(null);
       setCampName("");
       setFormData({
-        type: "day",
         borough: "Ahuntsic-Cartierville",
         ageRange: { type: "range", allAges: false, from: 5, to: 15 },
         languages: ["English", "French"],
         dates: { type: "yearRound", yearRound: true },
         financialAid: "NA",
-        link: "",
-        phone: { number: "", extension: "" },
+        link: undefined,
+        phone: undefined,
         email: "",
         address: "",
         notes: "",
@@ -431,14 +427,13 @@ export default function ManagePage() {
       setIsNewCamp(false);
       setCampName("");
       setFormData({
-        type: "day",
-        borough: null,
+        borough: "Ahuntsic-Cartierville",
         ageRange: { type: "all", allAges: true },
         languages: [],
         dates: { type: "yearRound", yearRound: true },
         financialAid: "",
-        link: "",
-        phone: { number: "", extension: "" },
+        link: undefined,
+        phone: undefined,
         email: "",
         notes: "",
       });
@@ -457,14 +452,13 @@ export default function ManagePage() {
     setIsNewCamp(false);
     setCampName("");
     setFormData({
-      type: "day",
-      borough: null,
+      borough: "Ahuntsic-Cartierville",
       ageRange: { type: "all", allAges: true },
       languages: [],
       dates: { type: "yearRound", yearRound: true },
       financialAid: "",
-      link: "",
-      phone: { number: "", extension: "" },
+      link: undefined,
+      phone: undefined,
       email: "",
       notes: "",
     });
@@ -472,13 +466,6 @@ export default function ManagePage() {
     setMessage(null);
   };
 
-  const handleTypeChange = (value: "day" | "vacation") => {
-    setFormData({
-      ...formData,
-      type: value,
-      borough: value === "vacation" ? null : formData.borough,
-    });
-  };
 
   const handleBatchSave = async (
     changedCamps: Camp[],
@@ -491,7 +478,6 @@ export default function ManagePage() {
       // Validate all changed camps
       for (const camp of changedCamps) {
         const validationResult = campUpsertSchema.safeParse({
-          type: camp.type,
           borough: camp.borough,
           ageRange: camp.ageRange,
           languages: camp.languages,
@@ -760,55 +746,27 @@ export default function ManagePage() {
                     )}
                   </div>
 
-                  {/* Camp Type */}
+                  {/* Borough */}
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      {t.campFields.name === "Name" ? "Type" : "Type"}
+                      {t.campFields.name === "Name"
+                        ? "Borough"
+                        : "Arrondissement"}
                     </label>
-                    <Select
-                      value={formData.type}
-                      onValueChange={handleTypeChange}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="day">{t.campTypes.day}</SelectItem>
-                        <SelectItem value="vacation">
-                          {t.campTypes.vacation}
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {errors.type && (
+                    <BoroughAutocomplete
+                      value={formData.borough || ""}
+                      onChange={(value) =>
+                        setFormData({ ...formData, borough: value })
+                      }
+                      suggestions={availableBoroughs}
+                      required
+                    />
+                    {errors.borough && (
                       <p className="text-sm text-destructive mt-1">
-                        {errors.type}
+                        {errors.borough}
                       </p>
                     )}
                   </div>
-
-                  {/* Borough - only for day camps */}
-                  {formData.type === "day" && (
-                    <div>
-                      <label className="block text-sm font-medium mb-2">
-                        {t.campFields.name === "Name"
-                          ? "Borough"
-                          : "Arrondissement"}
-                      </label>
-                      <BoroughAutocomplete
-                        value={formData.borough || ""}
-                        onChange={(value) =>
-                          setFormData({ ...formData, borough: value })
-                        }
-                        suggestions={availableBoroughs}
-                        required
-                      />
-                      {errors.borough && (
-                        <p className="text-sm text-destructive mt-1">
-                          {errors.borough}
-                        </p>
-                      )}
-                    </div>
-                  )}
 
                   {/* Age Range */}
                   <div className="md:col-span-2">
@@ -1027,16 +985,19 @@ export default function ManagePage() {
                   {/* Link */}
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      {t.campFields.link}
+                      {t.campFields.link}{" "}
+                      <span className="text-muted-foreground">(Optional)</span>
                     </label>
                     <div className="flex gap-2">
                       <Input
                         type="url"
-                        value={formData.link}
+                        value={formData.link || ""}
                         onChange={(e) =>
-                          setFormData({ ...formData, link: e.target.value })
+                          setFormData({
+                            ...formData,
+                            link: e.target.value || undefined,
+                          })
                         }
-                        required
                         className="flex-1"
                       />
                       {formData.link && (
@@ -1067,24 +1028,34 @@ export default function ManagePage() {
                   {/* Phone */}
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      {t.campFields.phone}
+                      {t.campFields.phone}{" "}
+                      <span className="text-muted-foreground">(Optional)</span>
                     </label>
                     <PhoneInput
-                      value={formData.phone.number}
-                      extension={formData.phone.extension}
+                      value={formData.phone?.number || ""}
+                      extension={formData.phone?.extension || ""}
                       onChange={(number) =>
                         setFormData({
                           ...formData,
-                          phone: { ...formData.phone, number },
+                          phone: number
+                            ? {
+                                number,
+                                extension: formData.phone?.extension || "",
+                              }
+                            : undefined,
                         })
                       }
                       onExtensionChange={(extension) =>
                         setFormData({
                           ...formData,
-                          phone: { ...formData.phone, extension },
+                          phone: formData.phone
+                            ? {
+                                ...formData.phone,
+                                extension,
+                              }
+                            : undefined,
                         })
                       }
-                      required
                     />
                     {errors.phone && (
                       <p className="text-sm text-destructive mt-1">

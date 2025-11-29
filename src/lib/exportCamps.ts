@@ -14,7 +14,7 @@ export type ExportOptions = {
 };
 
 /**
- * Exports camp data to an Excel file with separate sheets for day and vacation camps
+ * Exports camp data to an Excel file
  */
 export function exportCampsToExcel(
   camps: Camp[],
@@ -22,16 +22,12 @@ export function exportCampsToExcel(
 ): void {
   const { translations: t, language } = options;
 
-  // Separate camps by type
-  const dayCamps = camps.filter((camp) => camp.type === "day");
-  const vacationCamps = camps.filter((camp) => camp.type === "vacation");
-
   // Create workbook
   const workbook = XLSX.utils.book_new();
 
-  // Process Day Camps sheet
-  if (dayCamps.length > 0) {
-    const dayHeaders = [
+  // Process all camps in a single sheet
+  if (camps.length > 0) {
+    const headers = [
       t.export.columns.name,
       t.export.columns.borough,
       t.export.columns.ageRange,
@@ -45,9 +41,7 @@ export function exportCampsToExcel(
       t.export.columns.notes,
     ];
 
-    console.log("dayCamps", dayCamps);
-
-    const dayData = dayCamps.map((camp) => ({
+    const data = camps.map((camp) => ({
       [t.export.columns.name]: camp.name,
       [t.export.columns.borough]: camp.borough || "",
       [t.export.columns.ageRange]: formatAgeRange(camp.ageRange, language),
@@ -56,18 +50,18 @@ export function exportCampsToExcel(
         .join(", "),
       [t.export.columns.dates]: formatDateRange(camp.dates, language, t),
       [t.export.columns.financialAid]: camp.financialAid,
-      [t.export.columns.link]: camp.link,
-      [t.export.columns.phone]: formatPhone(camp.phone),
+      [t.export.columns.link]: camp.link || "",
+      [t.export.columns.phone]: camp.phone ? formatPhone(camp.phone) : "",
       [t.export.columns.email]: camp.email ?? "",
       [t.export.columns.address]: camp.address ?? "",
       [t.export.columns.notes]: camp.notes ?? "",
     }));
 
-    const dayWorksheet = XLSX.utils.json_to_sheet(dayData, {
-      header: dayHeaders,
+    const worksheet = XLSX.utils.json_to_sheet(data, {
+      header: headers,
     });
 
-    dayWorksheet["!cols"] = [
+    worksheet["!cols"] = [
       { wch: 30 }, // name
       { wch: 20 }, // borough
       { wch: 15 }, // ageRange
@@ -82,82 +76,16 @@ export function exportCampsToExcel(
     ];
 
     // Bold the header row
-    const dayRange = XLSX.utils.decode_range(dayWorksheet["!ref"] || "A1");
-    for (let col = dayRange.s.c; col <= dayRange.e.c; col++) {
+    const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1");
+    for (let col = range.s.c; col <= range.e.c; col++) {
       const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
-      if (!dayWorksheet[cellAddress]) continue;
-      dayWorksheet[cellAddress].s = {
+      if (!worksheet[cellAddress]) continue;
+      worksheet[cellAddress].s = {
         font: { bold: true },
       };
     }
 
-    XLSX.utils.book_append_sheet(workbook, dayWorksheet, t.campTypes.day);
-  }
-
-  // Process Vacation Camps sheet
-  if (vacationCamps.length > 0) {
-    const vacationHeaders = [
-      t.export.columns.name,
-      t.export.columns.ageRange,
-      t.export.columns.languages,
-      t.export.columns.dates,
-      t.export.columns.financialAid,
-      t.export.columns.link,
-      t.export.columns.phone,
-      t.export.columns.email,
-      t.export.columns.address,
-      t.export.columns.notes,
-    ];
-
-    const vacationData = vacationCamps.map((camp) => ({
-      [t.export.columns.name]: camp.name,
-      [t.export.columns.ageRange]: formatAgeRange(camp.ageRange, language),
-      [t.export.columns.languages]: camp.languages
-        .map((lang) => formatLanguage(lang, t))
-        .join(", "),
-      [t.export.columns.dates]: formatDateRange(camp.dates, language, t),
-      [t.export.columns.financialAid]: camp.financialAid,
-      [t.export.columns.link]: camp.link,
-      [t.export.columns.phone]: formatPhone(camp.phone),
-      [t.export.columns.email]: camp.email ?? "",
-      [t.export.columns.address]: camp.address ?? "",
-      [t.export.columns.notes]: camp.notes ?? "",
-    }));
-
-    const vacationWorksheet = XLSX.utils.json_to_sheet(vacationData, {
-      header: vacationHeaders,
-    });
-
-    vacationWorksheet["!cols"] = [
-      { wch: 30 }, // name
-      { wch: 15 }, // ageRange
-      { wch: 25 }, // languages
-      { wch: 25 }, // dates
-      { wch: 30 }, // financialAid
-      { wch: 40 }, // link
-      { wch: 20 }, // phone
-      { wch: 30 }, // email
-      { wch: 40 }, // address
-      { wch: 40 }, // notes
-    ];
-
-    // Bold the header row
-    const vacationRange = XLSX.utils.decode_range(
-      vacationWorksheet["!ref"] || "A1"
-    );
-    for (let col = vacationRange.s.c; col <= vacationRange.e.c; col++) {
-      const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
-      if (!vacationWorksheet[cellAddress]) continue;
-      vacationWorksheet[cellAddress].s = {
-        font: { bold: true },
-      };
-    }
-
-    XLSX.utils.book_append_sheet(
-      workbook,
-      vacationWorksheet,
-      t.campTypes.vacation
-    );
+    XLSX.utils.book_append_sheet(workbook, worksheet, t.export.sheetName);
   }
 
   // Generate Excel file and trigger download

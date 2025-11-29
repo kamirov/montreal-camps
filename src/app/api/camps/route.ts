@@ -20,17 +20,18 @@ export async function GET() {
 
       return {
         name: camp.name,
-        type: camp.type as "day" | "vacation",
-        borough: camp.borough,
+        borough: camp.borough ?? "",
         ageRange,
         languages: camp.languages,
         dates,
         financialAid: camp.financialAid,
-        link: camp.link,
-        phone: {
-          number: camp.phone,
-          extension: camp.phoneExtension ?? undefined,
-        },
+        link: camp.link ?? undefined,
+        phone: camp.phone
+          ? {
+              number: camp.phone,
+              extension: camp.phoneExtension ?? undefined,
+            }
+          : undefined,
         email: camp.email ?? undefined,
         address: camp.address ?? undefined,
         latitude: camp.latitude ? parseFloat(camp.latitude) : undefined,
