@@ -1,9 +1,7 @@
 "use client";
 
 import { Footer } from "@/components/Footer";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { ThemeSwitcher } from "@/components/ThemeSwitcher";
-import { Button } from "@/components/ui/button";
+import { Header } from "@/components/Header";
 import { getCamps } from "@/lib/api/camps";
 import { getUniqueBoroughs } from "@/lib/filterCamps";
 import { useTranslation } from "@/localization/useTranslation";
@@ -41,32 +39,7 @@ export default function RegionsPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <header className="bg-header backdrop-blur-sm sticky top-0 z-50 shadow-lg">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1
-                onClick={handleTitleClick}
-                className="text-3xl font-bold text-primary cursor-pointer transition-all duration-200 hover:scale-105 hover:text-primary/90 active:scale-95 select-none"
-              >
-                {t.appName}
-              </h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push("/manage")}
-              >
-                {t.manage.button}
-              </Button>
-              <ThemeSwitcher />
-              <LanguageSwitcher />
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header showManageButton onTitleClick={handleTitleClick} />
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
