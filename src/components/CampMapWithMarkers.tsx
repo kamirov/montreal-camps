@@ -31,6 +31,7 @@ export function CampMapWithMarkers({
   const clustererRef = useRef<MarkerClusterer | null>(null);
   const onCampClickRef = useRef(onCampClick);
   const zoomLockRef = useRef<number | null>(null);
+  const centerLockRef = useRef<google.maps.LatLng | null>(null);
   const isHoveringRef = useRef(false);
   const hoveredCampNameRef = useRef<string | null>(null);
 
@@ -67,14 +68,14 @@ export function CampMapWithMarkers({
     onCampClickRef.current = onCampClick;
   }, [onCampClick]);
 
-  // Update map center when camps change
+  // Update map center when camps change (but not during hover)
   useEffect(() => {
-    if (map && campsWithCoordinates.length > 0) {
+    if (map && campsWithCoordinates.length > 0 && !isHoveringRef.current) {
       map.setCenter(mapCenter);
     }
   }, [map, mapCenter, campsWithCoordinates]);
 
-  // Prevent zoom changes during hover
+  // Prevent zoom and center changes during hover
   useEffect(() => {
     if (!map) return;
 
@@ -87,10 +88,26 @@ export function CampMapWithMarkers({
       }
     };
 
-    const listener = map.addListener("zoom_changed", handleZoomChanged);
+    const handleCenterChanged = () => {
+      if (isHoveringRef.current && centerLockRef.current !== null) {
+        const currentCenter = map.getCenter();
+        if (currentCenter && centerLockRef.current) {
+          const latDiff = Math.abs(currentCenter.lat() - centerLockRef.current.lat());
+          const lngDiff = Math.abs(currentCenter.lng() - centerLockRef.current.lng());
+          // Only reset if the change is significant (more than a tiny floating point difference)
+          if (latDiff > 0.0001 || lngDiff > 0.0001) {
+            map.setCenter(centerLockRef.current);
+          }
+        }
+      }
+    };
+
+    const zoomListener = map.addListener("zoom_changed", handleZoomChanged);
+    const centerListener = map.addListener("center_changed", handleCenterChanged);
 
     return () => {
-      google.maps.event.removeListener(listener);
+      google.maps.event.removeListener(zoomListener);
+      google.maps.event.removeListener(centerListener);
     };
   }, [map]);
 
@@ -146,10 +163,17 @@ export function CampMapWithMarkers({
 
         // Add hover event listeners
         marker.addListener("mouseover", () => {
-          // Lock zoom level to prevent InfoWindow from causing zoom changes
+          // Lock zoom level and center to prevent InfoWindow from causing changes
           if (map && zoomLockRef.current === null) {
             const currentZoom = map.getZoom();
             zoomLockRef.current = currentZoom ?? mapZoom;
+            const currentCenter = map.getCenter();
+            if (currentCenter) {
+              centerLockRef.current = new google.maps.LatLng(
+                currentCenter.lat(),
+                currentCenter.lng()
+              );
+            }
             isHoveringRef.current = true;
           }
           hoveredCampNameRef.current = camp.name;
@@ -161,11 +185,12 @@ export function CampMapWithMarkers({
         marker.addListener("mouseout", () => {
           setHoveredCamp(null);
           hoveredCampNameRef.current = null;
-          // Unlock zoom after a short delay to allow InfoWindow to close
+          // Unlock zoom and center after a short delay to allow InfoWindow to close
           setTimeout(() => {
             if (hoveredCampNameRef.current === null) {
               isHoveringRef.current = false;
               zoomLockRef.current = null;
+              centerLockRef.current = null;
             }
           }, 100);
         });
