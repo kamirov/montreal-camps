@@ -28,6 +28,9 @@ export function CampMapWithMarkers({
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedCamp, setSelectedCamp] = useState<Camp | null>(null);
   const [hoveredCamp, setHoveredCamp] = useState<Camp | null>(null);
+  const [hoveredLocationKey, setHoveredLocationKey] = useState<string | null>(
+    null
+  );
   const [selectionDialogOpen, setSelectionDialogOpen] = useState(false);
   const [campsAtLocation, setCampsAtLocation] = useState<Camp[]>([]);
   const markersRef = useRef<google.maps.Marker[]>([]);
@@ -207,11 +210,10 @@ export function CampMapWithMarkers({
         }
       });
 
-      // Add hover event listeners - show first camp on hover
+      // Add hover event listeners - show all camps on hover
       marker.addListener("mouseover", () => {
         const campsAtThisLocation = campsByCoordinates.get(coord.key) || [];
         if (campsAtThisLocation.length > 0) {
-          const campToShow = campsAtThisLocation[0];
           // Lock zoom level and center to prevent InfoWindow from causing changes
           if (map && zoomLockRef.current === null) {
             const currentZoom = map.getZoom();
@@ -225,13 +227,16 @@ export function CampMapWithMarkers({
             }
             isHoveringRef.current = true;
           }
-          hoveredCampNameRef.current = campToShow.name;
-          setHoveredCamp(campToShow);
+          // Store the first camp for backward compatibility and the location key
+          setHoveredCamp(campsAtThisLocation[0]);
+          setHoveredLocationKey(coord.key);
+          hoveredCampNameRef.current = campsAtThisLocation[0].name;
         }
       });
 
       marker.addListener("mouseout", () => {
         setHoveredCamp(null);
+        setHoveredLocationKey(null);
         hoveredCampNameRef.current = null;
         // Unlock zoom and center after a short delay to allow InfoWindow to close
         setTimeout(() => {
@@ -355,6 +360,7 @@ export function CampMapWithMarkers({
         >
           {/* Hover tooltip */}
           {hoveredCamp &&
+            hoveredLocationKey &&
             selectedCamp?.name !== hoveredCamp.name &&
             hoveredCamp.latitude !== null &&
             hoveredCamp.latitude !== undefined &&
@@ -370,11 +376,45 @@ export function CampMapWithMarkers({
                   pixelOffset: new google.maps.Size(0, -40),
                 }}
               >
-                <div className="px-2 py-1">
-                  <p className="text-sm font-semibold">{hoveredCamp.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    Click to view more information
-                  </p>
+                <div className="px-2 py-2">
+                  {(() => {
+                    const campsAtHoveredLocation =
+                      campsByCoordinates.get(hoveredLocationKey) || [];
+                    if (campsAtHoveredLocation.length === 1) {
+                      return (
+                        <>
+                          <p className="text-sm font-semibold">
+                            {campsAtHoveredLocation[0].name}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            Click to view more information
+                          </p>
+                        </>
+                      );
+                    }
+                    return (
+                      <>
+                        <p className="text-sm font-semibold mb-2">
+                          {campsAtHoveredLocation.length} camps at this location
+                        </p>
+                        <ul className="space-y-1 max-h-[200px] overflow-y-auto">
+                          {campsAtHoveredLocation.map((camp) => (
+                            <li key={camp.name} className="text-xs">
+                              <span className="font-medium">{camp.name}</span>
+                              {camp.borough && (
+                                <span className="text-muted-foreground ml-1">
+                                  • {camp.borough}
+                                </span>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Click to select a camp
+                        </p>
+                      </>
+                    );
+                  })()}
                 </div>
               </InfoWindow>
             )}
