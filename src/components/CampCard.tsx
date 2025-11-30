@@ -23,6 +23,7 @@ import {
   Phone,
   Users,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 
 type CampCardProps = {
   camp: Camp;
@@ -31,6 +32,22 @@ type CampCardProps = {
 
 export function CampCard({ camp, showMap = true }: CampCardProps) {
   const { t, language } = useTranslation();
+  const [isLargeScreen, setIsLargeScreen] = useState(false);
+
+  useEffect(() => {
+    // Tailwind's lg breakpoint is 1024px
+    const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    setIsLargeScreen(mediaQuery.matches);
+
+    const handleChange = (e: MediaQueryListEvent) => {
+      setIsLargeScreen(e.matches);
+    };
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
+  }, []);
+
+  const mapHeight = isLargeScreen ? "400px" : "200px";
 
   const handleCall = () => {
     if (!camp.phone) return;
@@ -152,7 +169,7 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
             <div className="pt-2">
               <CampSingleLocationMap
                 camp={camp}
-                height="400px"
+                height={mapHeight}
                 className="mt-2"
               />
             </div>
@@ -164,7 +181,7 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
               <div className="pt-2">
                 <GoogleMapEmbed
                   address={camp.address}
-                  height="400px"
+                  height={mapHeight}
                   className="mt-2"
                 />
               </div>
