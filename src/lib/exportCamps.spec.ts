@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { exportCampsToExcel } from "./exportCamps";
-import * as XLSX from "xlsx";
 import { en } from "@/localization/en";
 import { fr } from "@/localization/fr";
 import type { Camp } from "@/types/camp";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as XLSX from "xlsx";
+import { exportCampsToExcel } from "./exportCamps";
 
 // Mock XLSX
 vi.mock("xlsx", () => ({
@@ -15,8 +15,9 @@ vi.mock("xlsx", () => ({
       s: { c: 0, r: 0 },
       e: { c: 11, r: 1 },
     })),
-    encode_cell: vi.fn((cell: { r: number; c: number }) =>
-      String.fromCharCode(65 + cell.c) + (cell.r + 1)
+    encode_cell: vi.fn(
+      (cell: { r: number; c: number }) =>
+        String.fromCharCode(65 + cell.c) + (cell.r + 1)
     ),
   },
   writeFile: vi.fn(),
@@ -63,11 +64,11 @@ describe("exportCampsToExcel", () => {
     exportCampsToExcel(camps, { translations: en, language: "en" });
 
     expect(XLSX.utils.book_new).toHaveBeenCalled();
-    
+
     // Should create two sheets - one for camps, one for vacation camps
     expect(XLSX.utils.json_to_sheet).toHaveBeenCalledTimes(2);
     expect(XLSX.utils.book_append_sheet).toHaveBeenCalledTimes(2);
-    
+
     // First sheet should be Camps
     expect(XLSX.utils.book_append_sheet).toHaveBeenNthCalledWith(
       1,
@@ -75,7 +76,7 @@ describe("exportCampsToExcel", () => {
       expect.any(Object),
       "Camps"
     );
-    
+
     // Second sheet should be Vacation Camps
     expect(XLSX.utils.book_append_sheet).toHaveBeenNthCalledWith(
       2,
@@ -83,7 +84,7 @@ describe("exportCampsToExcel", () => {
       expect.any(Object),
       "Vacation Camps"
     );
-    
+
     expect(XLSX.writeFile).toHaveBeenCalledWith(
       expect.any(Object),
       expect.stringMatching(/^montreal_camps_\d{4}-\d{2}-\d{2}\.xlsx$/)
@@ -94,15 +95,19 @@ describe("exportCampsToExcel", () => {
     const camps = [mockCamp];
     exportCampsToExcel(camps, { translations: en, language: "en" });
 
-    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock.calls[0][0];
+    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock
+      .calls[0][0];
     expect(jsonToSheetCall).toHaveLength(1);
-    
+
     const exportedCamp = jsonToSheetCall[0];
     expect(exportedCamp).toHaveProperty("Name", "Summer Camp");
     expect(exportedCamp).toHaveProperty("Borough", "Plateau-Mont-Royal");
     expect(exportedCamp).toHaveProperty("Age Range", "5 years - 12 years");
     expect(exportedCamp).toHaveProperty("Languages", "French, English");
-    expect(exportedCamp).toHaveProperty("Financial Aid", "Available for low-income families");
+    expect(exportedCamp).toHaveProperty(
+      "Financial Aid",
+      "Available for low-income families"
+    );
     expect(exportedCamp).toHaveProperty("Website", "https://example.com");
     expect(exportedCamp).toHaveProperty("Phone", "514-123-4567 ext. 123");
     expect(exportedCamp).toHaveProperty("Notes", "Bring lunch");
@@ -112,9 +117,10 @@ describe("exportCampsToExcel", () => {
     const camps = [mockCamp];
     exportCampsToExcel(camps, { translations: fr, language: "fr" });
 
-    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock.calls[0][0];
+    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock
+      .calls[0][0];
     expect(jsonToSheetCall).toHaveLength(1);
-    
+
     const exportedCamp = jsonToSheetCall[0];
     expect(exportedCamp).toHaveProperty("Nom", "Summer Camp");
     expect(exportedCamp).toHaveProperty("Arrondissement", "Plateau-Mont-Royal");
@@ -133,7 +139,8 @@ describe("exportCampsToExcel", () => {
 
     exportCampsToExcel([campWithAllAges], { translations: en, language: "en" });
 
-    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock.calls[0][0];
+    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock
+      .calls[0][0];
     const exportedCamp = jsonToSheetCall[0];
     expect(exportedCamp).toHaveProperty("Age Range", "All ages");
   });
@@ -149,7 +156,8 @@ describe("exportCampsToExcel", () => {
 
     exportCampsToExcel([campYearRound], { translations: en, language: "en" });
 
-    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock.calls[0][0];
+    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock
+      .calls[0][0];
     const exportedCamp = jsonToSheetCall[0];
     expect(exportedCamp).toHaveProperty("Dates", "Year round");
   });
@@ -164,7 +172,8 @@ describe("exportCampsToExcel", () => {
 
     exportCampsToExcel([campNoExtension], { translations: en, language: "en" });
 
-    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock.calls[0][0];
+    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock
+      .calls[0][0];
     const exportedCamp = jsonToSheetCall[0];
     expect(exportedCamp).toHaveProperty("Phone", "514-123-4567");
   });
@@ -177,7 +186,8 @@ describe("exportCampsToExcel", () => {
 
     exportCampsToExcel([campNoNotes], { translations: en, language: "en" });
 
-    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock.calls[0][0];
+    const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock
+      .calls[0][0];
     const exportedCamp = jsonToSheetCall[0];
     expect(exportedCamp).toHaveProperty("Notes", "");
   });
@@ -185,21 +195,27 @@ describe("exportCampsToExcel", () => {
   it("should handle multiple camps and separate by type", () => {
     const camps = [
       mockCamp,
-      { ...mockCamp, name: "Winter Camp", type: "vacation" as const, borough: null },
+      {
+        ...mockCamp,
+        name: "Winter Camp",
+        type: "vacation" as const,
+        borough: null,
+      },
     ];
 
     exportCampsToExcel(camps, { translations: en, language: "en" });
 
     // Should have 2 sheets created - one for camps, one for vacation camps
     expect(vi.mocked(XLSX.utils.json_to_sheet)).toHaveBeenCalledTimes(2);
-    
+
     // Camps sheet
     const dayCampsCall = vi.mocked(XLSX.utils.json_to_sheet).mock.calls[0][0];
     expect(dayCampsCall).toHaveLength(1);
     expect(dayCampsCall[0]).toHaveProperty("Name", "Summer Camp");
-    
+
     // Vacation camps sheet
-    const vacationCampsCall = vi.mocked(XLSX.utils.json_to_sheet).mock.calls[1][0];
+    const vacationCampsCall = vi.mocked(XLSX.utils.json_to_sheet).mock
+      .calls[1][0];
     expect(vacationCampsCall).toHaveLength(1);
     expect(vacationCampsCall[0]).toHaveProperty("Name", "Winter Camp");
   });
@@ -266,4 +282,3 @@ describe("exportCampsToExcel", () => {
     );
   });
 });
-

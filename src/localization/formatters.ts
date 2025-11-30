@@ -188,18 +188,32 @@ export function formatAgeRange(
  * Formats phone number
  * Handles structured format with optional extension
  * Returns empty string if phone is not provided
+ * Formats 10-digit North American phone numbers as (XXX) XXX-XXXX
  */
 export function formatPhone(phone: Camp["phone"]): string {
   if (!phone) {
     return "";
   }
 
+  const formatPhoneNumber = (num: string): string => {
+    // Remove all non-digit characters
+    const digits = num.replace(/\D/g, "");
+    
+    // Format 10-digit North American phone numbers
+    if (digits.length === 10) {
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+    
+    // Return as-is if not a standard 10-digit number
+    return num;
+  };
+
   if (typeof phone === "string") {
     // Legacy format
-    return phone;
+    return formatPhoneNumber(phone);
   }
 
-  let formatted = phone.number || "";
+  let formatted = formatPhoneNumber(phone.number || "");
   if (phone.extension) {
     formatted += ` ext. ${phone.extension}`;
   }
