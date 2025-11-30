@@ -34,7 +34,6 @@ describe("exportCampsToExcel", () => {
 
   const mockCamp: Camp = {
     name: "Summer Camp",
-    type: "day",
     borough: "Plateau-Mont-Royal",
     ageRange: {
       type: "range",
@@ -58,31 +57,21 @@ describe("exportCampsToExcel", () => {
     notes: "Bring lunch",
   };
 
-  it("should call XLSX functions and create separate sheets for day and vacation camps", () => {
-    const vacationCamp: Camp = { ...mockCamp, type: "vacation", borough: null };
-    const camps = [mockCamp, vacationCamp];
+  it("should call XLSX functions and create a single sheet for all camps", () => {
+    const camps = [mockCamp];
     exportCampsToExcel(camps, { translations: en, language: "en" });
 
     expect(XLSX.utils.book_new).toHaveBeenCalled();
 
-    // Should create two sheets - one for camps, one for vacation camps
-    expect(XLSX.utils.json_to_sheet).toHaveBeenCalledTimes(2);
-    expect(XLSX.utils.book_append_sheet).toHaveBeenCalledTimes(2);
+    // Should create one sheet for all camps
+    expect(XLSX.utils.json_to_sheet).toHaveBeenCalledTimes(1);
+    expect(XLSX.utils.book_append_sheet).toHaveBeenCalledTimes(1);
 
-    // First sheet should be Camps
-    expect(XLSX.utils.book_append_sheet).toHaveBeenNthCalledWith(
-      1,
+    // Sheet should be named "Camps"
+    expect(XLSX.utils.book_append_sheet).toHaveBeenCalledWith(
       expect.any(Object),
       expect.any(Object),
       "Camps"
-    );
-
-    // Second sheet should be Vacation Camps
-    expect(XLSX.utils.book_append_sheet).toHaveBeenNthCalledWith(
-      2,
-      expect.any(Object),
-      expect.any(Object),
-      "Vacation Camps"
     );
 
     expect(XLSX.writeFile).toHaveBeenCalledWith(
@@ -109,7 +98,7 @@ describe("exportCampsToExcel", () => {
       "Available for low-income families"
     );
     expect(exportedCamp).toHaveProperty("Website", "https://example.com");
-    expect(exportedCamp).toHaveProperty("Phone", "514-123-4567 ext. 123");
+    expect(exportedCamp).toHaveProperty("Phone", "(514) 123-4567 ext. 123");
     expect(exportedCamp).toHaveProperty("Notes", "Bring lunch");
   });
 
@@ -175,7 +164,7 @@ describe("exportCampsToExcel", () => {
     const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock
       .calls[0][0];
     const exportedCamp = jsonToSheetCall[0];
-    expect(exportedCamp).toHaveProperty("Phone", "514-123-4567");
+    expect(exportedCamp).toHaveProperty("Phone", "(514) 123-4567");
   });
 
   it("should handle camps without notes", () => {
@@ -192,32 +181,26 @@ describe("exportCampsToExcel", () => {
     expect(exportedCamp).toHaveProperty("Notes", "");
   });
 
-  it("should handle multiple camps and separate by type", () => {
+  it("should handle multiple camps in a single sheet", () => {
     const camps = [
       mockCamp,
       {
         ...mockCamp,
         name: "Winter Camp",
-        type: "vacation" as const,
         borough: null,
       },
     ];
 
     exportCampsToExcel(camps, { translations: en, language: "en" });
 
-    // Should have 2 sheets created - one for camps, one for vacation camps
-    expect(vi.mocked(XLSX.utils.json_to_sheet)).toHaveBeenCalledTimes(2);
+    // Should have 1 sheet created for all camps
+    expect(vi.mocked(XLSX.utils.json_to_sheet)).toHaveBeenCalledTimes(1);
 
-    // Camps sheet
-    const dayCampsCall = vi.mocked(XLSX.utils.json_to_sheet).mock.calls[0][0];
-    expect(dayCampsCall).toHaveLength(1);
-    expect(dayCampsCall[0]).toHaveProperty("Name", "Summer Camp");
-
-    // Vacation camps sheet
-    const vacationCampsCall = vi.mocked(XLSX.utils.json_to_sheet).mock
-      .calls[1][0];
-    expect(vacationCampsCall).toHaveLength(1);
-    expect(vacationCampsCall[0]).toHaveProperty("Name", "Winter Camp");
+    // All camps should be in the same sheet
+    const campsCall = vi.mocked(XLSX.utils.json_to_sheet).mock.calls[0][0];
+    expect(campsCall).toHaveLength(2);
+    expect(campsCall[0]).toHaveProperty("Name", "Summer Camp");
+    expect(campsCall[1]).toHaveProperty("Name", "Winter Camp");
   });
 
   it("should handle empty camps array", () => {
@@ -262,7 +245,7 @@ describe("exportCampsToExcel", () => {
     expect(XLSX.utils.book_append_sheet).toHaveBeenCalledWith(
       expect.any(Object),
       expect.any(Object),
-      "Camps de jour"
+      "Camps"
     );
   });
 

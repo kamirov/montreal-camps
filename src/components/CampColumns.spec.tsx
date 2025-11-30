@@ -15,89 +15,91 @@ vi.mock("next/navigation", () => ({
 
 const mockCamps: Camp[] = [
   {
-    id: "1",
-    type: "day",
     name: "Camp Alpha",
     borough: "Plateau",
-    ageRange: "5-10 years",
+    ageRange: {
+      type: "range",
+      allAges: false,
+      from: 5,
+      to: 10,
+    },
     languages: ["English", "French"],
-    dates: "July 1-30, 2024",
-    hours: "9:00 AM - 5:00 PM",
-    cost: "$200/week",
+    dates: {
+      type: "range",
+      yearRound: false,
+      fromDate: "2024-07-01",
+      toDate: "2024-07-30",
+    },
     financialAid: "Available",
     link: "https://example.com",
-    phone: "514-555-0101",
+    phone: {
+      number: "514-555-0101",
+    },
     notes: "Great camp with swimming",
-    coordinates: [45.5, -73.6],
   },
   {
-    id: "2",
-    type: "vacation",
     name: "Camp Beta",
-    borough: null, // Vacation camps don't have boroughs
-    ageRange: "8-12 years",
+    borough: null,
+    ageRange: {
+      type: "range",
+      allAges: false,
+      from: 8,
+      to: 12,
+    },
     languages: ["English"],
-    dates: "August 1-15, 2024",
-    cost: "$250/week",
+    dates: {
+      type: "range",
+      yearRound: false,
+      fromDate: "2024-08-01",
+      toDate: "2024-08-15",
+    },
     financialAid: "Not available",
     link: "https://example.com",
-    phone: "514-555-0102",
+    phone: {
+      number: "514-555-0102",
+    },
     notes: "Sports camp",
-    coordinates: [45.4, -73.5],
   },
   {
-    id: "3",
-    type: "day",
     name: "Camp Gamma",
     borough: "Plateau",
-    ageRange: "6-11 years",
+    ageRange: {
+      type: "range",
+      allAges: false,
+      from: 6,
+      to: 11,
+    },
     languages: ["French"],
-    dates: "July 15-August 15, 2024",
-    hours: "8:00 AM - 4:00 PM",
-    cost: "$180/week",
+    dates: {
+      type: "range",
+      yearRound: false,
+      fromDate: "2024-07-15",
+      toDate: "2024-08-15",
+    },
     financialAid: "Available",
     link: "https://example.com",
-    phone: "514-555-0103",
+    phone: {
+      number: "514-555-0103",
+    },
     notes: "Arts and crafts",
-    coordinates: [45.52, -73.58],
   },
 ];
 
 describe("CampColumns", () => {
-  it("should render day and vacation camp columns", () => {
+  it("should render all camps in a single column", () => {
     render(
       <LocalizationProvider>
         <CampColumns camps={mockCamps} />
       </LocalizationProvider>
     );
 
-    // Check for column headers (French is default language)
-    const headings = screen.getAllByRole("heading", { level: 2 });
-    const headingTexts = headings.map((h) => h.textContent);
-
-    expect(headingTexts.includes("Camps")).toBe(true);
-    expect(
-      headingTexts.includes("Camps de vacances") ||
-        headingTexts.includes("Vacation Camps")
-    ).toBe(true);
+    // All camps should be rendered
+    expect(screen.getByText("Camp Alpha")).toBeInTheDocument();
+    expect(screen.getByText("Camp Beta")).toBeInTheDocument();
+    expect(screen.getByText("Camp Gamma")).toBeInTheDocument();
   });
 
-  it("should display correct camp counts", () => {
-    render(
-      <LocalizationProvider>
-        <CampColumns camps={mockCamps} />
-      </LocalizationProvider>
-    );
-
-    // 2 camps, 1 vacation camp
-    const dayCampCount = screen.getByText("2 camps");
-    const vacationCampCount = screen.getByText("1 camp");
-
-    expect(dayCampCount).toBeInTheDocument();
-    expect(vacationCampCount).toBeInTheDocument();
-  });
-
-  it("should render camp cards in correct columns", () => {
+  it("should render camp cards for all camps", () => {
     render(
       <LocalizationProvider>
         <CampColumns camps={mockCamps} />
@@ -109,19 +111,17 @@ describe("CampColumns", () => {
     expect(screen.getByText("Camp Gamma")).toBeInTheDocument();
   });
 
-  it("should show no results message when no camps in a column", () => {
-    const onlyDayCamps = mockCamps.filter((camp) => camp.type === "day"); // Filter to specific type for test
-
+  it("should show no results message when no camps", () => {
     render(
       <LocalizationProvider>
-        <CampColumns camps={onlyDayCamps} />
+        <CampColumns camps={[]} />
       </LocalizationProvider>
     );
 
-    // Check for French "no results" message (default language)
-    const noResultsMessage =
-      screen.queryByText("Aucun camp trouvé correspondant à vos critères") ||
-      screen.queryByText("No camps found matching your criteria");
+    // Check for "no results" message
+    const noResultsMessage = screen.queryByText(
+      /Aucun camp trouvé|No camps found/i
+    );
 
     expect(noResultsMessage).toBeInTheDocument();
   });
