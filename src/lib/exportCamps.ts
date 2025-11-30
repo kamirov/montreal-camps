@@ -1,7 +1,5 @@
 import {
   formatAgeRange,
-  formatDateRange,
-  formatLanguage,
   formatPhone,
 } from "@/localization/formatters";
 import type { Language, Translations } from "@/localization/types";
@@ -27,13 +25,44 @@ export function exportCampsToExcel(
 
   // Process all camps in a single sheet
   if (camps.length > 0) {
+    // Sort camps alphabetically by borough, then by name
+    const sortedCamps = [...camps].sort((a, b) => {
+      // Sort by borough first (null/empty boroughs go to the end)
+      const boroughA = a.borough || "";
+      const boroughB = b.borough || "";
+      
+      // If both boroughs are empty, sort by name
+      if (!boroughA && !boroughB) {
+        return a.name.localeCompare(b.name, language, {
+          sensitivity: "base",
+          numeric: true,
+        });
+      }
+      
+      // If only boroughA is empty, it goes to the end
+      if (!boroughA) return 1;
+      
+      // If only boroughB is empty, it goes to the end
+      if (!boroughB) return -1;
+      
+      // Both boroughs are non-empty, compare them
+      const boroughCompare = boroughA.localeCompare(boroughB, language, {
+        sensitivity: "base",
+        numeric: true,
+      });
+      if (boroughCompare !== 0) return boroughCompare;
+      
+      // If boroughs are equal, sort by name
+      return a.name.localeCompare(b.name, language, {
+        sensitivity: "base",
+        numeric: true,
+      });
+    });
+
     const headers = [
       t.export.columns.name,
       t.export.columns.borough,
       t.export.columns.ageRange,
-      t.export.columns.languages,
-      t.export.columns.dates,
-      t.export.columns.financialAid,
       t.export.columns.link,
       t.export.columns.phone,
       t.export.columns.email,
@@ -41,15 +70,10 @@ export function exportCampsToExcel(
       t.export.columns.notes,
     ];
 
-    const data = camps.map((camp) => ({
+    const data = sortedCamps.map((camp) => ({
       [t.export.columns.name]: camp.name,
       [t.export.columns.borough]: camp.borough || "",
       [t.export.columns.ageRange]: formatAgeRange(camp.ageRange, language),
-      [t.export.columns.languages]: camp.languages
-        .map((lang) => formatLanguage(lang, t))
-        .join(", "),
-      [t.export.columns.dates]: formatDateRange(camp.dates, language, t),
-      [t.export.columns.financialAid]: camp.financialAid,
       [t.export.columns.link]: camp.link || "",
       [t.export.columns.phone]: camp.phone ? formatPhone(camp.phone) : "",
       [t.export.columns.email]: camp.email ?? "",
@@ -65,9 +89,6 @@ export function exportCampsToExcel(
       { wch: 30 }, // name
       { wch: 20 }, // borough
       { wch: 15 }, // ageRange
-      { wch: 25 }, // languages
-      { wch: 25 }, // dates
-      { wch: 30 }, // financialAid
       { wch: 40 }, // link
       { wch: 20 }, // phone
       { wch: 30 }, // email

@@ -144,7 +144,7 @@ export default function Home() {
                     <TooltipTrigger asChild>
                       <button
                         onClick={handleExport}
-                        className="flex items-center justify-center h-12 w-12 rounded-lg border-2 bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                        className="flex items-center justify-center h-12 w-12 rounded-lg border-2 bg-background hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
                         aria-label={t.export.tooltip}
                       >
                         <Download className="h-5 w-5" />
@@ -193,7 +193,7 @@ export default function Home() {
                       <TooltipTrigger asChild>
                         <button
                           onClick={handleExport}
-                          className="flex items-center justify-center h-12 w-12 rounded-lg border-2 bg-background hover:bg-accent hover:text-accent-foreground transition-colors"
+                          className="flex items-center justify-center h-12 w-12 rounded-lg border-2 bg-background hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer"
                           aria-label={t.export.tooltip}
                         >
                           <Download className="h-5 w-5" />
