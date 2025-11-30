@@ -198,12 +198,12 @@ export function formatPhone(phone: Camp["phone"]): string {
   const formatPhoneNumber = (num: string): string => {
     // Remove all non-digit characters
     const digits = num.replace(/\D/g, "");
-    
+
     // Format 10-digit North American phone numbers
     if (digits.length === 10) {
       return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
     }
-    
+
     // Return as-is if not a standard 10-digit number
     return num;
   };

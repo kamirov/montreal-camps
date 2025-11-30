@@ -1,9 +1,7 @@
 import type { Camp } from "@/lib/validations/camp";
 
 // Format age range to string: "5-12" or "all"
-export function formatAgeRange(
-  ageRange: Camp["ageRange"]
-): string {
+export function formatAgeRange(ageRange: Camp["ageRange"]): string {
   if (ageRange.type === "all") {
     return "all";
   }
@@ -13,7 +11,10 @@ export function formatAgeRange(
 // Parse age range from string: "5-12" or "all"
 export function parseAgeRange(
   str: string
-): { type: "all"; allAges: true } | { type: "range"; allAges: false; from: number; to: number } | null {
+):
+  | { type: "all"; allAges: true }
+  | { type: "range"; allAges: false; from: number; to: number }
+  | null {
   const trimmed = str.trim().toLowerCase();
   if (trimmed === "all") {
     return { type: "all", allAges: true };
@@ -48,7 +49,9 @@ export function parseDates(
   if (trimmed === "year-round" || trimmed === "yearround") {
     return { type: "yearRound", yearRound: true };
   }
-  const match = trimmed.match(/^(\d{4}-\d{2}-\d{2})\s+to\s+(\d{4}-\d{2}-\d{2})$/);
+  const match = trimmed.match(
+    /^(\d{4}-\d{2}-\d{2})\s+to\s+(\d{4}-\d{2}-\d{2})$/
+  );
   if (match) {
     const fromDate = match[1]!;
     const toDate = match[2]!;
@@ -83,12 +86,12 @@ export function formatPhone(phone: Camp["phone"]): string {
   const formatPhoneNumber = (num: string): string => {
     // Remove all non-digit characters
     const digits = num.replace(/\D/g, "");
-    
+
     // Format 10-digit North American phone numbers
     if (digits.length === 10) {
       return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
     }
-    
+
     // Return as-is if not a standard 10-digit number
     return num;
   };
@@ -117,4 +120,3 @@ export function parsePhone(
   }
   return null;
 }
-
