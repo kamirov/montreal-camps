@@ -61,6 +61,12 @@ export const fr: Translations = {
     close: "Fermer",
   },
 
+  campSelection: {
+    title: "Plusieurs camps à cet emplacement",
+    description: "Il y a plusieurs camps à cet emplacement. Veuillez en sélectionner un pour voir les détails :",
+    selectCamp: "Sélectionner un camp",
+  },
+
   search: {
     placeholder: "Rechercher des camps par nom, arrondissement ou activité...",
     regionPrompt: "Rechercher des camps ou des régions à Montréal",

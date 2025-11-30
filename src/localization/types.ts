@@ -67,6 +67,13 @@ export type Translations = {
     close: string;
   };
 
+  // Camp selection dialog (for duplicate coordinates)
+  campSelection: {
+    title: string;
+    description: string;
+    selectCamp: string;
+  };
+
   // Search
   search: {
     placeholder: string;

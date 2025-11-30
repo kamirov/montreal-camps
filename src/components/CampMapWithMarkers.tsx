@@ -1,6 +1,7 @@
 "use client";
 
 import { CampInfoWindowContent } from "@/components/CampInfoWindowContent";
+import { CampSelectionDialog } from "@/components/CampSelectionDialog";
 import { Camp } from "@/types/camp";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { GoogleMap, InfoWindow, useLoadScript } from "@react-google-maps/api";
@@ -27,8 +28,11 @@ export function CampMapWithMarkers({
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedCamp, setSelectedCamp] = useState<Camp | null>(null);
   const [hoveredCamp, setHoveredCamp] = useState<Camp | null>(null);
+  const [selectionDialogOpen, setSelectionDialogOpen] = useState(false);
+  const [campsAtLocation, setCampsAtLocation] = useState<Camp[]>([]);
   const markersRef = useRef<google.maps.Marker[]>([]);
   const clustererRef = useRef<MarkerClusterer | null>(null);
+  const markerCoordMapRef = useRef<Map<google.maps.Marker, string>>(new Map());
   const onCampClickRef = useRef(onCampClick);
   const zoomLockRef = useRef<number | null>(null);
   const centerLockRef = useRef<google.maps.LatLng | null>(null);
@@ -47,6 +51,27 @@ export function CampMapWithMarkers({
       ),
     [camps]
   );
+
+  // Group camps by coordinates (using string key for exact matches)
+  const campsByCoordinates = useMemo(() => {
+    const grouped = new Map<string, Camp[]>();
+    campsWithCoordinates.forEach((camp) => {
+      const key = `${camp.latitude},${camp.longitude}`;
+      if (!grouped.has(key)) {
+        grouped.set(key, []);
+      }
+      grouped.get(key)!.push(camp);
+    });
+    return grouped;
+  }, [campsWithCoordinates]);
+
+  // Get unique coordinates for marker creation
+  const uniqueCoordinates = useMemo(() => {
+    return Array.from(campsByCoordinates.keys()).map((key) => {
+      const [lat, lng] = key.split(",").map(Number);
+      return { key, lat, lng };
+    });
+  }, [campsByCoordinates]);
 
   // Calculate map center from first camp with coordinates
   const mapCenter = useMemo(() => {
@@ -92,8 +117,12 @@ export function CampMapWithMarkers({
       if (isHoveringRef.current && centerLockRef.current !== null) {
         const currentCenter = map.getCenter();
         if (currentCenter && centerLockRef.current) {
-          const latDiff = Math.abs(currentCenter.lat() - centerLockRef.current.lat());
-          const lngDiff = Math.abs(currentCenter.lng() - centerLockRef.current.lng());
+          const latDiff = Math.abs(
+            currentCenter.lat() - centerLockRef.current.lat()
+          );
+          const lngDiff = Math.abs(
+            currentCenter.lng() - centerLockRef.current.lng()
+          );
           // Only reset if the change is significant (more than a tiny floating point difference)
           if (latDiff > 0.0001 || lngDiff > 0.0001) {
             map.setCenter(centerLockRef.current);
@@ -103,7 +132,10 @@ export function CampMapWithMarkers({
     };
 
     const zoomListener = map.addListener("zoom_changed", handleZoomChanged);
-    const centerListener = map.addListener("center_changed", handleCenterChanged);
+    const centerListener = map.addListener(
+      "center_changed",
+      handleCenterChanged
+    );
 
     return () => {
       google.maps.event.removeListener(zoomListener);
@@ -113,7 +145,7 @@ export function CampMapWithMarkers({
 
   // Set up markers and clustering
   useEffect(() => {
-    if (!map || campsWithCoordinates.length === 0) return;
+    if (!map || uniqueCoordinates.length === 0) return;
 
     // Clear existing markers and clusterer
     if (clustererRef.current) {
@@ -124,45 +156,62 @@ export function CampMapWithMarkers({
       marker.setMap(null);
     });
     markersRef.current = [];
+    markerCoordMapRef.current.clear();
 
-    // Create native Google Maps markers
-    const markers = campsWithCoordinates
-      .filter(
-        (camp) =>
-          camp.latitude !== null &&
-          camp.latitude !== undefined &&
-          camp.longitude !== null &&
-          camp.longitude !== undefined
-      )
-      .map((camp) => {
-        const marker = new google.maps.Marker({
-          position: {
-            lat: camp.latitude!,
-            lng: camp.longitude!,
-          },
-          map: map,
-          title: camp.name,
-        });
+    // Create native Google Maps markers - one per unique coordinate
+    const markers = uniqueCoordinates.map((coord) => {
+      const campsAtCoord = campsByCoordinates.get(coord.key) || [];
+      const firstCamp = campsAtCoord[0];
 
-        // Add click event listener
-        marker.addListener("click", () => {
-          // Toggle InfoWindow - close if already open for this camp
+      // Use the first camp's name for the marker title, or show count if multiple
+      const title =
+        campsAtCoord.length > 1
+          ? `${campsAtCoord.length} camps at this location`
+          : firstCamp.name;
+
+      const marker = new google.maps.Marker({
+        position: {
+          lat: coord.lat,
+          lng: coord.lng,
+        },
+        map: map,
+        title: title,
+      });
+
+      // Store the coordinate key with the marker
+      markerCoordMapRef.current.set(marker, coord.key);
+
+      // Add click event listener
+      marker.addListener("click", () => {
+        const campsAtThisLocation = campsByCoordinates.get(coord.key) || [];
+
+        // If multiple camps at this location, show selection dialog
+        if (campsAtThisLocation.length > 1) {
+          setCampsAtLocation(campsAtThisLocation);
+          setSelectionDialogOpen(true);
+          setHoveredCamp(null);
+        } else {
+          // Single camp - show InfoWindow directly
+          const camp = campsAtThisLocation[0];
           setSelectedCamp((prev) => {
             if (prev?.name === camp.name) {
               return null;
             }
             return camp;
           });
-          // Clear hover when clicking
           setHoveredCamp(null);
 
           if (onCampClickRef.current) {
             onCampClickRef.current(camp);
           }
-        });
+        }
+      });
 
-        // Add hover event listeners
-        marker.addListener("mouseover", () => {
+      // Add hover event listeners - show first camp on hover
+      marker.addListener("mouseover", () => {
+        const campsAtThisLocation = campsByCoordinates.get(coord.key) || [];
+        if (campsAtThisLocation.length > 0) {
+          const campToShow = campsAtThisLocation[0];
           // Lock zoom level and center to prevent InfoWindow from causing changes
           if (map && zoomLockRef.current === null) {
             const currentZoom = map.getZoom();
@@ -176,27 +225,26 @@ export function CampMapWithMarkers({
             }
             isHoveringRef.current = true;
           }
-          hoveredCampNameRef.current = camp.name;
-          // Only show hover if no camp is selected or a different camp is selected
-          // We'll check selectedCamp state in the render, but set hover here
-          setHoveredCamp(camp);
-        });
-
-        marker.addListener("mouseout", () => {
-          setHoveredCamp(null);
-          hoveredCampNameRef.current = null;
-          // Unlock zoom and center after a short delay to allow InfoWindow to close
-          setTimeout(() => {
-            if (hoveredCampNameRef.current === null) {
-              isHoveringRef.current = false;
-              zoomLockRef.current = null;
-              centerLockRef.current = null;
-            }
-          }, 100);
-        });
-
-        return marker;
+          hoveredCampNameRef.current = campToShow.name;
+          setHoveredCamp(campToShow);
+        }
       });
+
+      marker.addListener("mouseout", () => {
+        setHoveredCamp(null);
+        hoveredCampNameRef.current = null;
+        // Unlock zoom and center after a short delay to allow InfoWindow to close
+        setTimeout(() => {
+          if (hoveredCampNameRef.current === null) {
+            isHoveringRef.current = false;
+            zoomLockRef.current = null;
+            centerLockRef.current = null;
+          }
+        }, 100);
+      });
+
+      return marker;
+    });
 
     markersRef.current = markers;
 
@@ -209,6 +257,7 @@ export function CampMapWithMarkers({
     }
 
     // Cleanup function
+    const coordMap = markerCoordMapRef.current;
     return () => {
       if (clustererRef.current) {
         clustererRef.current.clearMarkers();
@@ -217,8 +266,9 @@ export function CampMapWithMarkers({
       markers.forEach((marker) => {
         marker.setMap(null);
       });
+      coordMap.clear();
     };
-  }, [map, campsWithCoordinates]);
+  }, [map, uniqueCoordinates, campsByCoordinates, mapZoom]);
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
@@ -287,6 +337,14 @@ export function CampMapWithMarkers({
     setMap(mapInstance);
   };
 
+  const handleSelectCampFromDialog = (camp: Camp) => {
+    setSelectedCamp(camp);
+    setHoveredCamp(null);
+    if (onCampClickRef.current) {
+      onCampClickRef.current(camp);
+    }
+  };
+
   return (
     <div className={`w-full h-full relative ${className}`}>
       <div className="w-full h-full overflow-hidden">
@@ -344,6 +402,14 @@ export function CampMapWithMarkers({
             )}
         </GoogleMap>
       </div>
+
+      {/* Camp selection dialog for duplicate coordinates */}
+      <CampSelectionDialog
+        open={selectionDialogOpen}
+        onOpenChange={setSelectionDialogOpen}
+        camps={campsAtLocation}
+        onSelectCamp={handleSelectCampFromDialog}
+      />
     </div>
   );
 }

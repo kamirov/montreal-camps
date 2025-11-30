@@ -61,6 +61,12 @@ export const en: Translations = {
     close: "Close",
   },
 
+  campSelection: {
+    title: "Multiple Camps at This Location",
+    description: "There are multiple camps at this location. Please select one to view details:",
+    selectCamp: "Select a camp",
+  },
+
   search: {
     placeholder: "Search camps by name, borough, or activity...",
     regionPrompt: "Search camps or regions in Montreal",
