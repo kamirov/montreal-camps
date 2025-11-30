@@ -30,6 +30,9 @@ export function CampMapWithMarkers({
   const markersRef = useRef<google.maps.Marker[]>([]);
   const clustererRef = useRef<MarkerClusterer | null>(null);
   const onCampClickRef = useRef(onCampClick);
+  const zoomLockRef = useRef<number | null>(null);
+  const isHoveringRef = useRef(false);
+  const hoveredCampNameRef = useRef<string | null>(null);
 
   // Filter camps to only those with coordinates
   const campsWithCoordinates = useMemo(
@@ -70,6 +73,26 @@ export function CampMapWithMarkers({
       map.setCenter(mapCenter);
     }
   }, [map, mapCenter, campsWithCoordinates]);
+
+  // Prevent zoom changes during hover
+  useEffect(() => {
+    if (!map) return;
+
+    const handleZoomChanged = () => {
+      if (isHoveringRef.current && zoomLockRef.current !== null) {
+        const currentZoom = map.getZoom();
+        if (currentZoom !== zoomLockRef.current) {
+          map.setZoom(zoomLockRef.current);
+        }
+      }
+    };
+
+    const listener = map.addListener("zoom_changed", handleZoomChanged);
+
+    return () => {
+      google.maps.event.removeListener(listener);
+    };
+  }, [map]);
 
   // Set up markers and clustering
   useEffect(() => {
@@ -123,6 +146,13 @@ export function CampMapWithMarkers({
 
         // Add hover event listeners
         marker.addListener("mouseover", () => {
+          // Lock zoom level to prevent InfoWindow from causing zoom changes
+          if (map && zoomLockRef.current === null) {
+            const currentZoom = map.getZoom();
+            zoomLockRef.current = currentZoom ?? mapZoom;
+            isHoveringRef.current = true;
+          }
+          hoveredCampNameRef.current = camp.name;
           // Only show hover if no camp is selected or a different camp is selected
           // We'll check selectedCamp state in the render, but set hover here
           setHoveredCamp(camp);
@@ -130,6 +160,14 @@ export function CampMapWithMarkers({
 
         marker.addListener("mouseout", () => {
           setHoveredCamp(null);
+          hoveredCampNameRef.current = null;
+          // Unlock zoom after a short delay to allow InfoWindow to close
+          setTimeout(() => {
+            if (hoveredCampNameRef.current === null) {
+              isHoveringRef.current = false;
+              zoomLockRef.current = null;
+            }
+          }, 100);
         });
 
         return marker;

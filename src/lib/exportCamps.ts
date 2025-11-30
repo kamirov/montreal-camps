@@ -1,7 +1,4 @@
-import {
-  formatAgeRange,
-  formatPhone,
-} from "@/localization/formatters";
+import { formatAgeRange, formatPhone } from "@/localization/formatters";
 import type { Language, Translations } from "@/localization/types";
 import type { Camp } from "@/types/camp";
 import * as XLSX from "xlsx";
@@ -30,7 +27,7 @@ export function exportCampsToExcel(
       // Sort by borough first (null/empty boroughs go to the end)
       const boroughA = a.borough || "";
       const boroughB = b.borough || "";
-      
+
       // If both boroughs are empty, sort by name
       if (!boroughA && !boroughB) {
         return a.name.localeCompare(b.name, language, {
@@ -38,20 +35,20 @@ export function exportCampsToExcel(
           numeric: true,
         });
       }
-      
+
       // If only boroughA is empty, it goes to the end
       if (!boroughA) return 1;
-      
+
       // If only boroughB is empty, it goes to the end
       if (!boroughB) return -1;
-      
+
       // Both boroughs are non-empty, compare them
       const boroughCompare = boroughA.localeCompare(boroughB, language, {
         sensitivity: "base",
         numeric: true,
       });
       if (boroughCompare !== 0) return boroughCompare;
-      
+
       // If boroughs are equal, sort by name
       return a.name.localeCompare(b.name, language, {
         sensitivity: "base",
@@ -100,10 +97,17 @@ export function exportCampsToExcel(
     const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1");
     for (let col = range.s.c; col <= range.e.c; col++) {
       const cellAddress = XLSX.utils.encode_cell({ r: 0, c: col });
-      if (!worksheet[cellAddress]) continue;
-      worksheet[cellAddress].s = {
-        font: { bold: true },
-      };
+      const cell = worksheet[cellAddress];
+      if (!cell) continue;
+
+      // Ensure the cell has a style object and set bold
+      if (!cell.s) {
+        cell.s = {};
+      }
+      if (!cell.s.font) {
+        cell.s.font = {};
+      }
+      cell.s.font.bold = true;
     }
 
     XLSX.utils.book_append_sheet(workbook, worksheet, t.export.sheetName);
