@@ -9,8 +9,6 @@ import {
 
 const mockCamps: Camp[] = [
   {
-    id: "1",
-    type: "day",
     name: "Camp Alpha",
     borough: "Plateau",
     ageRange: { type: "range", allAges: false, from: 5, to: 10 },
@@ -25,13 +23,10 @@ const mockCamps: Camp[] = [
     link: "http://example.com",
     phone: { number: "514-555-0101", extension: "" },
     notes: "Great camp with swimming",
-    coordinates: [45.5, -73.6],
   },
   {
-    id: "2",
-    type: "vacation",
     name: "Camp Beta",
-    borough: null, // Vacation camps don't have boroughs
+    borough: null,
     ageRange: { type: "range", allAges: false, from: 8, to: 14 },
     languages: ["French"],
     dates: {
@@ -44,11 +39,8 @@ const mockCamps: Camp[] = [
     link: "http://example.com",
     phone: { number: "514-555-0102", extension: "" },
     notes: "Indoor activities",
-    coordinates: [45.4, -73.7],
   },
   {
-    id: "3",
-    type: "day",
     name: "Camp Gamma",
     borough: "Plateau",
     ageRange: { type: "range", allAges: false, from: 6, to: 12 },
@@ -63,7 +55,6 @@ const mockCamps: Camp[] = [
     link: "http://example.com",
     phone: { number: "514-555-0103", extension: "" },
     notes: "Arts and crafts",
-    coordinates: [45.52, -73.58],
   },
 ];
 
@@ -71,7 +62,6 @@ describe("filterCamps", () => {
   it("should return all camps when no filters are applied", () => {
     const filters: FilterState = {
       searchQuery: "",
-      campType: "all",
       boroughs: [],
       selectedLanguages: [],
     };
@@ -79,48 +69,32 @@ describe("filterCamps", () => {
     expect(result).toHaveLength(3);
   });
 
-  it("should filter by camp type", () => {
-    const filters: FilterState = {
-      searchQuery: "",
-      campType: "day",
-      boroughs: [],
-      selectedLanguages: [],
-    };
-    const result = filterCamps(mockCamps, filters);
-    expect(result).toHaveLength(2);
-    expect(result.every((camp) => camp.type === "day")).toBe(true);
-  });
-
   it("should filter by search query", () => {
     const filters: FilterState = {
       searchQuery: "swimming",
-      campType: "all",
       boroughs: [],
       selectedLanguages: [],
     };
     const result = filterCamps(mockCamps, filters);
     expect(result).toHaveLength(1);
-    expect(result[0].id).toBe("1");
+    expect(result[0].name).toBe("Camp Alpha");
   });
 
   it("should filter by borough", () => {
     const filters: FilterState = {
       searchQuery: "",
-      campType: "all",
       boroughs: ["Plateau"],
       selectedLanguages: [],
     };
     const result = filterCamps(mockCamps, filters);
-    // Should only return camps with "Plateau" borough (vacation camps excluded)
+    // Should only return camps with "Plateau" borough
     expect(result).toHaveLength(2);
     expect(result.every((camp) => camp.borough === "Plateau")).toBe(true);
-    expect(result.every((camp) => camp.type === "day")).toBe(true);
   });
 
   it("should filter by language", () => {
     const filters: FilterState = {
       searchQuery: "",
-      campType: "all",
       boroughs: [],
       selectedLanguages: ["English"],
     };
@@ -140,10 +114,10 @@ describe("sortCamps", () => {
   it("should sort camps by borough", () => {
     const result = sortCamps(mockCamps, "borough");
     // Camps with boroughs should come first, sorted alphabetically
-    // Vacation camps (null borough) should come last
+    // Camps with null borough should come last
     expect(result[0].borough).toBe("Plateau");
     expect(result[1].borough).toBe("Plateau");
-    expect(result[2].borough).toBe(null); // Vacation camp
+    expect(result[2].borough).toBe(null);
   });
 });
 

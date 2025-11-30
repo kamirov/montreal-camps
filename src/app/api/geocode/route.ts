@@ -77,7 +77,7 @@ async function geocodeWithRetry(
       const waitTime = delay * attempt;
       console.warn(
         `Geocoding attempt ${attempt} failed for "${address}", retrying in ${waitTime}ms...`,
-        error?.message || error
+        error instanceof Error ? error.message : error
       );
       await new Promise((resolve) => setTimeout(resolve, waitTime));
     }

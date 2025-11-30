@@ -56,6 +56,9 @@ export function sortCamps(camps: Camp[], sortBy: SortOption): Camp[] {
 
     case "borough":
       return sorted.sort((a, b) => {
+        if (!a.borough && !b.borough) return 0;
+        if (!a.borough) return 1;
+        if (!b.borough) return -1;
         return a.borough.localeCompare(b.borough);
       });
 
@@ -65,7 +68,9 @@ export function sortCamps(camps: Camp[], sortBy: SortOption): Camp[] {
 }
 
 export function getUniqueBoroughs(camps: Camp[]): string[] {
-  const boroughs = camps.map((camp) => camp.borough);
+  const boroughs = camps
+    .map((camp) => camp.borough)
+    .filter((borough): borough is string => borough !== null);
   return Array.from(new Set(boroughs)).sort();
 }
 

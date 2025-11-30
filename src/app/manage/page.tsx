@@ -466,7 +466,6 @@ export default function ManagePage() {
     setMessage(null);
   };
 
-
   const handleBatchSave = async (
     changedCamps: Camp[],
     deletedNames: string[]
@@ -684,10 +683,7 @@ export default function ManagePage() {
         )}
 
         {viewMode === "batch" ? (
-          <BatchEditTable
-            camps={camps}
-            onSave={handleBatchSave}
-          />
+          <BatchEditTable camps={camps} onSave={handleBatchSave} />
         ) : (
           <>
             {/* Camp Selector */}
@@ -1004,6 +1000,7 @@ export default function ManagePage() {
                           variant="outline"
                           size="icon"
                           onClick={() => {
+                            if (!formData.link) return;
                             const url =
                               formData.link.startsWith("http://") ||
                               formData.link.startsWith("https://")

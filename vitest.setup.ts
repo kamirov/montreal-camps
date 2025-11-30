@@ -9,3 +9,18 @@ global.ResizeObserver = class ResizeObserver {
 
 // Mock scrollIntoView for tests
 Element.prototype.scrollIntoView = () => {};
+
+// Mock window.matchMedia for tests
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: (query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: () => {},
+    removeListener: () => {},
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => {},
+  }),
+});

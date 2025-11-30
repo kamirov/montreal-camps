@@ -15,7 +15,6 @@ vi.mock("next/navigation", () => ({
 
 const mockFilters: FilterState = {
   searchQuery: "",
-  campType: "all",
   boroughs: [],
   selectedLanguages: [],
 };
@@ -108,7 +107,6 @@ describe("CampFilters", () => {
 
     expect(onFilterChange).toHaveBeenCalledWith({
       searchQuery: "",
-      campType: "all",
       boroughs: [],
       selectedLanguages: [],
     });

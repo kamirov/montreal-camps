@@ -44,7 +44,6 @@ export function CampFilters({
   const handleClearAll = () => {
     onFilterChange({
       searchQuery: "",
-      campType: "all",
       boroughs: [],
       selectedLanguages: [],
     });

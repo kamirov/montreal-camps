@@ -35,7 +35,6 @@ describe("useTranslation", () => {
     expect(result.current.t.appName).toBeDefined();
     expect(result.current.t.campTypes).toBeDefined();
     expect(result.current.t.campTypes.day).toBeDefined();
-    expect(result.current.t.campTypes.vacation).toBeDefined();
     expect(result.current.t.filters).toBeDefined();
     expect(result.current.t.campFields).toBeDefined();
   });

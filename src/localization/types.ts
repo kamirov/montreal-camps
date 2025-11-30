@@ -246,6 +246,7 @@ export type Translations = {
       link: string;
       phone: string;
       email: string;
+      address: string;
       notes: string;
     };
   };

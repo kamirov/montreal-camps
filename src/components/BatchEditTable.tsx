@@ -132,8 +132,8 @@ export function BatchEditTable({ camps, onSave }: BatchEditTableProps) {
             bVal = b.financialAid.toLowerCase();
             break;
           case "link":
-            aVal = a.link.toLowerCase();
-            bVal = b.link.toLowerCase();
+            aVal = (a.link || "").toLowerCase();
+            bVal = (b.link || "").toLowerCase();
             break;
           case "phone":
             aVal = formatPhone(a.phone).toLowerCase();
@@ -259,7 +259,7 @@ export function BatchEditTable({ camps, onSave }: BatchEditTableProps) {
           return;
         }
         case "borough":
-          updateCamp(campName, { borough: value || null });
+          updateCamp(campName, { borough: value || undefined });
           return;
         case "ageFrom": {
           const numValue = parseInt(value, 10);
@@ -551,7 +551,7 @@ export function BatchEditTable({ camps, onSave }: BatchEditTableProps) {
                           cellValue = camp.financialAid;
                           break;
                         case "link":
-                          cellValue = camp.link;
+                          cellValue = camp.link || "";
                           break;
                         case "phone":
                           cellValue = formatPhone(camp.phone);

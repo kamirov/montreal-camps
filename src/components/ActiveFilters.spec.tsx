@@ -18,7 +18,6 @@ describe("ActiveFilters", () => {
     const onFilterChange = vi.fn();
     const filters: FilterState = {
       searchQuery: "",
-      campType: "all",
       boroughs: [],
       selectedLanguages: [],
     };
@@ -36,7 +35,6 @@ describe("ActiveFilters", () => {
     const onFilterChange = vi.fn();
     const filters: FilterState = {
       searchQuery: "",
-      campType: "all",
       boroughs: ["Plateau", "NDG"],
       selectedLanguages: [],
     };
@@ -55,7 +53,6 @@ describe("ActiveFilters", () => {
     const onFilterChange = vi.fn();
     const filters: FilterState = {
       searchQuery: "",
-      campType: "all",
       boroughs: ["Plateau"],
       selectedLanguages: [],
     };
@@ -80,7 +77,6 @@ describe("ActiveFilters", () => {
     const onFilterChange = vi.fn();
     const filters: FilterState = {
       searchQuery: "",
-      campType: "day",
       boroughs: ["Plateau"],
       selectedLanguages: ["English"],
     };
@@ -96,7 +92,6 @@ describe("ActiveFilters", () => {
 
     expect(onFilterChange).toHaveBeenCalledWith({
       searchQuery: "",
-      campType: "day",
       boroughs: [],
       selectedLanguages: [],
     });
@@ -106,7 +101,6 @@ describe("ActiveFilters", () => {
     const onFilterChange = vi.fn();
     const filters: FilterState = {
       searchQuery: "",
-      campType: "all",
       boroughs: [],
       selectedLanguages: ["English"],
     };

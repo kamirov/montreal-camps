@@ -132,36 +132,19 @@ export function formatDateRange(
 
 /**
  * Formats cost with translated units
- * Handles both old string format and new structured format
  */
 export function formatCost(
-  cost: Camp["cost"] | string,
+  cost: string | undefined,
   language: Language,
   t: Translations
 ): string {
   if (!cost) return "";
 
-  // Handle old string format for backward compatibility
-  if (typeof cost === "string") {
-    if (language === "en") return cost;
-    return cost
-      .replace(/\/week/gi, `/${t.costUnits.week}`)
-      .replace(/\/day/gi, `/${t.costUnits.day}`)
-      .replace(/\/month/gi, `/${t.costUnits.month}`);
-  }
-
-  // Handle new structured format
-  const amount = cost.amount.toFixed(2);
-  const period = cost.period;
-
-  const periodTranslations: Record<string, string> = {
-    week: language === "fr" ? t.costUnits.week : "week",
-    month: language === "fr" ? t.costUnits.month : "month",
-    year: language === "fr" ? "an" : "year",
-    hour: language === "fr" ? "heure" : "hour",
-  };
-
-  return `$${amount}/${periodTranslations[period] || period}`;
+  if (language === "en") return cost;
+  return cost
+    .replace(/\/week/gi, `/${t.costUnits.week}`)
+    .replace(/\/day/gi, `/${t.costUnits.day}`)
+    .replace(/\/month/gi, `/${t.costUnits.month}`);
 }
 
 /**
