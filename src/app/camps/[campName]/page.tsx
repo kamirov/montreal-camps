@@ -138,7 +138,7 @@ export default function CampPage({ params }: CampPageProps) {
             {/* Columns Content */}
             <div className="flex-1 container mx-auto px-4 py-6 overflow-hidden">
               {selectedCamp ? (
-                <CampColumns camps={filteredCamps} showSampleNotice />
+                <CampColumns camps={filteredCamps} />
               ) : (
                 <div className="flex items-center justify-center h-40">
                   <p className="text-muted-foreground">{t.camps.notFound}</p>

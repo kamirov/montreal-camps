@@ -1,6 +1,6 @@
 # Montreal Camps Directory / Répertoire des Camps de Montréal
 
-A bilingual (English/French) web application to help families find summer day camps in Greater Montreal, with special emphasis on options for families facing financial hardship.
+A bilingual (English/French) web application to help families find summer camps in Greater Montreal, with special emphasis on options for families facing financial hardship.
 
 ## 🌐 Live Application
 
@@ -122,7 +122,7 @@ montreal-camps/
 │   │   ├── SearchBar.tsx
 │   │   ├── ActiveFilters.tsx
 │   │   └── LanguageSwitcher.tsx
-│   ├── data/             # Sample camp data
+│   ├── data/             # Camp data
 │   │   └── camps.ts
 │   ├── lib/              # Utility functions
 │   │   ├── filterCamps.ts
@@ -155,9 +155,9 @@ pnpm test:coverage
 
 ## Data Structure
 
-The application uses fake/sample data for demonstration. In production, this would be replaced with:
+The application uses:
 
-- API integration for real camp data
+- API integration for camp data
 - Admin interface for data management
 - Database backend
 

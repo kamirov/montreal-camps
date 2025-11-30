@@ -75,10 +75,7 @@ describe("CampColumns", () => {
     const headings = screen.getAllByRole("heading", { level: 2 });
     const headingTexts = headings.map((h) => h.textContent);
 
-    expect(
-      headingTexts.includes("Camps de jour") ||
-        headingTexts.includes("Day Camps")
-    ).toBe(true);
+    expect(headingTexts.includes("Camps")).toBe(true);
     expect(
       headingTexts.includes("Camps de vacances") ||
         headingTexts.includes("Vacation Camps")
@@ -92,7 +89,7 @@ describe("CampColumns", () => {
       </LocalizationProvider>
     );
 
-    // 2 day camps, 1 vacation camp
+    // 2 camps, 1 vacation camp
     const dayCampCount = screen.getByText("2 camps");
     const vacationCampCount = screen.getByText("1 camp");
 
@@ -113,7 +110,7 @@ describe("CampColumns", () => {
   });
 
   it("should show no results message when no camps in a column", () => {
-    const onlyDayCamps = mockCamps.filter((camp) => camp.type === "day");
+    const onlyDayCamps = mockCamps.filter((camp) => camp.type === "day"); // Filter to specific type for test
 
     render(
       <LocalizationProvider>
@@ -127,35 +124,5 @@ describe("CampColumns", () => {
       screen.queryByText("No camps found matching your criteria");
 
     expect(noResultsMessage).toBeInTheDocument();
-  });
-
-  it("should display sample data notice when showSampleNotice is true", () => {
-    render(
-      <LocalizationProvider>
-        <CampColumns camps={mockCamps} showSampleNotice={true} />
-      </LocalizationProvider>
-    );
-
-    // Check for French sample notice (default language)
-    const sampleNotice =
-      screen.queryByText(/données d'exemple/i) ||
-      screen.queryByText(/sample data/i);
-
-    expect(sampleNotice).toBeInTheDocument();
-  });
-
-  it("should not display sample data notice when showSampleNotice is false", () => {
-    render(
-      <LocalizationProvider>
-        <CampColumns camps={mockCamps} showSampleNotice={false} />
-      </LocalizationProvider>
-    );
-
-    // Check that sample notice is not present
-    const sampleNotice =
-      screen.queryByText(/données d'exemple/i) ||
-      screen.queryByText(/sample data/i);
-
-    expect(sampleNotice).not.toBeInTheDocument();
   });
 });

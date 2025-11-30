@@ -164,9 +164,6 @@ export type Translations = {
     sourceCode: string;
   };
 
-  // Sample data notice
-  sampleDataNotice: string;
-
   // Loading states
   loading: {
     camps: string;

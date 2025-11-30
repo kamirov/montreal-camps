@@ -3,7 +3,7 @@ import { Translations } from "./types";
 export const en: Translations = {
   pageTitle: "Montreal Camps Directory",
   pageDescription:
-    "Find summer day camps in Greater Montreal with financial assistance options",
+    "Find summer camps in Greater Montreal with financial assistance options",
 
   appName: "Montreal Camps",
   tagline: "Find the perfect camp for your family",
@@ -16,7 +16,7 @@ export const en: Translations = {
   },
 
   campTypes: {
-    day: "Day Camps",
+    day: "Camps",
   },
 
   views: {
@@ -148,8 +148,6 @@ export const en: Translations = {
     madeWithLove: "Made with ❤️ by Andrei Khramtsov",
     sourceCode: "Source code available on GitHub",
   },
-
-  sampleDataNotice: "Sample data for demonstration purposes only",
 
   loading: {
     camps: "Loading camps...",
