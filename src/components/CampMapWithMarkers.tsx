@@ -436,7 +436,25 @@ export function CampMapWithMarkers({
                 }}
               >
                 <div style={{ margin: 0, padding: 0 }}>
-                  <CampInfoWindowContent camp={selectedCamp} />
+                  {(() => {
+                    const selectedCampKey = `${selectedCamp.latitude},${selectedCamp.longitude}`;
+                    const campsAtSelectedLocation =
+                      campsByCoordinates.get(selectedCampKey) || [];
+                    const hasMultipleCamps = campsAtSelectedLocation.length > 1;
+
+                    return (
+                      <CampInfoWindowContent
+                        camp={selectedCamp}
+                        showViewOtherCampsButton={hasMultipleCamps}
+                        onViewOtherCamps={() => {
+                          setSelectedCamp(null);
+                          setHoveredCamp(null);
+                          setCampsAtLocation(campsAtSelectedLocation);
+                          setSelectionDialogOpen(true);
+                        }}
+                      />
+                    );
+                  })()}
                 </div>
               </InfoWindow>
             )}

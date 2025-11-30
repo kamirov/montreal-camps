@@ -59,6 +59,7 @@ export const fr: Translations = {
     visitWebsite: "Visiter le site web",
     getDirections: "Obtenir l'itinéraire",
     close: "Fermer",
+    back: "Retour",
   },
 
   campSelection: {

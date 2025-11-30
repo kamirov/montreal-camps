@@ -59,6 +59,7 @@ export const en: Translations = {
     visitWebsite: "Visit Website",
     getDirections: "Get Directions",
     close: "Close",
+    back: "Back",
   },
 
   campSelection: {

@@ -10,6 +10,7 @@ import {
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp } from "@/types/camp";
 import {
+  ArrowLeft,
   ExternalLink,
   FileText,
   Globe,
@@ -21,9 +22,15 @@ import {
 
 type CampInfoWindowContentProps = {
   camp: Camp;
+  onViewOtherCamps?: () => void;
+  showViewOtherCampsButton?: boolean;
 };
 
-export function CampInfoWindowContent({ camp }: CampInfoWindowContentProps) {
+export function CampInfoWindowContent({
+  camp,
+  onViewOtherCamps,
+  showViewOtherCampsButton = false,
+}: CampInfoWindowContentProps) {
   const { t, language } = useTranslation();
 
   const handleCall = () => {
@@ -57,6 +64,19 @@ export function CampInfoWindowContent({ camp }: CampInfoWindowContentProps) {
 
   return (
     <div className="w-80 max-w-sm px-4 pt-2 pb-4 space-y-3">
+      {/* Back button */}
+      {showViewOtherCampsButton && onViewOtherCamps && (
+        <Button
+          onClick={onViewOtherCamps}
+          variant="ghost"
+          size="sm"
+          className="gap-2 -ml-2 -mt-1 mb-1 cursor-pointer"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          {t.actions.back}
+        </Button>
+      )}
+
       {/* Header */}
       <div>
         <h3 className="text-lg font-bold mb-1">{camp.name}</h3>

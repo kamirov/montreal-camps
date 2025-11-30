@@ -65,6 +65,7 @@ export type Translations = {
     visitWebsite: string;
     getDirections: string;
     close: string;
+    back: string;
   };
 
   // Camp selection dialog (for duplicate coordinates)
