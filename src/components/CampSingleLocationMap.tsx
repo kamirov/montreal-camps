@@ -1,7 +1,7 @@
 "use client";
 
 import { Camp } from "@/types/camp";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
 import { useMemo } from "react";
 
 type CampSingleLocationMapProps = {
@@ -21,6 +21,10 @@ export function CampSingleLocationMap({
   className = "",
 }: CampSingleLocationMapProps) {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: apiKey || "",
+  });
 
   const position = useMemo(() => {
     if (
@@ -63,6 +67,30 @@ export function CampSingleLocationMap({
     );
   }
 
+  if (loadError) {
+    return (
+      <div
+        className={`w-full overflow-hidden rounded-lg border bg-muted flex items-center justify-center ${className}`}
+        style={{ height }}
+      >
+        <p className="text-muted-foreground text-sm">
+          Error loading Google Maps
+        </p>
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div
+        className={`w-full overflow-hidden rounded-lg border bg-muted flex items-center justify-center ${className}`}
+        style={{ height }}
+      >
+        <p className="text-muted-foreground text-sm">Loading map...</p>
+      </div>
+    );
+  }
+
   const mapContainerStyle = {
     width: "100%",
     height: "100%",
@@ -83,16 +111,14 @@ export function CampSingleLocationMap({
       className={`w-full overflow-hidden rounded-lg border relative ${className}`}
       style={{ height }}
     >
-      <LoadScript googleMapsApiKey={apiKey}>
-        <GoogleMap
-          mapContainerStyle={mapContainerStyle}
-          options={mapOptions}
-          center={position}
-          zoom={zoom}
-        >
-          <Marker position={position} title={camp.name} />
-        </GoogleMap>
-      </LoadScript>
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        options={mapOptions}
+        center={position}
+        zoom={zoom}
+      >
+        <Marker position={position} title={camp.name} />
+      </GoogleMap>
     </div>
   );
 }

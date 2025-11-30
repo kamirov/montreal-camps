@@ -3,7 +3,7 @@
 import { CampInfoWindowContent } from "@/components/CampInfoWindowContent";
 import { Camp } from "@/types/camp";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
-import { GoogleMap, InfoWindow, LoadScript } from "@react-google-maps/api";
+import { GoogleMap, InfoWindow, useLoadScript } from "@react-google-maps/api";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type CampMapWithMarkersProps = {
@@ -159,6 +159,11 @@ export function CampMapWithMarkers({
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: apiKey || "",
+    libraries: ["places"],
+  });
+
   if (!apiKey) {
     return (
       <div className={`w-full h-full ${className}`}>
@@ -176,6 +181,26 @@ export function CampMapWithMarkers({
       <div className={`w-full h-full ${className}`}>
         <div className="w-full h-full bg-muted flex items-center justify-center">
           <p className="text-muted-foreground">No camps with coordinates</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className={`w-full h-full ${className}`}>
+        <div className="w-full h-full bg-muted flex items-center justify-center">
+          <p className="text-muted-foreground">Error loading Google Maps</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className={`w-full h-full ${className}`}>
+        <div className="w-full h-full bg-muted flex items-center justify-center">
+          <p className="text-muted-foreground">Loading map...</p>
         </div>
       </div>
     );
@@ -202,61 +227,59 @@ export function CampMapWithMarkers({
   return (
     <div className={`w-full h-full relative ${className}`}>
       <div className="w-full h-full overflow-hidden">
-        <LoadScript googleMapsApiKey={apiKey} libraries={["places"]}>
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            options={mapOptions}
-            onLoad={handleMapLoad}
-          >
-            {/* Hover tooltip */}
-            {hoveredCamp &&
-              selectedCamp?.name !== hoveredCamp.name &&
-              hoveredCamp.latitude !== null &&
-              hoveredCamp.latitude !== undefined &&
-              hoveredCamp.longitude !== null &&
-              hoveredCamp.longitude !== undefined && (
-                <InfoWindow
-                  position={{
-                    lat: hoveredCamp.latitude,
-                    lng: hoveredCamp.longitude,
-                  }}
-                  options={{
-                    disableAutoPan: true,
-                    pixelOffset: new google.maps.Size(0, -40),
-                  }}
-                >
-                  <div className="px-2 py-1">
-                    <p className="text-sm font-semibold">{hoveredCamp.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Click to view more information
-                    </p>
-                  </div>
-                </InfoWindow>
-              )}
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          options={mapOptions}
+          onLoad={handleMapLoad}
+        >
+          {/* Hover tooltip */}
+          {hoveredCamp &&
+            selectedCamp?.name !== hoveredCamp.name &&
+            hoveredCamp.latitude !== null &&
+            hoveredCamp.latitude !== undefined &&
+            hoveredCamp.longitude !== null &&
+            hoveredCamp.longitude !== undefined && (
+              <InfoWindow
+                position={{
+                  lat: hoveredCamp.latitude,
+                  lng: hoveredCamp.longitude,
+                }}
+                options={{
+                  disableAutoPan: true,
+                  pixelOffset: new google.maps.Size(0, -40),
+                }}
+              >
+                <div className="px-2 py-1">
+                  <p className="text-sm font-semibold">{hoveredCamp.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    Click to view more information
+                  </p>
+                </div>
+              </InfoWindow>
+            )}
 
-            {/* Selected camp info window */}
-            {selectedCamp &&
-              selectedCamp.latitude !== null &&
-              selectedCamp.latitude !== undefined &&
-              selectedCamp.longitude !== null &&
-              selectedCamp.longitude !== undefined && (
-                <InfoWindow
-                  position={{
-                    lat: selectedCamp.latitude,
-                    lng: selectedCamp.longitude,
-                  }}
-                  onCloseClick={() => {
-                    setSelectedCamp(null);
-                    setHoveredCamp(null);
-                  }}
-                >
-                  <div style={{ margin: 0, padding: 0 }}>
-                    <CampInfoWindowContent camp={selectedCamp} />
-                  </div>
-                </InfoWindow>
-              )}
-          </GoogleMap>
-        </LoadScript>
+          {/* Selected camp info window */}
+          {selectedCamp &&
+            selectedCamp.latitude !== null &&
+            selectedCamp.latitude !== undefined &&
+            selectedCamp.longitude !== null &&
+            selectedCamp.longitude !== undefined && (
+              <InfoWindow
+                position={{
+                  lat: selectedCamp.latitude,
+                  lng: selectedCamp.longitude,
+                }}
+                onCloseClick={() => {
+                  setSelectedCamp(null);
+                  setHoveredCamp(null);
+                }}
+              >
+                <div style={{ margin: 0, padding: 0 }}>
+                  <CampInfoWindowContent camp={selectedCamp} />
+                </div>
+              </InfoWindow>
+            )}
+        </GoogleMap>
       </div>
     </div>
   );

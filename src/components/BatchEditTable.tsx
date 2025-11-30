@@ -52,10 +52,7 @@ const DEFAULT_CAMP: Omit<Camp, "name"> = {
   notes: "",
 };
 
-export function BatchEditTable({
-  camps,
-  onSave,
-}: BatchEditTableProps) {
+export function BatchEditTable({ camps, onSave }: BatchEditTableProps) {
   const { t } = useTranslation();
   const [localCamps, setLocalCamps] = useState<Camp[]>(camps);
   const [originalCamps, setOriginalCamps] = useState<Map<string, Camp>>(
@@ -80,7 +77,6 @@ export function BatchEditTable({
     setChangedRows(new Set());
     setDeletedRows(new Set());
   }, [camps]);
-
 
   const handleSort = useCallback((column: string) => {
     setSortState((prev) => {
@@ -172,7 +168,9 @@ export function BatchEditTable({
   const updateCamp = useCallback(
     (campName: string, updates: Partial<Camp>) => {
       setLocalCamps((prev) =>
-        prev.map((camp) => (camp.name === campName ? { ...camp, ...updates } : camp))
+        prev.map((camp) =>
+          camp.name === campName ? { ...camp, ...updates } : camp
+        )
       );
 
       // Check if changed from original
@@ -214,11 +212,13 @@ export function BatchEditTable({
             // Update name and track change
             const isNewCamp = !originalCamps.has(campName);
             const originalName = nameMapping.get(campName) || campName;
-            
+
             setLocalCamps((prev) =>
-              prev.map((c) => (c.name === campName ? { ...c, name: trimmedValue } : c))
+              prev.map((c) =>
+                c.name === campName ? { ...c, name: trimmedValue } : c
+              )
             );
-            
+
             // Update name mapping
             setNameMapping((prev) => {
               const next = new Map(prev);
@@ -228,7 +228,7 @@ export function BatchEditTable({
               }
               return next;
             });
-            
+
             // Update changedRows
             setChangedRows((prev) => {
               const next = new Set(prev);
@@ -242,7 +242,7 @@ export function BatchEditTable({
               }
               return next;
             });
-            
+
             // Update originalCamps if it's a new camp
             if (isNewCamp) {
               setOriginalCamps((prev) => {
@@ -364,32 +364,35 @@ export function BatchEditTable({
     setChangedRows((prev) => new Set(prev).add(newCamp.name));
   }, []);
 
-  const handleDeleteRow = useCallback((campName: string) => {
-    setDeletedRows((prev) => {
-      const next = new Set(prev);
-      if (next.has(campName)) {
-        next.delete(campName);
-        // If it was a new camp, remove it entirely
-        const isNew = !originalCamps.has(campName);
-        if (isNew) {
-          setLocalCamps((prev) => prev.filter((c) => c.name !== campName));
-          setChangedRows((prevChanged) => {
-            const nextChanged = new Set(prevChanged);
+  const handleDeleteRow = useCallback(
+    (campName: string) => {
+      setDeletedRows((prev) => {
+        const next = new Set(prev);
+        if (next.has(campName)) {
+          next.delete(campName);
+          // If it was a new camp, remove it entirely
+          const isNew = !originalCamps.has(campName);
+          if (isNew) {
+            setLocalCamps((prev) => prev.filter((c) => c.name !== campName));
+            setChangedRows((prevChanged) => {
+              const nextChanged = new Set(prevChanged);
+              nextChanged.delete(campName);
+              return nextChanged;
+            });
+          }
+        } else {
+          next.add(campName);
+          setChangedRows((prev) => {
+            const nextChanged = new Set(prev);
             nextChanged.delete(campName);
             return nextChanged;
           });
         }
-      } else {
-        next.add(campName);
-        setChangedRows((prev) => {
-          const nextChanged = new Set(prev);
-          nextChanged.delete(campName);
-          return nextChanged;
-        });
-      }
-      return next;
-    });
-  }, [originalCamps]);
+        return next;
+      });
+    },
+    [originalCamps]
+  );
 
   const handleSave = useCallback(async () => {
     setIsSaving(true);
@@ -397,17 +400,17 @@ export function BatchEditTable({
       // Get all camps that have been changed
       const campsToSave: Camp[] = [];
       const renamedCamps: Array<{ oldName: string; newName: string }> = [];
-      
+
       for (const camp of localCamps) {
         if (deletedRows.has(camp.name)) continue;
-        
+
         // Get the original name for this camp
         const originalName = nameMapping.get(camp.name) || camp.name;
-        
+
         // Check if this camp was changed (tracked by original name)
         if (changedRows.has(originalName)) {
           campsToSave.push(camp);
-          
+
           // If the name changed, track it for deletion of old camp
           if (originalName !== camp.name) {
             renamedCamps.push({ oldName: originalName, newName: camp.name });
@@ -437,7 +440,14 @@ export function BatchEditTable({
     } finally {
       setIsSaving(false);
     }
-  }, [localCamps, changedRows, deletedRows, originalCamps, nameMapping, onSave]);
+  }, [
+    localCamps,
+    changedRows,
+    deletedRows,
+    originalCamps,
+    nameMapping,
+    onSave,
+  ]);
 
   const renderTable = useCallback(
     (campList: Camp[]) => {
@@ -488,8 +498,8 @@ export function BatchEditTable({
                     {col === "ageFrom"
                       ? "Age From"
                       : col === "ageTo"
-                        ? "Age To"
-                        : t.campFields[col as keyof typeof t.campFields] || col}
+                      ? "Age To"
+                      : t.campFields[col as keyof typeof t.campFields] || col}
                     {getSortIcon(col)}
                   </th>
                 ))}
@@ -558,16 +568,29 @@ export function BatchEditTable({
                       }
 
                       return (
-                        <td key={col} className="border-b border-r border-border px-2 py-1 min-w-[100px]">
+                        <td
+                          key={col}
+                          className="border-b border-r border-border px-2 py-1 min-w-[100px]"
+                        >
                           <Input
-                            type={col === "ageFrom" || col === "ageTo" ? "number" : "text"}
+                            type={
+                              col === "ageFrom" || col === "ageTo"
+                                ? "number"
+                                : "text"
+                            }
                             value={cellValue}
                             onChange={(e) =>
                               handleCellChange(camp.name, col, e.target.value)
                             }
                             className="h-8 text-xs w-full"
                             disabled={isDeleted}
-                            placeholder={col === "ageFrom" || col === "ageTo" ? (camp.ageRange.type === "all" ? "all" : "") : undefined}
+                            placeholder={
+                              col === "ageFrom" || col === "ageTo"
+                                ? camp.ageRange.type === "all"
+                                  ? "all"
+                                  : ""
+                                : undefined
+                            }
                           />
                         </td>
                       );
@@ -583,7 +606,11 @@ export function BatchEditTable({
                             ? "bg-red-50 dark:bg-red-950/20 border border-red-300 dark:border-red-800"
                             : "bg-red-50 dark:bg-red-950/20 border border-red-500 dark:border-red-700"
                         }`}
-                        title={isDeleted ? "Click to undo deletion" : t.batchView.markForDeletion}
+                        title={
+                          isDeleted
+                            ? "Click to undo deletion"
+                            : t.batchView.markForDeletion
+                        }
                       >
                         <Trash2
                           className={`h-3 w-3 ${
@@ -627,7 +654,9 @@ export function BatchEditTable({
               {t.batchView.rowsChanged.replace("X", changedCount.toString())}
             </span>
           )}
-          {changedCount > 0 && deletedCount > 0 && <span className="mx-2">•</span>}
+          {changedCount > 0 && deletedCount > 0 && (
+            <span className="mx-2">•</span>
+          )}
           {deletedCount > 0 && (
             <span>
               {t.batchView.rowsDeleted.replace("X", deletedCount.toString())}
@@ -663,4 +692,3 @@ export function BatchEditTable({
     </div>
   );
 }
-

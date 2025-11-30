@@ -152,7 +152,7 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
             <div className="pt-2">
               <CampSingleLocationMap
                 camp={camp}
-                height="200px"
+                height="400px"
                 className="mt-2"
               />
             </div>
@@ -164,7 +164,7 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
               <div className="pt-2">
                 <GoogleMapEmbed
                   address={camp.address}
-                  height="200px"
+                  height="400px"
                   className="mt-2"
                 />
               </div>
