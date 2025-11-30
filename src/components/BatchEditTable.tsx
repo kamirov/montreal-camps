@@ -3,11 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  formatAgeRange,
   formatDates,
   formatLanguages,
   formatPhone,
-  parseAgeRange,
   parseDates,
   parseLanguages,
   parsePhone,
@@ -15,13 +13,11 @@ import {
 import type { Camp } from "@/lib/validations/camp";
 import { useTranslation } from "@/localization/useTranslation";
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type BatchEditTableProps = {
   camps: Camp[];
   onSave: (changedCamps: Camp[], deletedNames: string[]) => Promise<void>;
-  availableBoroughs: string[];
-  availableLanguages: string[];
 };
 
 type SortState = {
@@ -59,8 +55,6 @@ const DEFAULT_CAMP: Omit<Camp, "name"> = {
 export function BatchEditTable({
   camps,
   onSave,
-  availableBoroughs,
-  availableLanguages,
 }: BatchEditTableProps) {
   const { t } = useTranslation();
   const [localCamps, setLocalCamps] = useState<Camp[]>(camps);
@@ -109,8 +103,8 @@ export function BatchEditTable({
       }
 
       const sorted = [...campList].sort((a, b) => {
-        let aVal: any;
-        let bVal: any;
+        let aVal: string | number;
+        let bVal: string | number;
 
         switch (sortState.column) {
           case "name":
@@ -204,8 +198,6 @@ export function BatchEditTable({
     (campName: string, field: ColumnKey, value: string) => {
       const camp = localCamps.find((c) => c.name === campName);
       if (!camp) return;
-
-      let parsedValue: any = value;
 
       switch (field) {
         case "name": {
@@ -359,7 +351,7 @@ export function BatchEditTable({
           return;
       }
     },
-    [localCamps, updateCamp, originalCamps]
+    [localCamps, updateCamp, originalCamps, nameMapping]
   );
 
   const handleAddRow = useCallback(() => {
@@ -519,7 +511,6 @@ export function BatchEditTable({
                   >
                     {columns.map((col) => {
                       let cellValue = "";
-                      let inputType: "text" | "select" = "text";
 
                       switch (col) {
                         case "name":

@@ -123,11 +123,9 @@ export function CampMapWithMarkers({
 
         // Add hover event listeners
         marker.addListener("mouseover", () => {
-          setHoveredCamp((prevSelected) => {
-            // Only show hover if no camp is selected or a different camp is selected
-            // We'll check selectedCamp state in the render, but set hover here
-            return camp;
-          });
+          // Only show hover if no camp is selected or a different camp is selected
+          // We'll check selectedCamp state in the render, but set hover here
+          setHoveredCamp(camp);
         });
 
         marker.addListener("mouseout", () => {
@@ -185,7 +183,7 @@ export function CampMapWithMarkers({
 
   const mapContainerStyle = {
     width: "100%",
-    height: "100%",
+    height: height,
   };
 
   const mapOptions: google.maps.MapOptions = {

@@ -3,7 +3,6 @@
 import { CampCard } from "@/components/CampCard";
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp } from "@/types/camp";
-import { useMemo } from "react";
 
 type CampColumnsProps = {
   camps: Camp[];

@@ -687,8 +687,6 @@ export default function ManagePage() {
           <BatchEditTable
             camps={camps}
             onSave={handleBatchSave}
-            availableBoroughs={availableBoroughs}
-            availableLanguages={availableLanguages}
           />
         ) : (
           <>

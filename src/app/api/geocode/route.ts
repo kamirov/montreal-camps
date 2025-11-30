@@ -61,10 +61,8 @@ async function geocodeWithRetry(
       }
 
       throw new Error(`Geocoding failed with status: ${data.status}`);
-    } catch (error: any) {
+    } catch (error: unknown) {
       const isLastAttempt = attempt === retries;
-      const isTimeout =
-        error?.name === "TimeoutError" || error?.code === "ECONNREFUSED";
 
       if (isLastAttempt) {
         console.error(
