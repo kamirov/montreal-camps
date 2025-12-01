@@ -64,7 +64,8 @@ export const en: Translations = {
 
   campSelection: {
     title: "Multiple Camps at This Location",
-    description: "There are multiple camps at this location. Please select one to view details:",
+    description:
+      "There are multiple camps at this location. Please select one to view details:",
     selectCamp: "Select a camp",
   },
 

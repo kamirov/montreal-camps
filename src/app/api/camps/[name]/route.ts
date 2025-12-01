@@ -113,7 +113,8 @@ export async function PUT(request: Request, { params }: RouteParams) {
     // Handle optional phone and link
     const phoneValue = campData.phone?.number ?? null;
     const phoneExtensionValue = campData.phone?.extension ?? null;
-    const linkValue = campData.link && campData.link.trim() !== "" ? campData.link : null;
+    const linkValue =
+      campData.link && campData.link.trim() !== "" ? campData.link : null;
 
     // Upsert using Drizzle's insert with onConflictDoUpdate
     await db

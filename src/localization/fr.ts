@@ -64,7 +64,8 @@ export const fr: Translations = {
 
   campSelection: {
     title: "Plusieurs camps à cet emplacement",
-    description: "Il y a plusieurs camps à cet emplacement. Veuillez en sélectionner un pour voir les détails :",
+    description:
+      "Il y a plusieurs camps à cet emplacement. Veuillez en sélectionner un pour voir les détails :",
     selectCamp: "Sélectionner un camp",
   },
 
