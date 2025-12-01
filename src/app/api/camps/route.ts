@@ -33,7 +33,7 @@ export async function GET() {
             }
           : undefined,
         email: camp.email ?? undefined,
-        address: camp.address ?? undefined,
+        address: camp.address ?? "",
         latitude: camp.latitude ? parseFloat(camp.latitude) : undefined,
         longitude: camp.longitude ? parseFloat(camp.longitude) : undefined,
         notes: camp.notes ?? undefined,

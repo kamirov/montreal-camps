@@ -274,4 +274,10 @@ export type Translations = {
     sortAscending: string;
     sortDescending: string;
   };
+
+  // Combobox
+  combobox: {
+    noMatches: string;
+    createNew: string;
+  };
 };

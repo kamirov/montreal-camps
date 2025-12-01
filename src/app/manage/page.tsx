@@ -16,13 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { SearchableCombobox } from "@/components/ui/searchable-combobox";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagsInput } from "@/components/ui/tags-input";
 import { useToast } from "@/components/ui/use-toast";
@@ -720,22 +714,15 @@ export default function ManagePage() {
                 {t.manage.selectCamp}
               </label>
               <div className="flex gap-2">
-                <Select
+                <SearchableCombobox
                   key={isNewCamp ? "new-camp" : selectedCampName || "empty"}
                   value={selectedCampName || undefined}
-                  onValueChange={handleCampSelect}
-                >
-                  <SelectTrigger className="flex-1">
-                    <SelectValue placeholder={t.manage.selectCamp} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {camps.map((camp) => (
-                      <SelectItem key={camp.name} value={camp.name}>
-                        {camp.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  onChange={handleCampSelect}
+                  options={camps.map((camp) => camp.name)}
+                  placeholder={t.manage.selectCamp}
+                  emptyMessage={t.combobox.noMatches}
+                  className="flex-1"
+                />
                 <Button
                   type="button"
                   onClick={() => handleCampSelect("new")}

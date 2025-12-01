@@ -56,7 +56,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
           }
         : undefined,
       email: camp.email ?? undefined,
-      address: camp.address ?? undefined,
+      address: camp.address ?? "",
       latitude: camp.latitude ? parseFloat(camp.latitude) : undefined,
       longitude: camp.longitude ? parseFloat(camp.longitude) : undefined,
       notes: camp.notes ?? undefined,
@@ -182,7 +182,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
           }
         : undefined,
       email: updatedCamp.email ?? undefined,
-      address: updatedCamp.address ?? undefined,
+      address: updatedCamp.address ?? "",
       latitude: updatedCamp.latitude
         ? parseFloat(updatedCamp.latitude)
         : undefined,

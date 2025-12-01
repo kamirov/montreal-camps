@@ -250,4 +250,9 @@ export const en: Translations = {
     sortAscending: "Sort ascending",
     sortDescending: "Sort descending",
   },
+
+  combobox: {
+    noMatches: "No matches found",
+    createNew: "Create new",
+  },
 };
