@@ -82,7 +82,7 @@ export const campSchema = z.object({
   email: z
     .union([z.string().email("Must be a valid email address"), z.literal("")])
     .optional(),
-  address: z.string().optional(),
+  address: z.string().min(1, "Address is required"),
   latitude: z.number().min(-90).max(90).optional().nullable(),
   longitude: z.number().min(-180).max(180).optional().nullable(),
   notes: z.string().optional(),

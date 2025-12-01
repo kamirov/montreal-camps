@@ -456,6 +456,7 @@ export default function ManagePage() {
         link: "https://",
         phone: undefined,
         email: "",
+        address: "",
         notes: "",
       });
     } catch (err) {
@@ -481,6 +482,7 @@ export default function ManagePage() {
       link: undefined,
       phone: undefined,
       email: "",
+      address: "",
       notes: "",
     });
     setErrors({});
@@ -1110,8 +1112,7 @@ export default function ManagePage() {
                   {/* Address */}
                   <div>
                     <label className="block text-sm font-medium mb-2">
-                      {t.campFields.address}{" "}
-                      <span className="text-muted-foreground">(Optional)</span>
+                      {t.campFields.address}
                     </label>
                     <Input
                       type="text"
@@ -1120,6 +1121,7 @@ export default function ManagePage() {
                         setFormData({ ...formData, address: e.target.value })
                       }
                       placeholder="e.g., 123 Main St, Montreal, QC or Henri-Julien Park"
+                      required
                     />
                     {errors.address && (
                       <p className="text-sm text-destructive mt-1">
