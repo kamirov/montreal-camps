@@ -35,6 +35,22 @@ import { useEffect, useMemo, useState } from "react";
 
 type FormErrors = Partial<Record<keyof CampUpsert | "name", string>>;
 
+const DEFAULT_BOROUGH = "Ahuntsic-Cartierville";
+const LAST_BOROUGH_KEY = "lastSelectedBorough";
+
+// Get default borough from localStorage or use fallback
+const getDefaultBorough = (): string => {
+  if (typeof window === "undefined") return DEFAULT_BOROUGH;
+  const lastBorough = localStorage.getItem(LAST_BOROUGH_KEY);
+  return lastBorough || DEFAULT_BOROUGH;
+};
+
+// Save borough to localStorage
+const saveBoroughToStorage = (borough: string) => {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(LAST_BOROUGH_KEY, borough);
+};
+
 export default function ManagePage() {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -60,12 +76,12 @@ export default function ManagePage() {
 
   const [campName, setCampName] = useState("");
   const [formData, setFormData] = useState<CampUpsert>({
-    borough: "Ahuntsic-Cartierville",
-    ageRange: { type: "range", allAges: false, from: 5, to: 15 },
+    borough: getDefaultBorough(),
+    ageRange: { type: "all", allAges: true },
     languages: ["English", "French"],
     dates: { type: "yearRound", yearRound: true },
     financialAid: "NA",
-    link: undefined,
+    link: "https://",
     phone: undefined,
     email: "",
     address: "",
@@ -219,12 +235,12 @@ export default function ManagePage() {
       setSelectedCampName(null);
       setCampName("");
       setFormData({
-        borough: "Ahuntsic-Cartierville",
-        ageRange: { type: "range", allAges: false, from: 5, to: 15 },
+        borough: getDefaultBorough(),
+        ageRange: { type: "all", allAges: true },
         languages: ["English", "French"],
         dates: { type: "yearRound", yearRound: true },
         financialAid: "NA",
-        link: undefined,
+        link: "https://",
         phone: undefined,
         email: "",
         address: "",
@@ -310,6 +326,11 @@ export default function ManagePage() {
 
       // Prepare camp data with coordinates
       const campDataToSave = { ...formData };
+
+      // Convert "https://" to undefined since it's not a complete URL
+      if (campDataToSave.link === "https://") {
+        campDataToSave.link = undefined;
+      }
 
       // Check if we need to geocode the address
       let needsGeocoding = false;
@@ -427,12 +448,12 @@ export default function ManagePage() {
       setIsNewCamp(false);
       setCampName("");
       setFormData({
-        borough: "Ahuntsic-Cartierville",
+        borough: getDefaultBorough(),
         ageRange: { type: "all", allAges: true },
         languages: [],
         dates: { type: "yearRound", yearRound: true },
         financialAid: "",
-        link: undefined,
+        link: "https://",
         phone: undefined,
         email: "",
         notes: "",
@@ -503,6 +524,11 @@ export default function ManagePage() {
       // Upsert changed camps with geocoding
       for (const camp of changedCamps) {
         const { name, ...campData } = camp;
+
+        // Convert "https://" to undefined since it's not a complete URL
+        if (campData.link === "https://") {
+          campData.link = undefined;
+        }
 
         // Check if we need to geocode the address
         let needsGeocoding = false;
@@ -749,9 +775,10 @@ export default function ManagePage() {
                     </label>
                     <BoroughAutocomplete
                       value={formData.borough || ""}
-                      onChange={(value) =>
-                        setFormData({ ...formData, borough: value })
-                      }
+                      onChange={(value) => {
+                        setFormData({ ...formData, borough: value });
+                        saveBoroughToStorage(value);
+                      }}
                       suggestions={availableBoroughs}
                       required
                     />
