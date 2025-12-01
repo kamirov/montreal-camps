@@ -9,14 +9,15 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import { useTranslation } from "@/localization/useTranslation";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import * as React from "react";
 
 type SearchableComboboxProps = {
@@ -29,6 +30,8 @@ type SearchableComboboxProps = {
   onCreateNew?: (value: string) => void;
   disabled?: boolean;
   className?: string;
+  inputMode?: boolean;
+  required?: boolean;
 };
 
 export function SearchableCombobox({
@@ -41,39 +44,38 @@ export function SearchableCombobox({
   onCreateNew,
   disabled = false,
   className,
+  inputMode = false,
+  required = false,
 }: SearchableComboboxProps) {
   const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
-  const [searchValue, setSearchValue] = React.useState("");
-
   const displayValue = value || "";
+  const [searchValue, setSearchValue] = React.useState(
+    inputMode ? displayValue : ""
+  );
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
   const emptyMessageText = emptyMessage || t.combobox.noMatches;
 
-  // Filter options based on search value
-  const filteredOptions = React.useMemo(() => {
-    if (!searchValue.trim()) {
-      return options;
+  // In inputMode, sync searchValue with value when it changes externally
+  React.useEffect(() => {
+    if (inputMode) {
+      setSearchValue(displayValue);
     }
-    const searchLower = searchValue.toLowerCase();
-    return options.filter((option) =>
-      option.toLowerCase().includes(searchLower)
-    );
-  }, [options, searchValue]);
-
-  // Check if the current search value is a new value (not in options)
-  const isNewValue = React.useMemo(() => {
-    if (!allowCreateNew || !searchValue.trim()) {
-      return false;
-    }
-    return !options.some(
-      (option) => option.toLowerCase() === searchValue.toLowerCase()
-    );
-  }, [allowCreateNew, options, searchValue]);
+  }, [displayValue, inputMode]);
 
   const handleSelect = (selectedValue: string) => {
     onChange(selectedValue);
     setOpen(false);
-    setSearchValue("");
+    if (!inputMode) {
+      setSearchValue("");
+    } else {
+      // In inputMode, update searchValue to match selected value
+      setSearchValue(selectedValue);
+    }
+    if (inputMode && inputRef.current) {
+      inputRef.current.blur();
+    }
   };
 
   const handleCreateNew = () => {
@@ -81,47 +83,109 @@ export function SearchableCombobox({
       onCreateNew(searchValue.trim());
       onChange(searchValue.trim());
       setOpen(false);
-      setSearchValue("");
+      if (inputMode && inputRef.current) {
+        inputRef.current.blur();
+      }
     } else if (allowCreateNew && searchValue.trim()) {
       // If no onCreateNew callback, just use onChange
       onChange(searchValue.trim());
       setOpen(false);
-      setSearchValue("");
+      if (inputMode && inputRef.current) {
+        inputRef.current.blur();
+      }
     }
   };
+
+  // In inputMode, handle direct input changes
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setSearchValue(newValue);
+    if (inputMode && allowCreateNew) {
+      // Automatically update value as user types when allowCreateNew is true
+      onChange(newValue);
+    }
+    setOpen(true);
+  };
+
+  const handleBlur = () => {
+    // Delay closing to allow click on suggestion
+    setTimeout(() => setOpen(false), 200);
+  };
+
+  // Filter options based on search value (searchValue is updated immediately as user types)
+  const filterValue = searchValue;
+  const filteredOptionsForDisplay = React.useMemo(() => {
+    if (!filterValue || !filterValue.trim()) {
+      return options;
+    }
+    const searchLower = filterValue.toLowerCase();
+    return options.filter((option) =>
+      option.toLowerCase().includes(searchLower)
+    );
+  }, [options, filterValue]);
+
+  // Check if the current filter value is a new value (not in options)
+  const isNewValueForDisplay = React.useMemo(() => {
+    if (!allowCreateNew || !filterValue.trim()) {
+      return false;
+    }
+    return !options.some(
+      (option) => option.toLowerCase() === filterValue.trim().toLowerCase()
+    );
+  }, [allowCreateNew, options, filterValue]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          role="combobox"
-          aria-expanded={open}
-          disabled={disabled}
-          className={cn(
-            "w-full justify-between font-normal",
-            !displayValue && "text-muted-foreground",
-            className
-          )}
-        >
-          {displayValue || placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-        <Command shouldFilter={false}>
-          <CommandInput
+        {inputMode ? (
+          <Input
+            ref={inputRef}
+            value={displayValue}
+            onChange={handleInputChange}
+            onFocus={() => setOpen(true)}
+            onBlur={handleBlur}
             placeholder={placeholder}
-            value={searchValue}
-            onValueChange={setSearchValue}
+            required={required}
+            disabled={disabled}
+            className={className}
           />
-          <CommandList>
-            {filteredOptions.length === 0 && !isNewValue && (
-              <CommandEmpty>{emptyMessageText}</CommandEmpty>
+        ) : (
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            disabled={disabled}
+            className={cn(
+              "w-full justify-between font-normal",
+              !displayValue && "text-muted-foreground",
+              className
             )}
-            {filteredOptions.length > 0 && (
+          >
+            {displayValue || placeholder}
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        )}
+      </PopoverTrigger>
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
+        <Command shouldFilter={false}>
+          {!inputMode && (
+            <CommandInput
+              placeholder={placeholder}
+              value={searchValue}
+              onValueChange={setSearchValue}
+            />
+          )}
+          <CommandList>
+            {filteredOptionsForDisplay.length === 0 &&
+              !isNewValueForDisplay && (
+                <CommandEmpty>{emptyMessageText}</CommandEmpty>
+              )}
+            {filteredOptionsForDisplay.length > 0 && (
               <CommandGroup>
-                {filteredOptions.map((option) => (
+                {filteredOptionsForDisplay.map((option) => (
                   <CommandItem
                     key={option}
                     value={option}
@@ -138,14 +202,14 @@ export function SearchableCombobox({
                 ))}
               </CommandGroup>
             )}
-            {isNewValue && allowCreateNew && (
+            {isNewValueForDisplay && allowCreateNew && (
               <CommandGroup>
                 <CommandItem
                   onSelect={handleCreateNew}
                   className="text-primary"
                 >
                   <Plus className="mr-2 h-4 w-4" />
-                  {t.combobox.createNew} &quot;{searchValue.trim()}&quot;
+                  {t.combobox.createNew} &quot;{filterValue.trim()}&quot;
                 </CommandItem>
               </CommandGroup>
             )}
@@ -155,4 +219,3 @@ export function SearchableCombobox({
     </Popover>
   );
 }
-
