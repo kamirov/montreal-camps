@@ -26,7 +26,6 @@ export function BoroughAutocomplete({
       options={suggestions}
       placeholder={placeholder}
       allowCreateNew={true}
-      inputMode={true}
       required={required}
       disabled={disabled}
     />
