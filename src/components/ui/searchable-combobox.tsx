@@ -30,6 +30,7 @@ type SearchableComboboxProps = {
   onCreateNew?: (value: string) => void;
   disabled?: boolean;
   className?: string;
+  inputMode?: boolean;
   required?: boolean;
 };
 
@@ -43,37 +44,36 @@ export function SearchableCombobox({
   onCreateNew,
   disabled = false,
   className,
+  inputMode = false,
   required = false,
 }: SearchableComboboxProps) {
   const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   const displayValue = value || "";
-  // When allowCreateNew is true, use input mode (needs Input field for typing)
-  const useInputMode = allowCreateNew;
   const [searchValue, setSearchValue] = React.useState(
-    useInputMode ? displayValue : ""
+    inputMode ? displayValue : ""
   );
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   const emptyMessageText = emptyMessage || t.combobox.noMatches;
 
-  // In input mode, sync searchValue with value when it changes externally
+  // In inputMode, sync searchValue with value when it changes externally
   React.useEffect(() => {
-    if (useInputMode) {
+    if (inputMode) {
       setSearchValue(displayValue);
     }
-  }, [displayValue, useInputMode]);
+  }, [displayValue, inputMode]);
 
   const handleSelect = (selectedValue: string) => {
     onChange(selectedValue);
     setOpen(false);
-    if (!useInputMode) {
+    if (!inputMode) {
       setSearchValue("");
     } else {
-      // In input mode, update searchValue to match selected value
+      // In inputMode, update searchValue to match selected value
       setSearchValue(selectedValue);
     }
-    if (useInputMode && inputRef.current) {
+    if (inputMode && inputRef.current) {
       inputRef.current.blur();
     }
   };
@@ -83,24 +83,24 @@ export function SearchableCombobox({
       onCreateNew(searchValue.trim());
       onChange(searchValue.trim());
       setOpen(false);
-      if (useInputMode && inputRef.current) {
+      if (inputMode && inputRef.current) {
         inputRef.current.blur();
       }
     } else if (allowCreateNew && searchValue.trim()) {
       // If no onCreateNew callback, just use onChange
       onChange(searchValue.trim());
       setOpen(false);
-      if (useInputMode && inputRef.current) {
+      if (inputMode && inputRef.current) {
         inputRef.current.blur();
       }
     }
   };
 
-  // In input mode, handle direct input changes
+  // In inputMode, handle direct input changes
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     setSearchValue(newValue);
-    if (useInputMode && allowCreateNew) {
+    if (inputMode && allowCreateNew) {
       // Automatically update value as user types when allowCreateNew is true
       onChange(newValue);
     }
@@ -137,7 +137,7 @@ export function SearchableCombobox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        {useInputMode ? (
+        {inputMode ? (
           <Input
             ref={inputRef}
             value={displayValue}
@@ -171,7 +171,7 @@ export function SearchableCombobox({
         align="start"
       >
         <Command shouldFilter={false}>
-          {!useInputMode && (
+          {!inputMode && (
             <CommandInput
               placeholder={placeholder}
               value={searchValue}

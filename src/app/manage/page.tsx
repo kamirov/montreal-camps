@@ -762,6 +762,7 @@ export default function ManagePage() {
                         ? "Borough"
                         : "Arrondissement"}
                     </label>
+
                     <BoroughAutocomplete
                       value={formData.borough || ""}
                       onChange={(value) => {

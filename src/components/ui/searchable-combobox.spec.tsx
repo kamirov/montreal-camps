@@ -46,7 +46,9 @@ describe("SearchableCombobox", () => {
     fireEvent.click(button);
 
     await waitFor(() => {
-      expect(screen.getByPlaceholderText("Select option...")).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText("Select option...")
+      ).toBeInTheDocument();
     });
   });
 
@@ -78,7 +80,9 @@ describe("SearchableCombobox", () => {
     });
 
     await waitFor(() => {
-      expect(screen.getByText(/No matches found|Aucun résultat trouvé/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/No matches found|Aucun résultat trouvé/)
+      ).toBeInTheDocument();
     });
   });
 
@@ -178,7 +182,9 @@ describe("SearchableCombobox", () => {
     });
 
     await waitFor(() => {
-      expect(screen.queryByText(/Create new|Créer nouveau/)).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/Create new|Créer nouveau/)
+      ).not.toBeInTheDocument();
     });
   });
 
@@ -235,4 +241,3 @@ describe("SearchableCombobox", () => {
     });
   });
 });
-
