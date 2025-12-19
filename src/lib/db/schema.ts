@@ -1,4 +1,4 @@
-import { jsonb, numeric, pgTable, text, varchar } from "drizzle-orm/pg-core";
+import { jsonb, numeric, pgTable, text, timestamp, varchar } from "drizzle-orm/pg-core";
 
 export const camps = pgTable("camps", {
   name: varchar("name", { length: 255 }).primaryKey(),
@@ -15,4 +15,6 @@ export const camps = pgTable("camps", {
   latitude: numeric("latitude", { precision: 10, scale: 7 }), // Optional latitude coordinate
   longitude: numeric("longitude", { precision: 10, scale: 7 }), // Optional longitude coordinate
   notes: text("notes"), // Made nullable
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
