@@ -1,8 +1,10 @@
 "use client";
 
+import { useTheme } from "@/contexts/ThemeContext";
+import { darkModeMapStyles } from "@/lib/googleMapsStyles";
 import { Camp } from "@/types/camp";
 import { GoogleMap, Marker, useLoadScript } from "@react-google-maps/api";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 type CampSingleLocationMapProps = {
   camp: Camp;
@@ -20,6 +22,8 @@ export function CampSingleLocationMap({
   zoom = 15,
   className = "",
 }: CampSingleLocationMapProps) {
+  const { resolvedTheme } = useTheme();
+  const [map, setMap] = useState<google.maps.Map | null>(null);
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   const { isLoaded, loadError } = useLoadScript({
@@ -40,6 +44,29 @@ export function CampSingleLocationMap({
     }
     return null;
   }, [camp.latitude, camp.longitude]);
+
+  // Define mapOptions before any early returns to follow Rules of Hooks
+  const mapOptions: google.maps.MapOptions = useMemo(
+    () => ({
+      zoom: zoom,
+      center: position,
+      zoomControl: true,
+      streetViewControl: false,
+      mapTypeControl: false,
+      fullscreenControl: false,
+      disableDefaultUI: false,
+      styles: resolvedTheme === "dark" ? darkModeMapStyles : undefined,
+    }),
+    [zoom, position, resolvedTheme]
+  );
+
+  // Update map styles when theme changes
+  useEffect(() => {
+    if (!map) return;
+
+    const styles = resolvedTheme === "dark" ? darkModeMapStyles : undefined;
+    map.setOptions({ styles });
+  }, [map, resolvedTheme]);
 
   if (!apiKey) {
     return (
@@ -96,14 +123,8 @@ export function CampSingleLocationMap({
     height: "100%",
   };
 
-  const mapOptions: google.maps.MapOptions = {
-    zoom: zoom,
-    center: position,
-    zoomControl: true,
-    streetViewControl: false,
-    mapTypeControl: false,
-    fullscreenControl: false,
-    disableDefaultUI: false,
+  const handleMapLoad = (mapInstance: google.maps.Map) => {
+    setMap(mapInstance);
   };
 
   return (
@@ -116,6 +137,7 @@ export function CampSingleLocationMap({
         options={mapOptions}
         center={position}
         zoom={zoom}
+        onLoad={handleMapLoad}
       >
         <Marker position={position} title={camp.name} />
       </GoogleMap>

@@ -2,6 +2,8 @@
 
 import { CampInfoWindowContent } from "@/components/CampInfoWindowContent";
 import { CampSelectionDialog } from "@/components/CampSelectionDialog";
+import { useTheme } from "@/contexts/ThemeContext";
+import { darkModeMapStyles } from "@/lib/googleMapsStyles";
 import { Camp } from "@/types/camp";
 import { MarkerClusterer } from "@googlemaps/markerclusterer";
 import { GoogleMap, InfoWindow, useLoadScript } from "@react-google-maps/api";
@@ -25,6 +27,7 @@ export function CampMapWithMarkers({
   zoom = 11,
   className = "",
 }: CampMapWithMarkersProps) {
+  const { resolvedTheme } = useTheme();
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [selectedCamp, setSelectedCamp] = useState<Camp | null>(null);
   const [hoveredCamp, setHoveredCamp] = useState<Camp | null>(null);
@@ -102,6 +105,14 @@ export function CampMapWithMarkers({
       map.setCenter(mapCenter);
     }
   }, [map, mapCenter, campsWithCoordinates]);
+
+  // Update map styles when theme changes
+  useEffect(() => {
+    if (!map) return;
+
+    const styles = resolvedTheme === "dark" ? darkModeMapStyles : undefined;
+    map.setOptions({ styles });
+  }, [map, resolvedTheme]);
 
   // Prevent zoom and center changes during hover
   useEffect(() => {
@@ -282,6 +293,20 @@ export function CampMapWithMarkers({
     libraries: ["places"],
   });
 
+  // Define mapOptions before any early returns to follow Rules of Hooks
+  const mapOptions: google.maps.MapOptions = useMemo(
+    () => ({
+      zoom: mapZoom,
+      center: mapCenter,
+      zoomControl: true,
+      streetViewControl: false,
+      mapTypeControl: false,
+      fullscreenControl: true,
+      styles: resolvedTheme === "dark" ? darkModeMapStyles : undefined,
+    }),
+    [mapZoom, mapCenter, resolvedTheme]
+  );
+
   if (!apiKey) {
     return (
       <div className={`w-full h-full ${className}`}>
@@ -327,15 +352,6 @@ export function CampMapWithMarkers({
   const mapContainerStyle = {
     width: "100%",
     height: height,
-  };
-
-  const mapOptions: google.maps.MapOptions = {
-    zoom: mapZoom,
-    center: mapCenter,
-    zoomControl: true,
-    streetViewControl: false,
-    mapTypeControl: false,
-    fullscreenControl: true,
   };
 
   const handleMapLoad = (mapInstance: google.maps.Map) => {
