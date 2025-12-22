@@ -1,10 +1,8 @@
 "use client";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   formatAgeRange,
-  formatLanguage,
   formatPhone,
 } from "@/localization/formatters";
 import { useTranslation } from "@/localization/useTranslation";
@@ -13,7 +11,6 @@ import {
   ArrowLeft,
   ExternalLink,
   FileText,
-  Globe,
   MapPin,
   Navigation,
   Phone,
@@ -95,26 +92,6 @@ export function CampInfoWindowContent({
           <span className="font-medium">
             {formatAgeRange(camp.ageRange, language)}
           </span>
-        </div>
-        <div className="bg-primary/5 -mx-4 px-4 py-2">
-          <div className="text-xs text-muted-foreground">
-            <span className="font-medium">{t.campFields.financialAid}:</span>{" "}
-            {camp.financialAid}
-          </div>
-        </div>
-        <div className="flex items-start gap-2.5">
-          <Globe className="h-4 w-4 text-primary/70 mt-0.5" />
-          <div className="flex flex-wrap gap-1.5">
-            {camp.languages.map((lang) => (
-              <Badge
-                key={lang}
-                variant="outline"
-                className="text-xs border-primary/20"
-              >
-                {formatLanguage(lang, t)}
-              </Badge>
-            ))}
-          </div>
         </div>
       </div>
 
