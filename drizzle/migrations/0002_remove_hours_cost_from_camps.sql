@@ -8,3 +8,4 @@ ALTER TABLE "camps" DROP COLUMN IF EXISTS "cost_period";
 
 
 
+
