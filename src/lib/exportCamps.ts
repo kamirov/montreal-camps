@@ -64,7 +64,6 @@ export function exportCampsToExcel(
       t.export.columns.phone,
       t.export.columns.email,
       t.export.columns.address,
-      t.export.columns.notes,
     ];
 
     const data = sortedCamps.map((camp) => ({
@@ -75,7 +74,6 @@ export function exportCampsToExcel(
       [t.export.columns.phone]: camp.phone ? formatPhone(camp.phone) : "",
       [t.export.columns.email]: camp.email ?? "",
       [t.export.columns.address]: camp.address ?? "",
-      [t.export.columns.notes]: camp.notes ?? "",
     }));
 
     const worksheet = XLSX.utils.json_to_sheet(data, {
@@ -90,7 +88,6 @@ export function exportCampsToExcel(
       { wch: 20 }, // phone
       { wch: 30 }, // email
       { wch: 40 }, // address
-      { wch: 40 }, // notes
     ];
 
     // Bold the header row

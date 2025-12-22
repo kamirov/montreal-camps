@@ -8,12 +8,12 @@ import { exportCampsToExcel } from "./exportCamps";
 // Mock XLSX
 vi.mock("xlsx", () => ({
   utils: {
-    json_to_sheet: vi.fn(() => ({ "!ref": "A1:H2" })),
+    json_to_sheet: vi.fn(() => ({ "!ref": "A1:G2" })),
     book_new: vi.fn(() => ({})),
     book_append_sheet: vi.fn(),
     decode_range: vi.fn(() => ({
       s: { c: 0, r: 0 },
-      e: { c: 7, r: 1 },
+      e: { c: 6, r: 1 },
     })),
     encode_cell: vi.fn(
       (cell: { r: number; c: number }) =>
@@ -94,7 +94,7 @@ describe("exportCampsToExcel", () => {
     expect(exportedCamp).toHaveProperty("Age Range", "5 years - 12 years");
     expect(exportedCamp).toHaveProperty("Website", "https://example.com");
     expect(exportedCamp).toHaveProperty("Phone", "(514) 123-4567 ext. 123");
-    expect(exportedCamp).toHaveProperty("Notes", "Bring lunch");
+    expect(exportedCamp).not.toHaveProperty("Notes");
   });
 
   it("should format camp data with French translations", () => {
@@ -144,18 +144,18 @@ describe("exportCampsToExcel", () => {
     expect(exportedCamp).toHaveProperty("Phone", "(514) 123-4567");
   });
 
-  it("should handle camps without notes", () => {
-    const campNoNotes: Camp = {
+  it("should not include notes column in export", () => {
+    const campWithNotes: Camp = {
       ...mockCamp,
-      notes: undefined,
+      notes: "Some notes",
     };
 
-    exportCampsToExcel([campNoNotes], { translations: en, language: "en" });
+    exportCampsToExcel([campWithNotes], { translations: en, language: "en" });
 
     const jsonToSheetCall = vi.mocked(XLSX.utils.json_to_sheet).mock
       .calls[0][0];
     const exportedCamp = jsonToSheetCall[0];
-    expect(exportedCamp).toHaveProperty("Notes", "");
+    expect(exportedCamp).not.toHaveProperty("Notes");
   });
 
   it("should handle multiple camps in a single sheet", () => {
@@ -248,7 +248,6 @@ describe("exportCampsToExcel", () => {
       { wch: 20 }, // phone
       { wch: 30 }, // email
       { wch: 40 }, // address
-      { wch: 40 }, // notes
     ]);
   });
 
