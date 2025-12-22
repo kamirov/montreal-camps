@@ -2,20 +2,14 @@
 
 import { CampSingleLocationMap } from "@/components/CampSingleLocationMap";
 import { GoogleMapEmbed } from "@/components/GoogleMapEmbed";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  formatAgeRange,
-  formatLanguage,
-  formatPhone,
-} from "@/localization/formatters";
+import { formatAgeRange, formatPhone } from "@/localization/formatters";
 import { useTranslation } from "@/localization/useTranslation";
 import { Camp } from "@/types/camp";
 import {
   ExternalLink,
   FileText,
-  Globe,
   MapPin,
   Navigation,
   Phone,
@@ -108,22 +102,8 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
             {camp.financialAid}
           </div>
         </div> */}
-        <div className="flex items-start gap-2.5 text-sm pt-1">
-          <Globe className="h-4 w-4 text-primary/70 mt-0.5" />
-          <div className="flex flex-wrap gap-1.5">
-            {camp.languages.map((lang) => (
-              <Badge
-                key={lang}
-                variant="outline"
-                className="text-xs border-primary/20"
-              >
-                {formatLanguage(lang, t)}
-              </Badge>
-            ))}
-          </div>
-        </div>
 
-        <div className="mt-4 pt-3 space-y-3">
+        <div className="space-y-3">
           {camp.phone && (
             <div className="flex items-center gap-2.5 text-sm">
               <Phone className="h-4 w-4 text-primary/70" />
@@ -146,7 +126,7 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
           )}
 
           {camp.address && (
-            <div className="flex items-start gap-2.5 text-sm pt-2">
+            <div className="flex items-start gap-2.5 text-sm">
               <MapPin className="h-4 w-4 text-primary/70 mt-0.5 shrink-0" />
               <div className="flex-1">
                 <a

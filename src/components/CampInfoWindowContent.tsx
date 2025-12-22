@@ -10,7 +10,6 @@ import { Camp } from "@/types/camp";
 import {
   ArrowLeft,
   ExternalLink,
-  FileText,
   MapPin,
   Navigation,
   Phone,
@@ -115,13 +114,6 @@ export function CampInfoWindowContent({
             >
               {camp.link.replace(/^https?:\/\//, "")}
             </a>
-          </div>
-        )}
-
-        {camp.notes && (
-          <div className="flex items-start gap-2.5 pt-1">
-            <FileText className="h-4 w-4 text-primary/70 mt-0.5 shrink-0" />
-            <p className="text-xs text-muted-foreground italic">{camp.notes}</p>
           </div>
         )}
       </div>
