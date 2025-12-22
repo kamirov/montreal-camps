@@ -144,3 +144,33 @@
 .animate-shake {
   animation: shake 0.5s;
 }
+
+/* Google Maps InfoWindow dark mode styling */
+.dark .gm-style-iw {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+}
+
+.dark .gm-style-iw-c {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+}
+
+.dark .gm-style-iw-d {
+  background-color: var(--card) !important;
+  color: var(--card-foreground) !important;
+  overflow: hidden !important;
+}
+
+/* Style the close button in dark mode */
+.dark .gm-ui-hover-effect {
+  opacity: 0.8;
+}
+
+.dark .gm-ui-hover-effect:hover {
+  opacity: 1;
+}
+
+.dark .gm-style-iw button[title="Close"] {
+  filter: invert(1);
+}
