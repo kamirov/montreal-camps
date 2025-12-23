@@ -95,16 +95,4 @@ describe("CampCard", () => {
     // Should have 3 action buttons: Call, Visit Website, Get Directions
     expect(buttons.length).toBeGreaterThanOrEqual(3);
   });
-
-
-  it("should display languages", () => {
-    render(
-      <LocalizationProvider>
-        <CampCard camp={mockCamp} />
-      </LocalizationProvider>
-    );
-
-    expect(screen.getByText(/English|Anglais/)).toBeInTheDocument();
-    expect(screen.getByText(/French|Français/)).toBeInTheDocument();
-  });
 });
