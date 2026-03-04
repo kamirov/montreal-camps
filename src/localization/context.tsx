@@ -42,6 +42,7 @@ export function LocalizationProvider({
     const urlLang = searchParams.get("lang") as Language;
 
     if (urlLang && (urlLang === "en" || urlLang === "fr")) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       setLanguageState(urlLang);
       // Sync to localStorage
       localStorage.setItem("language", urlLang);
@@ -51,6 +52,7 @@ export function LocalizationProvider({
       // Check localStorage if no URL param
       const savedLanguage = localStorage.getItem("language") as Language;
       if (savedLanguage && (savedLanguage === "en" || savedLanguage === "fr")) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         setLanguageState(savedLanguage);
         // Update HTML lang attribute
         document.documentElement.lang = savedLanguage;

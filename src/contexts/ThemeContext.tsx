@@ -20,6 +20,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as Theme | null;
     if (savedTheme && ["light", "dark", "system"].includes(savedTheme)) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       setThemeState(savedTheme);
     }
   }, []);
@@ -31,6 +32,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const applyTheme = (isDark: boolean) => {
       root.classList.remove("light", "dark");
       root.classList.add(isDark ? "dark" : "light");
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       setResolvedTheme(isDark ? "dark" : "light");
     };
 

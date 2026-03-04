@@ -1,11 +1,9 @@
 "use client";
 
-import { BatchEditTable } from "@/components/BatchEditTable";
 import { Header } from "@/components/Header";
 import { BoroughAutocomplete } from "@/components/ui/borough-autocomplete";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { DateRangePicker } from "@/components/ui/date-picker";
 import {
   Dialog,
   DialogContent,
@@ -17,15 +15,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { PhoneInput } from "@/components/ui/phone-input";
 import { SearchableCombobox } from "@/components/ui/searchable-combobox";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TagsInput } from "@/components/ui/tags-input";
 import { useToast } from "@/components/ui/use-toast";
 import { deleteCamp, getCamp, getCamps, upsertCamp } from "@/lib/api/camps";
+import {
+  MANAGE_DEFAULT_FINANCIAL_AID,
+  getManageDefaultDates,
+  withManageDefaults,
+} from "@/lib/manageCampDefaults";
 import type { Camp, CampUpsert } from "@/lib/validations/camp";
 import { campUpsertSchema } from "@/lib/validations/camp";
 import { useTranslation } from "@/localization/useTranslation";
 import { ExternalLink } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 
 type FormErrors = Partial<Record<keyof CampUpsert | "name", string>>;
 
@@ -59,7 +61,6 @@ export default function ManagePage() {
     text: string;
   } | null>(null);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [viewMode, setViewMode] = useState<"form" | "batch">("form");
 
   // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -73,8 +74,8 @@ export default function ManagePage() {
     borough: getDefaultBorough(),
     ageRange: { type: "all", allAges: true },
     languages: ["English", "French"],
-    dates: { type: "yearRound", yearRound: true },
-    financialAid: "NA",
+    dates: getManageDefaultDates(),
+    financialAid: MANAGE_DEFAULT_FINANCIAL_AID,
     link: "https://",
     phone: undefined,
     email: "",
@@ -130,7 +131,7 @@ export default function ManagePage() {
   }, []);
 
   // Handle auth dialog submission
-  const handleAuthSubmit = async (e: React.FormEvent) => {
+  const handleAuthSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setAuthError("");
 
@@ -200,8 +201,8 @@ export default function ManagePage() {
             borough: camp.borough,
             ageRange: camp.ageRange,
             languages: camp.languages,
-            dates: camp.dates,
-            financialAid: camp.financialAid,
+            dates: getManageDefaultDates(),
+            financialAid: MANAGE_DEFAULT_FINANCIAL_AID,
             link: camp.link,
             phone: camp.phone,
             email: camp.email ?? "",
@@ -232,8 +233,8 @@ export default function ManagePage() {
         borough: getDefaultBorough(),
         ageRange: { type: "all", allAges: true },
         languages: ["English", "French"],
-        dates: { type: "yearRound", yearRound: true },
-        financialAid: "NA",
+        dates: getManageDefaultDates(),
+        financialAid: MANAGE_DEFAULT_FINANCIAL_AID,
         link: "https://",
         phone: undefined,
         email: "",
@@ -282,7 +283,7 @@ export default function ManagePage() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErrors({});
     setMessage(null);
@@ -301,7 +302,8 @@ export default function ManagePage() {
     }
 
     // Client-side validation
-    const validationResult = campUpsertSchema.safeParse(formData);
+    const normalizedFormData = withManageDefaults(formData);
+    const validationResult = campUpsertSchema.safeParse(normalizedFormData);
     if (!validationResult.success) {
       const formattedErrors: FormErrors = {};
       validationResult.error.issues.forEach((issue) => {
@@ -319,7 +321,7 @@ export default function ManagePage() {
       const nameToUse = trimmedName;
 
       // Prepare camp data with coordinates
-      const campDataToSave = { ...formData };
+      const campDataToSave = { ...normalizedFormData };
 
       // Convert "https://" to undefined since it's not a complete URL
       if (campDataToSave.link === "https://") {
@@ -445,8 +447,8 @@ export default function ManagePage() {
         borough: getDefaultBorough(),
         ageRange: { type: "all", allAges: true },
         languages: [],
-        dates: { type: "yearRound", yearRound: true },
-        financialAid: "",
+        dates: getManageDefaultDates(),
+        financialAid: MANAGE_DEFAULT_FINANCIAL_AID,
         link: "https://",
         phone: undefined,
         email: "",
@@ -471,8 +473,8 @@ export default function ManagePage() {
       borough: "Ahuntsic-Cartierville",
       ageRange: { type: "all", allAges: true },
       languages: [],
-      dates: { type: "yearRound", yearRound: true },
-      financialAid: "",
+      dates: getManageDefaultDates(),
+      financialAid: MANAGE_DEFAULT_FINANCIAL_AID,
       link: undefined,
       phone: undefined,
       email: "",
@@ -481,143 +483,6 @@ export default function ManagePage() {
     });
     setErrors({});
     setMessage(null);
-  };
-
-  const handleBatchSave = async (
-    changedCamps: Camp[],
-    deletedNames: string[]
-  ) => {
-    try {
-      setIsSaving(true);
-      setMessage(null);
-
-      // Validate all changed camps
-      for (const camp of changedCamps) {
-        const validationResult = campUpsertSchema.safeParse({
-          borough: camp.borough,
-          ageRange: camp.ageRange,
-          languages: camp.languages,
-          dates: camp.dates,
-          financialAid: camp.financialAid,
-          link: camp.link,
-          phone: camp.phone,
-          email: camp.email,
-          address: camp.address,
-          notes: camp.notes,
-        });
-
-        if (!validationResult.success) {
-          throw new Error(
-            `Validation failed for camp "${
-              camp.name
-            }": ${validationResult.error.issues
-              .map((i) => i.message)
-              .join(", ")}`
-          );
-        }
-      }
-
-      // Upsert changed camps with geocoding
-      for (const camp of changedCamps) {
-        const { name, ...campData } = camp;
-
-        // Convert "https://" to undefined since it's not a complete URL
-        if (campData.link === "https://") {
-          campData.link = undefined;
-        }
-
-        // Check if we need to geocode the address
-        let needsGeocoding = false;
-        let existingCamp: Camp | null = null;
-
-        // Get existing camp to check if address changed
-        try {
-          existingCamp = await getCamp(name);
-        } catch (err) {
-          // Camp might be new, that's okay
-          console.error("Error fetching existing camp:", err);
-        }
-
-        // Determine if geocoding is needed
-        if (campData.address && campData.address.trim().length > 0) {
-          // Need to geocode if:
-          // 1. Camp doesn't exist yet, OR
-          // 2. Address has changed
-          const addressChanged =
-            !existingCamp || existingCamp.address !== campData.address;
-
-          if (addressChanged) {
-            needsGeocoding = true;
-          } else if (existingCamp) {
-            // Address unchanged, keep existing coordinates
-            campData.latitude = existingCamp.latitude;
-            campData.longitude = existingCamp.longitude;
-          }
-        } else {
-          // Address removed, clear coordinates
-          campData.latitude = null;
-          campData.longitude = null;
-        }
-
-        // Geocode if needed
-        if (needsGeocoding && campData.address) {
-          try {
-            const response = await fetch(
-              `/api/geocode?address=${encodeURIComponent(campData.address)}`
-            );
-
-            if (response.ok) {
-              const coords = await response.json();
-              if (coords.lat && coords.lng) {
-                campData.latitude = coords.lat;
-                campData.longitude = coords.lng;
-              }
-            } else {
-              console.warn(
-                `Geocoding failed for camp "${name}", saving without coordinates`
-              );
-              // Continue saving without coordinates - user can retry later
-            }
-          } catch (error) {
-            console.error(`Error geocoding address for camp "${name}":`, error);
-            // Continue saving without coordinates - user can retry later
-          }
-        }
-
-        await upsertCamp(name, campData);
-      }
-
-      // Delete marked camps
-      for (const name of deletedNames) {
-        await deleteCamp(name);
-      }
-
-      // Refresh camps list
-      const allCamps = await getCamps();
-      setCamps(allCamps);
-
-      // Scroll to top
-      window.scrollTo({ top: 0, behavior: "smooth" });
-
-      // Show toast notification
-      toast({
-        variant: "success",
-        description: `Successfully saved ${changedCamps.length} camp(s) and deleted ${deletedNames.length} camp(s)`,
-      });
-
-      setMessage({
-        type: "success",
-        text: `Successfully saved ${changedCamps.length} camp(s) and deleted ${deletedNames.length} camp(s)`,
-      });
-    } catch (err) {
-      setMessage({
-        type: "error",
-        text: err instanceof Error ? err.message : t.manage.error.saveFailed,
-      });
-      throw err;
-    } finally {
-      setIsSaving(false);
-    }
   };
 
   // Show loading state during authentication
@@ -672,23 +537,12 @@ export default function ManagePage() {
   }
 
   const isAllAges = formData.ageRange.type === "all";
-  const isYearRound = formData.dates.type === "yearRound";
-
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header showBackButton />
       <div className="flex-1 container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-3xl font-bold">{t.manage.pageTitle}</h1>
-          <Tabs
-            value={viewMode}
-            onValueChange={(v) => setViewMode(v as "form" | "batch")}
-          >
-            <TabsList>
-              <TabsTrigger value="form">{t.batchView.formView}</TabsTrigger>
-              <TabsTrigger value="batch">{t.batchView.batchView}</TabsTrigger>
-            </TabsList>
-          </Tabs>
         </div>
 
         {/* Message Display */}
@@ -704,38 +558,35 @@ export default function ManagePage() {
           </div>
         )}
 
-        {viewMode === "batch" ? (
-          <BatchEditTable camps={camps} onSave={handleBatchSave} />
-        ) : (
-          <>
-            {/* Camp Selector */}
-            <div className="mb-6">
-              <label className="block text-sm font-medium mb-2">
-                {t.manage.selectCamp}
-              </label>
-              <div className="flex gap-2">
-                <SearchableCombobox
-                  key={isNewCamp ? "new-camp" : selectedCampName || "empty"}
-                  value={selectedCampName || undefined}
-                  onChange={handleCampSelect}
-                  options={camps.map((camp) => camp.name)}
-                  placeholder={t.manage.selectCamp}
-                  emptyMessage={t.combobox.noMatches}
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  onClick={() => handleCampSelect("new")}
-                  variant="outline"
-                >
-                  {t.manage.createNew}
-                </Button>
-              </div>
+        <>
+          {/* Camp Selector */}
+          <div className="mb-6">
+            <label className="block text-sm font-medium mb-2">
+              {t.manage.selectCamp}
+            </label>
+            <div className="flex gap-2">
+              <SearchableCombobox
+                key={isNewCamp ? "new-camp" : selectedCampName || "empty"}
+                value={selectedCampName || undefined}
+                onChange={handleCampSelect}
+                options={camps.map((camp) => camp.name)}
+                placeholder={t.manage.selectCamp}
+                emptyMessage={t.combobox.noMatches}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                onClick={() => handleCampSelect("new")}
+                variant="outline"
+              >
+                {t.manage.createNew}
+              </Button>
             </div>
+          </div>
 
-            {/* Form */}
-            {(selectedCampName || isNewCamp) && (
-              <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Form */}
+          {(selectedCampName || isNewCamp) && (
+            <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Camp Name */}
                   <div>
@@ -882,113 +733,6 @@ export default function ManagePage() {
                     {errors.languages && (
                       <p className="text-sm text-destructive mt-1">
                         {errors.languages}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Dates */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">
-                      {t.campFields.dates}
-                    </label>
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="yearRound"
-                          checked={isYearRound}
-                          onCheckedChange={(checked) => {
-                            setFormData({
-                              ...formData,
-                              dates: checked
-                                ? { type: "yearRound", yearRound: true }
-                                : {
-                                    type: "range",
-                                    yearRound: false,
-                                    fromDate: new Date()
-                                      .toISOString()
-                                      .split("T")[0],
-                                    toDate: new Date()
-                                      .toISOString()
-                                      .split("T")[0],
-                                  },
-                            });
-                          }}
-                        />
-                        <label
-                          htmlFor="yearRound"
-                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          Year round
-                        </label>
-                      </div>
-                      {!isYearRound && formData.dates.type === "range" && (
-                        <DateRangePicker
-                          fromDate={formData.dates.fromDate}
-                          toDate={formData.dates.toDate}
-                          onFromDateChange={(fromDate) => {
-                            const currentDates = formData.dates;
-                            if (currentDates.type === "range") {
-                              setFormData({
-                                ...formData,
-                                dates: {
-                                  type: "range",
-                                  yearRound: false,
-                                  fromDate,
-                                  toDate:
-                                    fromDate > currentDates.toDate
-                                      ? fromDate
-                                      : currentDates.toDate,
-                                },
-                              });
-                            }
-                          }}
-                          onToDateChange={(toDate) => {
-                            const currentDates = formData.dates;
-                            if (currentDates.type === "range") {
-                              setFormData({
-                                ...formData,
-                                dates: {
-                                  type: "range",
-                                  yearRound: false,
-                                  fromDate: currentDates.fromDate,
-                                  toDate:
-                                    toDate < currentDates.fromDate
-                                      ? currentDates.fromDate
-                                      : toDate,
-                                },
-                              });
-                            }
-                          }}
-                          required
-                        />
-                      )}
-                    </div>
-                    {errors.dates && (
-                      <p className="text-sm text-destructive mt-1">
-                        {errors.dates}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Financial Aid */}
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium mb-2">
-                      {t.campFields.financialAid}
-                    </label>
-                    <textarea
-                      className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-base shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                      value={formData.financialAid}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          financialAid: e.target.value,
-                        })
-                      }
-                      required
-                    />
-                    {errors.financialAid && (
-                      <p className="text-sm text-destructive mt-1">
-                        {errors.financialAid}
                       </p>
                     )}
                   </div>
@@ -1166,10 +910,9 @@ export default function ManagePage() {
                     </Button>
                   )}
                 </div>
-              </form>
-            )}
-          </>
-        )}
+            </form>
+          )}
+        </>
       </div>
     </div>
   );

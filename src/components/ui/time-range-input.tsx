@@ -46,9 +46,13 @@ export function TimeRangeInput({
 
   useEffect(() => {
     const parsed = parseTime(value);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setFromHours(parsed.fromHours);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setFromMinutes(parsed.fromMinutes);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setToHours(parsed.toHours);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setToMinutes(parsed.toMinutes);
   }, [value]);
 

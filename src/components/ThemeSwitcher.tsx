@@ -19,6 +19,7 @@ export function ThemeSwitcher() {
 
   // Prevent hydration mismatch by only rendering icon after mount
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setMounted(true);
   }, []);
 

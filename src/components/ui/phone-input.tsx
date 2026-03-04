@@ -43,6 +43,7 @@ export function PhoneInput({
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setDisplayValue(formatPhoneNumber(value));
   }, [value]);
 

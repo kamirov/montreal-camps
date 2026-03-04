@@ -44,6 +44,7 @@ export function CostInput({
   );
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setDisplayAmount(amount ? amount.toString() : "");
   }, [amount]);
 

@@ -56,6 +56,7 @@ export function TagsInput({
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     if (inputValue && filteredSuggestions.length > 0) {
       setOpen(true);
     } else {

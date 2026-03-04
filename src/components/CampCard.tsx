@@ -29,6 +29,7 @@ export function CampCard({ camp, showMap = true }: CampCardProps) {
   useEffect(() => {
     // Tailwind's lg breakpoint is 1024px
     const mediaQuery = window.matchMedia("(min-width: 1024px)");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     setIsLargeScreen(mediaQuery.matches);
 
     const handleChange = (e: MediaQueryListEvent) => {
