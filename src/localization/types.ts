@@ -211,6 +211,10 @@ export type Translations = {
       invalidUrl: string;
       invalidCoordinates: string;
       duplicateName: string;
+      ageRangeRequired: string;
+      ageRangeInteger: string;
+      ageRangePositive: string;
+      ageRangeOrder: string;
     };
     success: {
       saved: string;

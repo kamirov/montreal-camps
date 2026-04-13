@@ -19,6 +19,13 @@ import { TagsInput } from "@/components/ui/tags-input";
 import { useToast } from "@/components/ui/use-toast";
 import { deleteCamp, getCamp, getCamps, upsertCamp } from "@/lib/api/camps";
 import {
+  DEFAULT_MANAGE_AGE_RANGE,
+  type ManageAgeRangeErrorCode,
+  type ManageCampFormData,
+  normalizeManageAgeRange,
+  toManageAgeRangeDraft,
+} from "@/lib/manageAgeRange";
+import {
   MANAGE_DEFAULT_FINANCIAL_AID,
   getManageDefaultDates,
   withManageDefaults,
@@ -47,6 +54,19 @@ const saveBoroughToStorage = (borough: string) => {
   localStorage.setItem(LAST_BOROUGH_KEY, borough);
 };
 
+const createEmptyFormData = (borough: string): ManageCampFormData => ({
+  borough,
+  ageRange: { type: "all", allAges: true },
+  languages: ["English", "French"],
+  dates: getManageDefaultDates(),
+  financialAid: MANAGE_DEFAULT_FINANCIAL_AID,
+  link: "https://",
+  phone: undefined,
+  email: "",
+  address: "",
+  notes: "",
+});
+
 export default function ManagePage() {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -70,18 +90,9 @@ export default function ManagePage() {
   const [authError, setAuthError] = useState("");
 
   const [campName, setCampName] = useState("");
-  const [formData, setFormData] = useState<CampUpsert>({
-    borough: getDefaultBorough(),
-    ageRange: { type: "all", allAges: true },
-    languages: ["English", "French"],
-    dates: getManageDefaultDates(),
-    financialAid: MANAGE_DEFAULT_FINANCIAL_AID,
-    link: "https://",
-    phone: undefined,
-    email: "",
-    address: "",
-    notes: "",
-  });
+  const [formData, setFormData] = useState<ManageCampFormData>(
+    createEmptyFormData(getDefaultBorough())
+  );
 
   // Validate secret via API
   const validateSecret = async (secret: string): Promise<boolean> => {
@@ -199,7 +210,7 @@ export default function ManagePage() {
           setCampName(camp.name);
           setFormData({
             borough: camp.borough,
-            ageRange: camp.ageRange,
+            ageRange: toManageAgeRangeDraft(camp.ageRange),
             languages: camp.languages,
             dates: getManageDefaultDates(),
             financialAid: MANAGE_DEFAULT_FINANCIAL_AID,
@@ -229,18 +240,7 @@ export default function ManagePage() {
       setIsNewCamp(true);
       setSelectedCampName(null);
       setCampName("");
-      setFormData({
-        borough: getDefaultBorough(),
-        ageRange: { type: "all", allAges: true },
-        languages: ["English", "French"],
-        dates: getManageDefaultDates(),
-        financialAid: MANAGE_DEFAULT_FINANCIAL_AID,
-        link: "https://",
-        phone: undefined,
-        email: "",
-        address: "",
-        notes: "",
-      });
+      setFormData(createEmptyFormData(getDefaultBorough()));
       setErrors({});
       setMessage(null);
     } else {
@@ -301,8 +301,24 @@ export default function ManagePage() {
       return;
     }
 
+    const normalizedAgeRange = normalizeManageAgeRange(formData.ageRange);
+    if (!normalizedAgeRange.success) {
+      const ageRangeMessages: Record<ManageAgeRangeErrorCode, string> = {
+        required: t.manage.validation.ageRangeRequired,
+        integer: t.manage.validation.ageRangeInteger,
+        positive: t.manage.validation.ageRangePositive,
+        order: t.manage.validation.ageRangeOrder,
+      };
+
+      setErrors({ ageRange: ageRangeMessages[normalizedAgeRange.error] });
+      return;
+    }
+
     // Client-side validation
-    const normalizedFormData = withManageDefaults(formData);
+    const normalizedFormData = withManageDefaults({
+      ...formData,
+      ageRange: normalizedAgeRange.data,
+    });
     const validationResult = campUpsertSchema.safeParse(normalizedFormData);
     if (!validationResult.success) {
       const formattedErrors: FormErrors = {};
@@ -363,9 +379,6 @@ export default function ManagePage() {
         campDataToSave.latitude = null;
         campDataToSave.longitude = null;
       }
-
-      console.log("needsGeocoding", needsGeocoding);
-      console.log("campDataToSave.address", campDataToSave.address);
 
       // Geocode if needed
       if (needsGeocoding && campDataToSave.address) {
@@ -444,16 +457,8 @@ export default function ManagePage() {
       setIsNewCamp(false);
       setCampName("");
       setFormData({
-        borough: getDefaultBorough(),
-        ageRange: { type: "all", allAges: true },
+        ...createEmptyFormData(getDefaultBorough()),
         languages: [],
-        dates: getManageDefaultDates(),
-        financialAid: MANAGE_DEFAULT_FINANCIAL_AID,
-        link: "https://",
-        phone: undefined,
-        email: "",
-        address: "",
-        notes: "",
       });
     } catch (err) {
       setMessage({
@@ -470,16 +475,9 @@ export default function ManagePage() {
     setIsNewCamp(false);
     setCampName("");
     setFormData({
-      borough: "Ahuntsic-Cartierville",
-      ageRange: { type: "all", allAges: true },
+      ...createEmptyFormData(DEFAULT_BOROUGH),
       languages: [],
-      dates: getManageDefaultDates(),
-      financialAid: MANAGE_DEFAULT_FINANCIAL_AID,
       link: undefined,
-      phone: undefined,
-      email: "",
-      address: "",
-      notes: "",
     });
     setErrors({});
     setMessage(null);
@@ -594,6 +592,7 @@ export default function ManagePage() {
                       {t.campFields.name}
                     </label>
                     <Input
+                      aria-label={t.campFields.name}
                       value={campName}
                       onChange={(e) => handleCampNameChange(e.target.value)}
                       required
@@ -645,12 +644,7 @@ export default function ManagePage() {
                               ...formData,
                               ageRange: checked
                                 ? { type: "all", allAges: true }
-                                : {
-                                    type: "range",
-                                    allAges: false,
-                                    from: 5,
-                                    to: 12,
-                                  },
+                                : { ...DEFAULT_MANAGE_AGE_RANGE },
                             });
                           }}
                         />
@@ -664,46 +658,42 @@ export default function ManagePage() {
                       {!isAllAges && formData.ageRange.type === "range" && (
                         <div className="flex items-center gap-2">
                           <Input
-                            type="number"
-                            min="1"
+                            type="text"
+                            inputMode="numeric"
+                            aria-label="Age from"
                             value={formData.ageRange.from}
                             onChange={(e) => {
-                              const from = parseInt(e.target.value) || 1;
                               const currentRange = formData.ageRange;
-                              if (currentRange.type === "range") {
-                                setFormData({
-                                  ...formData,
-                                  ageRange: {
-                                    type: "range",
-                                    allAges: false,
-                                    from,
-                                    to: Math.max(from, currentRange.to),
-                                  },
-                                });
-                              }
+                              if (currentRange.type !== "range") return;
+
+                              setFormData({
+                                ...formData,
+                                ageRange: {
+                                  ...currentRange,
+                                  from: e.target.value,
+                                },
+                              });
                             }}
                             required
                             className="flex-1"
                           />
                           <span className="text-muted-foreground">-</span>
                           <Input
-                            type="number"
-                            min="1"
+                            type="text"
+                            inputMode="numeric"
+                            aria-label="Age to"
                             value={formData.ageRange.to}
                             onChange={(e) => {
-                              const to = parseInt(e.target.value) || 1;
                               const currentRange = formData.ageRange;
-                              if (currentRange.type === "range") {
-                                setFormData({
-                                  ...formData,
-                                  ageRange: {
-                                    type: "range",
-                                    allAges: false,
-                                    from: currentRange.from,
-                                    to: Math.max(to, currentRange.from),
-                                  },
-                                });
-                              }
+                              if (currentRange.type !== "range") return;
+
+                              setFormData({
+                                ...formData,
+                                ageRange: {
+                                  ...currentRange,
+                                  to: e.target.value,
+                                },
+                              });
                             }}
                             required
                             className="flex-1"
@@ -848,6 +838,7 @@ export default function ManagePage() {
                     </label>
                     <Input
                       type="text"
+                      aria-label={t.campFields.address}
                       value={formData.address ?? ""}
                       onChange={(e) =>
                         setFormData({ ...formData, address: e.target.value })

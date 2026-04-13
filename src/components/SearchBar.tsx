@@ -22,6 +22,10 @@ type SearchBarProps = {
   onValueChange: (value: string) => void;
 };
 
+function normalizeSearchText(value: string | null | undefined): string {
+  return (value ?? "").trim().replace(/\s+/g, " ").toLowerCase();
+}
+
 export function SearchBar({
   camps,
   onSelectCamp,
@@ -31,6 +35,7 @@ export function SearchBar({
 }: SearchBarProps) {
   const { t, language } = useTranslation();
   const [open, setOpen] = useState(false);
+  const normalizedValue = useMemo(() => normalizeSearchText(value), [value]);
 
   // Get unique boroughs from camps
   const uniqueBoroughs = useMemo(() => {
@@ -41,30 +46,31 @@ export function SearchBar({
   }, [camps]);
 
   const filteredBoroughs = useMemo(() => {
-    if (!value) return [];
-    const query = value.toLowerCase();
+    if (!normalizedValue) return [];
     return uniqueBoroughs.filter((borough) =>
-      borough.toLowerCase().includes(query)
+      normalizeSearchText(borough).includes(normalizedValue)
     );
-  }, [value, uniqueBoroughs]);
+  }, [normalizedValue, uniqueBoroughs]);
 
   const filteredCamps = useMemo(() => {
-    if (!value) return [];
-    const query = value.toLowerCase();
+    if (!normalizedValue) return [];
     return camps.filter((camp) => {
       return (
-        camp.name.toLowerCase().includes(query) ||
-        (camp.borough?.toLowerCase() ?? "").includes(query) ||
-        (camp.notes?.toLowerCase() ?? "").includes(query)
+        normalizeSearchText(camp.name).includes(normalizedValue) ||
+        normalizeSearchText(camp.borough).includes(normalizedValue) ||
+        normalizeSearchText(camp.notes).includes(normalizedValue)
       );
     });
-  }, [value, camps]);
+  }, [normalizedValue, camps]);
 
   const hasResults = filteredBoroughs.length > 0 || filteredCamps.length > 0;
 
   return (
     <div className="relative">
-      <Command className="rounded-lg border-2 shadow-md bg-background">
+      <Command
+        shouldFilter={false}
+        className="rounded-lg border-2 shadow-md bg-background"
+      >
         <CommandInput
           placeholder={t.search.regionPrompt}
           value={value}

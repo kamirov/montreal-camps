@@ -191,6 +191,10 @@ export const en: Translations = {
       invalidUrl: "Must be a valid URL",
       invalidCoordinates: "Invalid coordinates",
       duplicateName: "A camp with this name already exists",
+      ageRangeRequired: "Both ages are required",
+      ageRangeInteger: "Ages must be whole numbers",
+      ageRangePositive: "Ages must be positive integers",
+      ageRangeOrder: "To age must be greater than or equal to from age",
     },
     success: {
       saved: "Camp saved successfully",
